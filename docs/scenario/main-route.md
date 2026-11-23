@@ -34,7 +34,7 @@
 **変化**　客人として居住区へ出られる。客札の絵は西の資料室、首輪の留め金の印は北の施療院を指す。
 
 
-**この要素を参照する場面**　[M03](#m03)（成立条件） ／ [M07](#m07)（成立条件） ／ [M15](#m15)（成立条件） ／ [E003](threads/T01.md#e003)（成立条件） ／ [E005](threads/T01.md#e005)（成立条件） ／ [E006](threads/T01.md#e006)（成立条件） ／ [E008](threads/T01.md#e008)（成立条件） ／ [E011](threads/T01.md#e011)（成立条件） ／ [E012](threads/T01.md#e012)（成立条件） ／ [E016](threads/T02.md#e016)（成立条件） ／ [E018](threads/T02.md#e018)（成立条件） ／ [E021](threads/T02.md#e021)（成立条件） ／ [E023](threads/T02.md#e023)（成立条件） ／ [E025](threads/T02.md#e025)（成立条件） ／ [E031](threads/T03.md#e031)（成立条件） ／ [E032](threads/T03.md#e032)（成立条件） ／ [E039](threads/T03.md#e039)（成立条件） ／ [E041](threads/T03.md#e041)（成立条件） ／ [E046](threads/T04.md#e046)（成立条件） ／ [E049](threads/T04.md#e049)（成立条件） ／ [E055](threads/T04.md#e055)（成立条件） ／ [E061](threads/T05.md#e061)（成立条件） ／ [E062](threads/T05.md#e062)（成立条件） ／ [E063](threads/T05.md#e063)（成立条件） ／ [E067](threads/T05.md#e067)（成立条件） ／ [E068](threads/T05.md#e068)（成立条件） ／ [E076](threads/T06.md#e076)（成立条件） ／ [E077](threads/T06.md#e077)（成立条件） ／ [E091](threads/T07.md#e091)（成立条件） ／ [E093](threads/T07.md#e093)（成立条件） ／ [E106](threads/T08.md#e106)（成立条件） ／ [E109](threads/T08.md#e109)（成立条件） ／ [E114](threads/T08.md#e114)（成立条件） ／ [E121](threads/T09.md#e121)（成立条件） ／ [E124](threads/T09.md#e124)（成立条件） ／ [E128](threads/T09.md#e128)（成立条件） ／ [E136](threads/T10.md#e136)（成立条件） ／ [E138](threads/T10.md#e138)（成立条件） ／ [E141](threads/T10.md#e141)（成立条件） ／ [E143](threads/T10.md#e143)（成立条件）
+**この要素を参照する場面**　[M03](#m03)（成立条件） ／ [M07](#m07)（成立条件） ／ [M15](#m15)（成立条件） ／ [E003](threads/T01.md#e003)（成立条件） ／ [E005](threads/T01.md#e005)（成立条件） ／ [E006](threads/T01.md#e006)（成立条件） ／ [E008](threads/T01.md#e008)（成立条件） ／ [E011](threads/T01.md#e011)（成立条件） ／ [E012](threads/T01.md#e012)（成立条件） ／ [E016](threads/T02.md#e016)（成立条件） ／ [E018](threads/T02.md#e018)（成立条件） ／ [E021](threads/T02.md#e021)（成立条件） ／ [E023](threads/T02.md#e023)（成立条件） ／ [E025](threads/T02.md#e025)（成立条件） ／ [E031](threads/T03.md#e031)（成立条件） ／ [E032](threads/T03.md#e032)（成立条件） ／ [E039](threads/T03.md#e039)（成立条件） ／ [E041](threads/T03.md#e041)（成立条件） ／ [E046](threads/T04.md#e046)（成立条件） ／ [E049](threads/T04.md#e049)（成立条件） ／ [E055](threads/T04.md#e055)（成立条件） ／ [E061](threads/T05.md#e061)（成立条件） ／ [E062](threads/T05.md#e062)（成立条件） ／ [E063](threads/T05.md#e063)（成立条件） ／ [E067](threads/T05.md#e067)（成立条件） ／ [E068](threads/T05.md#e068)（成立条件） ／ [E076](threads/T06.md#e076)（成立条件） ／ [E077](threads/T06.md#e077)（成立条件） ／ [E091](threads/T07.md#e091)（成立条件） ／ [E093](threads/T07.md#e093)（成立条件） ／ [E106](threads/T08.md#e106)（成立条件） ／ [E109](threads/T08.md#e109)（成立条件） ／ [E114](threads/T08.md#e114)（成立条件） ／ [E121](threads/T09.md#e121)（成立条件） ／ [E124](threads/T09.md#e124)（成立条件） ／ [E128](threads/T09.md#e128)（成立条件） ／ [E136](threads/T10.md#e136)（成立条件） ／ [E138](threads/T10.md#e138)（成立条件） ／ [E141](threads/T10.md#e141)（成立条件） ／ [E143](threads/T10.md#e143)（成立条件） ／ [E151](threads/T11.md#e151)（成立条件） ／ [E153](threads/T11.md#e153)（成立条件） ／ [E154](threads/T11.md#e154)（成立条件） ／ [E163](threads/T11.md#e163)（成立条件） ／ [E166](threads/T12.md#e166)（成立条件） ／ [E181](threads/T13.md#e181)（成立条件） ／ [E184](threads/T13.md#e184)（成立条件） ／ [E196](threads/T14.md#e196)（成立条件） ／ [E197](threads/T14.md#e197)（成立条件） ／ [E201](threads/T14.md#e201)（成立条件） ／ [E204](threads/T14.md#e204)（成立条件） ／ [E211](threads/T15.md#e211)（成立条件） ／ [E213](threads/T15.md#e213)（成立条件） ／ [E221](threads/T15.md#e221)（成立条件） ／ [E226](threads/T16.md#e226)（成立条件） ／ [E232](threads/T16.md#e232)（成立条件） ／ [E241](threads/T17.md#e241)（成立条件） ／ [E247](threads/T17.md#e247)（成立条件） ／ [E256](threads/T18.md#e256)（成立条件） ／ [E257](threads/T18.md#e257)（成立条件） ／ [E263](threads/T18.md#e263)（成立条件）
 
 <a id="m03"></a>
 
@@ -125,7 +125,7 @@
 **変化**　隠密のマントを得る。一回の使用は10秒。安全な出発位置へ戻ると再び使える。
 
 
-**この要素を参照する場面**　[M10](#m10)（成立条件） ／ [E017](threads/T02.md#e017)（示唆） ／ [E020](threads/T02.md#e020)（示唆） ／ [E028](threads/T02.md#e028)（成立条件） ／ [E076](threads/T06.md#e076)（示唆） ／ [E080](threads/T06.md#e080)（成立条件） ／ [E085](threads/T06.md#e085)（成立条件）
+**この要素を参照する場面**　[M10](#m10)（成立条件） ／ [E017](threads/T02.md#e017)（示唆） ／ [E020](threads/T02.md#e020)（示唆） ／ [E028](threads/T02.md#e028)（成立条件） ／ [E076](threads/T06.md#e076)（示唆） ／ [E080](threads/T06.md#e080)（成立条件） ／ [E085](threads/T06.md#e085)（成立条件） ／ [E259](threads/T18.md#e259)（成立条件）
 
 <a id="m10"></a>
 
@@ -151,7 +151,7 @@
 **変化**　「伏せ舟の影板」を得る。縁の星形が北の星暦室の枠と合う。
 
 
-**この要素を参照する場面**　[M12](#m12)（成立条件） ／ [E011](threads/T01.md#e011)（示唆） ／ [E091](threads/T07.md#e091)（示唆） ／ [E097](threads/T07.md#e097)（補助） ／ [E098](threads/T07.md#e098)（示唆） ／ [E100](threads/T07.md#e100)（成立条件） ／ [E103](threads/T07.md#e103)（示唆） ／ [E104](threads/T07.md#e104)（補助） ／ [E117](threads/T08.md#e117)（反証） ／ [E118](threads/T08.md#e118)（成立条件）
+**この要素を参照する場面**　[M12](#m12)（成立条件） ／ [E011](threads/T01.md#e011)（示唆） ／ [E091](threads/T07.md#e091)（示唆） ／ [E097](threads/T07.md#e097)（補助） ／ [E098](threads/T07.md#e098)（示唆） ／ [E100](threads/T07.md#e100)（成立条件） ／ [E103](threads/T07.md#e103)（示唆） ／ [E104](threads/T07.md#e104)（補助） ／ [E117](threads/T08.md#e117)（反証） ／ [E118](threads/T08.md#e118)（成立条件） ／ [E293](threads/T20.md#e293)（回収）
 
 <a id="m12"></a>
 
@@ -203,7 +203,7 @@
 **変化**　時刻を指で読める「巡回環」を得る。切れ目が次に合う時は盤面にも出る。
 
 
-**この要素を参照する場面**　[M16](#m16)（成立条件）
+**この要素を参照する場面**　[M16](#m16)（成立条件） ／ [E165](threads/T11.md#e165)（示唆） ／ [E206](threads/T14.md#e206)（反証） ／ [E209](threads/T14.md#e209)（示唆） ／ [E256](threads/T18.md#e256)（示唆） ／ [E258](threads/T18.md#e258)（成立条件） ／ [E266](threads/T18.md#e266)（反証）
 
 <a id="m16"></a>
 
@@ -216,7 +216,7 @@
 **変化**　安全に首輪を外せる祈祷室と無人の交代時間を確保する。白鍵がまだなら、解除前は自由に戻って支度できる。予約は次の空番にも残る。
 
 
-**この要素を参照する場面**　[M17](#m17)（成立条件）
+**この要素を参照する場面**　[M17](#m17)（成立条件） ／ [E258](threads/T18.md#e258)（示唆） ／ [E262](threads/T18.md#e262)（補助） ／ [E267](threads/T18.md#e267)（成立条件） ／ [E271](threads/T19.md#e271)（成立条件） ／ [E272](threads/T19.md#e272)（成立条件）
 
 <a id="m17"></a>
 
@@ -229,7 +229,7 @@
 **変化**　魔道具が外れ、翻訳と命令の効力が切れる。ここから発見を記録する。解除直前の安全な場面を保存する。
 
 
-**この要素を参照する場面**　[M18](#m18)（成立条件） ／ [M20](#m20)（成立条件） ／ [E012](threads/T01.md#e012)（示唆） ／ [E069](threads/T05.md#e069)（示唆）
+**この要素を参照する場面**　[M18](#m18)（成立条件） ／ [M20](#m20)（成立条件） ／ [E012](threads/T01.md#e012)（示唆） ／ [E069](threads/T05.md#e069)（示唆） ／ [E271](threads/T19.md#e271)（示唆） ／ [E273](threads/T19.md#e273)（成立条件） ／ [E274](threads/T19.md#e274)（成立条件） ／ [E275](threads/T19.md#e275)（成立条件） ／ [E276](threads/T19.md#e276)（成立条件） ／ [E277](threads/T19.md#e277)（成立条件） ／ [E278](threads/T19.md#e278)（成立条件） ／ [E279](threads/T19.md#e279)（成立条件） ／ [E280](threads/T19.md#e280)（成立条件） ／ [E281](threads/T19.md#e281)（成立条件）
 
 <a id="m18"></a>
 
@@ -242,7 +242,7 @@
 **変化**　誰にも姿を認められず旧礼拝堂に着く。反対の白床で見つかった時はこの逃走の失敗になる。
 
 
-**この要素を参照する場面**　[M19](#m19)（成立条件） ／ [M20](#m20)（成立条件） ／ [E066](threads/T05.md#e066)（補助） ／ [E148](threads/T10.md#e148)（示唆）
+**この要素を参照する場面**　[M19](#m19)（成立条件） ／ [M20](#m20)（成立条件） ／ [E066](threads/T05.md#e066)（補助） ／ [E148](threads/T10.md#e148)（示唆） ／ [E267](threads/T18.md#e267)（補助） ／ [E269](threads/T18.md#e269)（補助） ／ [E276](threads/T19.md#e276)（示唆） ／ [E279](threads/T19.md#e279)（補助） ／ [E280](threads/T19.md#e280)（反証） ／ [E282](threads/T19.md#e282)（成立条件） ／ [E283](threads/T19.md#e283)（成立条件） ／ [E284](threads/T19.md#e284)（成立条件） ／ [E285](threads/T19.md#e285)（成立条件）
 
 <a id="m19"></a>
 
@@ -255,7 +255,7 @@
 **変化**　王家の入口を通った印が立つ。階段も暗渠もまだ敷地内。入口を通るだけではクリアしない。
 
 
-**この要素を参照する場面**　[M20](#m20)（成立条件） ／ [E129](threads/T09.md#e129)（示唆）
+**この要素を参照する場面**　[M20](#m20)（成立条件） ／ [E129](threads/T09.md#e129)（示唆） ／ [E282](threads/T19.md#e282)（示唆） ／ [E286](threads/T20.md#e286)（成立条件） ／ [E287](threads/T20.md#e287)（成立条件） ／ [E288](threads/T20.md#e288)（成立条件） ／ [E289](threads/T20.md#e289)（成立条件） ／ [E290](threads/T20.md#e290)（成立条件） ／ [E291](threads/T20.md#e291)（成立条件） ／ [E292](threads/T20.md#e292)（成立条件） ／ [E293](threads/T20.md#e293)（成立条件） ／ [E294](threads/T20.md#e294)（成立条件） ／ [E295](threads/T20.md#e295)（成立条件） ／ [E297](threads/T20.md#e297)（成立条件） ／ [E298](threads/T20.md#e298)（成立条件） ／ [E299](threads/T20.md#e299)（成立条件） ／ [E300](threads/T20.md#e300)（成立条件）
 
 <a id="m20"></a>
 
@@ -266,3 +266,6 @@
 冠の刻みが背中側を向く。遠い城の鐘が鳴る。今度は誰の命令にも聞こえない。
 
 **変化**　首輪が外れ、解除以来の発見がなく、王家の入口から連続して境界を内から外へ横切った時だけ脱出が成立する。
+
+
+**この要素を参照する場面**　[E286](threads/T20.md#e286)（示唆） ／ [E294](threads/T20.md#e294)（補助） ／ [E297](threads/T20.md#e297)（示唆） ／ [E299](threads/T20.md#e299)（余韻） ／ [E300](threads/T20.md#e300)（余韻）

@@ -65,7 +65,7 @@ flowchart TD
 
 **徒歩で隣接**　[C03 紋章廊](#c03) ／ [E08 小劇場](#e08)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E197](threads/T14.md#e197) ・ [E201](threads/T14.md#e201) ・ [E203](threads/T14.md#e203) ・ [E206](threads/T14.md#e206) ・ [E210](threads/T14.md#e210) ・ [E224](threads/T15.md#e224)
 
 <a id="c05"></a>
 
@@ -75,7 +75,7 @@ flowchart TD
 
 **徒歩で隣接**　[C02 拝謁前室](#c02) ／ [C08 客人寝室](#c08) ／ [E04 衣装繕い室](#e04)
 
-**ここで起こる場面**　[E009](threads/T01.md#e009) ・ [E101](threads/T07.md#e101)
+**ここで起こる場面**　[E009](threads/T01.md#e009) ・ [E101](threads/T07.md#e101) ・ [E212](threads/T15.md#e212) ・ [E213](threads/T15.md#e213) ・ [E220](threads/T15.md#e220)
 
 <a id="c06"></a>
 
@@ -85,7 +85,7 @@ flowchart TD
 
 **徒歩で隣接**　[C07 中央回廊](#c07) ／ [C08 客人寝室](#c08) ／ [S02 冬客間](#s02)
 
-**ここで起こる場面**　[E008](threads/T01.md#e008) ・ [E010](threads/T01.md#e010) ・ [E063](threads/T05.md#e063) ・ [E071](threads/T05.md#e071)
+**ここで起こる場面**　[E008](threads/T01.md#e008) ・ [E010](threads/T01.md#e010) ・ [E063](threads/T05.md#e063) ・ [E071](threads/T05.md#e071) ・ [E160](threads/T11.md#e160) ・ [E178](threads/T12.md#e178) ・ [E235](threads/T16.md#e235) ・ [E238](threads/T16.md#e238) ・ [E266](threads/T18.md#e266)
 
 <a id="c07"></a>
 
@@ -105,7 +105,7 @@ flowchart TD
 
 **徒歩で隣接**　[C05 衣装小部屋](#c05) ／ [C06 客人談話室](#c06) ／ [S02 冬客間](#s02)
 
-**ここで起こる場面**　[E012](threads/T01.md#e012) ・ [E066](threads/T05.md#e066) ・ [E094](threads/T07.md#e094)
+**ここで起こる場面**　[E012](threads/T01.md#e012) ・ [E066](threads/T05.md#e066) ・ [E094](threads/T07.md#e094) ・ [E226](threads/T16.md#e226) ・ [E237](threads/T16.md#e237)
 
 ## 西の記録棟
 
@@ -147,7 +147,7 @@ flowchart TD
 
 **徒歩で隣接**　[Q01 無音祈祷室](#q01) ／ [W03 肖像修復室](#w03)
 
-**ここで起こる場面**　[M16](main-route.md#m16)
+**ここで起こる場面**　[M16](main-route.md#m16) ・ [E258](threads/T18.md#e258) ・ [E259](threads/T18.md#e259) ・ [E262](threads/T18.md#e262) ・ [E265](threads/T18.md#e265) ・ [E267](threads/T18.md#e267) ・ [E269](threads/T18.md#e269)
 
 <a id="w05"></a>
 
@@ -157,7 +157,7 @@ flowchart TD
 
 **徒歩で隣接**　[W01 西資料室](#w01) ／ [W07 製本台の間](#w07)
 
-**ここで起こる場面**　[E131](threads/T09.md#e131) ・ [E138](threads/T10.md#e138) ・ [E142](threads/T10.md#e142) ・ [E149](threads/T10.md#e149)
+**ここで起こる場面**　[E131](threads/T09.md#e131) ・ [E138](threads/T10.md#e138) ・ [E142](threads/T10.md#e142) ・ [E149](threads/T10.md#e149) ・ [E188](threads/T13.md#e188) ・ [E219](threads/T15.md#e219) ・ [E231](threads/T16.md#e231) ・ [E236](threads/T16.md#e236)
 
 <a id="w06"></a>
 
@@ -177,7 +177,7 @@ flowchart TD
 
 **徒歩で隣接**　[B06 帳票庫](#b06) ／ [W05 写字室](#w05) ／ [W06 地図架室](#w06)
 
-**ここで起こる場面**　[E097](threads/T07.md#e097) ・ [E139](threads/T10.md#e139)
+**ここで起こる場面**　[E097](threads/T07.md#e097) ・ [E139](threads/T10.md#e139) ・ [E228](threads/T16.md#e228) ・ [E234](threads/T16.md#e234) ・ [E239](threads/T16.md#e239)
 
 <a id="w08"></a>
 
@@ -229,7 +229,7 @@ flowchart TD
 
 **徒歩で隣接**　[C05 衣装小部屋](#c05) ／ [E01 洗濯仕分け場](#e01) ／ [E06 舞台倉](#e06)
 
-**ここで起こる場面**　[E017](threads/T02.md#e017) ・ [E020](threads/T02.md#e020) ・ [E022](threads/T02.md#e022) ・ [E024](threads/T02.md#e024)
+**ここで起こる場面**　[E017](threads/T02.md#e017) ・ [E020](threads/T02.md#e020) ・ [E022](threads/T02.md#e022) ・ [E024](threads/T02.md#e024) ・ [E229](threads/T16.md#e229)
 
 <a id="e05"></a>
 
@@ -249,7 +249,7 @@ flowchart TD
 
 **徒歩で隣接**　[B05 舞台奈落](#b05) ／ [E02 東廊下](#e02) ／ [E04 衣装繕い室](#e04) ／ [E08 小劇場](#e08)
 
-**ここで起こる場面**　[E028](threads/T02.md#e028) ・ [E076](threads/T06.md#e076) ・ [E079](threads/T06.md#e079) ・ [E084](threads/T06.md#e084) ・ [E089](threads/T06.md#e089)
+**ここで起こる場面**　[E028](threads/T02.md#e028) ・ [E076](threads/T06.md#e076) ・ [E079](threads/T06.md#e079) ・ [E084](threads/T06.md#e084) ・ [E089](threads/T06.md#e089) ・ [E217](threads/T15.md#e217)
 
 <a id="e07"></a>
 
@@ -259,7 +259,7 @@ flowchart TD
 
 **徒歩で隣接**　[E02 東廊下](#e02) ／ [S05 城内側馬車溜](#s05)
 
-**ここで起こる場面**　[E085](threads/T06.md#e085)
+**ここで起こる場面**　[E085](threads/T06.md#e085) ・ [E260](threads/T18.md#e260) ・ [E263](threads/T18.md#e263) ・ [E264](threads/T18.md#e264)
 
 <a id="e08"></a>
 
@@ -269,7 +269,7 @@ flowchart TD
 
 **徒歩で隣接**　[B05 舞台奈落](#b05) ／ [C04 楽師桟敷](#c04) ／ [E06 舞台倉](#e06)
 
-**ここで起こる場面**　[E004](threads/T01.md#e004) ・ [E077](threads/T06.md#e077) ・ [E081](threads/T06.md#e081) ・ [E087](threads/T06.md#e087) ・ [E090](threads/T06.md#e090)
+**ここで起こる場面**　[E004](threads/T01.md#e004) ・ [E077](threads/T06.md#e077) ・ [E081](threads/T06.md#e081) ・ [E087](threads/T06.md#e087) ・ [E090](threads/T06.md#e090) ・ [E157](threads/T11.md#e157) ・ [E211](threads/T15.md#e211) ・ [E214](threads/T15.md#e214) ・ [E216](threads/T15.md#e216) ・ [E218](threads/T15.md#e218) ・ [E223](threads/T15.md#e223) ・ [E225](threads/T15.md#e225)
 
 ## 北の学術・施療棟
 
@@ -311,7 +311,7 @@ flowchart TD
 
 **徒歩で隣接**　[N02 施療院](#n02) ／ [N07 療養温室](#n07)
 
-**ここで起こる場面**　[E062](threads/T05.md#e062) ・ [E065](threads/T05.md#e065) ・ [E070](threads/T05.md#e070)
+**ここで起こる場面**　[E062](threads/T05.md#e062) ・ [E065](threads/T05.md#e065) ・ [E070](threads/T05.md#e070) ・ [E249](threads/T17.md#e249)
 
 <a id="n05"></a>
 
@@ -321,7 +321,7 @@ flowchart TD
 
 **徒歩で隣接**　[B03 からくり工房](#b03) ／ [N01 窯見本室](#n01) ／ [N08 標本廊](#n08)
 
-**ここで起こる場面**　[E038](threads/T03.md#e038)
+**ここで起こる場面**　[E038](threads/T03.md#e038) ・ [E196](threads/T14.md#e196) ・ [E200](threads/T14.md#e200) ・ [E202](threads/T14.md#e202) ・ [E204](threads/T14.md#e204) ・ [E205](threads/T14.md#e205) ・ [E208](threads/T14.md#e208)
 
 <a id="n06"></a>
 
@@ -341,7 +341,7 @@ flowchart TD
 
 **徒歩で隣接**　[G07 回転温棚](#g07) ／ [N02 施療院](#n02) ／ [N04 薬草乾燥室](#n04)
 
-**ここで起こる場面**　[E068](threads/T05.md#e068) ・ [E074](threads/T05.md#e074) ・ [E075](threads/T05.md#e075)
+**ここで起こる場面**　[E068](threads/T05.md#e068) ・ [E074](threads/T05.md#e074) ・ [E075](threads/T05.md#e075) ・ [E241](threads/T17.md#e241) ・ [E246](threads/T17.md#e246) ・ [E251](threads/T17.md#e251) ・ [E252](threads/T17.md#e252) ・ [E254](threads/T17.md#e254) ・ [E255](threads/T17.md#e255)
 
 <a id="n08"></a>
 
@@ -383,7 +383,7 @@ flowchart TD
 
 **徒歩で隣接**　[S04 南門検札所](#s04) ／ [S05 城内側馬車溜](#s05)
 
-**ここで起こる場面**　[M15](main-route.md#m15)
+**ここで起こる場面**　[M15](main-route.md#m15) ・ [E165](threads/T11.md#e165) ・ [E198](threads/T14.md#e198) ・ [E209](threads/T14.md#e209) ・ [E256](threads/T18.md#e256) ・ [E257](threads/T18.md#e257) ・ [E261](threads/T18.md#e261) ・ [E268](threads/T18.md#e268) ・ [E270](threads/T18.md#e270)
 
 <a id="s04"></a>
 
@@ -393,7 +393,7 @@ flowchart TD
 
 **徒歩で隣接**　[S03 鐘番室](#s03) ／ [S05 城内側馬車溜](#s05)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E151](threads/T11.md#e151) ・ [E152](threads/T11.md#e152) ・ [E153](threads/T11.md#e153) ・ [E155](threads/T11.md#e155) ・ [E156](threads/T11.md#e156) ・ [E159](threads/T11.md#e159) ・ [E161](threads/T11.md#e161) ・ [E163](threads/T11.md#e163)
 
 <a id="s05"></a>
 
@@ -403,7 +403,7 @@ flowchart TD
 
 **徒歩で隣接**　[C07 中央回廊](#c07) ／ [E07 東詰所](#e07) ／ [G02 中庭噴泉](#g02) ／ [S01 南返納庫](#s01) ／ [S03 鐘番室](#s03) ／ [S04 南門検札所](#s04) ／ [S06 宴会厨房](#s06)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E154](threads/T11.md#e154) ・ [E158](threads/T11.md#e158) ・ [E162](threads/T11.md#e162) ・ [E164](threads/T11.md#e164)
 
 <a id="s06"></a>
 
@@ -413,7 +413,7 @@ flowchart TD
 
 **徒歩で隣接**　[B07 地下配膳廊](#b07) ／ [S02 冬客間](#s02) ／ [S05 城内側馬車溜](#s05) ／ [S07 パン窯室](#s07) ／ [S08 食器棚室](#s08)
 
-**ここで起こる場面**　[E134](threads/T09.md#e134)
+**ここで起こる場面**　[E134](threads/T09.md#e134) ・ [E166](threads/T12.md#e166) ・ [E175](threads/T12.md#e175) ・ [E179](threads/T12.md#e179)
 
 <a id="s07"></a>
 
@@ -423,7 +423,7 @@ flowchart TD
 
 **徒歩で隣接**　[B04 古い給茶室](#b04) ／ [S06 宴会厨房](#s06)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E167](threads/T12.md#e167) ・ [E170](threads/T12.md#e170) ・ [E171](threads/T12.md#e171) ・ [E176](threads/T12.md#e176)
 
 <a id="s08"></a>
 
@@ -433,7 +433,7 @@ flowchart TD
 
 **徒歩で隣接**　[B07 地下配膳廊](#b07) ／ [S01 南返納庫](#s01) ／ [S06 宴会厨房](#s06)
 
-**ここで起こる場面**　[E034](threads/T03.md#e034)
+**ここで起こる場面**　[E034](threads/T03.md#e034) ・ [E168](threads/T12.md#e168) ・ [E173](threads/T12.md#e173) ・ [E177](threads/T12.md#e177) ・ [E183](threads/T13.md#e183)
 
 ## 中庭と庭園
 
@@ -465,7 +465,7 @@ flowchart TD
 
 **徒歩で隣接**　[E05 物干し屋根](#e05) ／ [G02 中庭噴泉](#g02) ／ [G05 庭師小屋](#g05) ／ [G07 回転温棚](#g07) ／ [W08 壁画足場](#w08)
 
-**ここで起こる場面**　[E057](threads/T04.md#e057) ・ [E125](threads/T09.md#e125)
+**ここで起こる場面**　[E057](threads/T04.md#e057) ・ [E125](threads/T09.md#e125) ・ [E244](threads/T17.md#e244) ・ [E248](threads/T17.md#e248)
 
 <a id="g04"></a>
 
@@ -475,7 +475,7 @@ flowchart TD
 
 **徒歩で隣接**　[G02 中庭噴泉](#g02) ／ [G06 舟遊び池](#g06) ／ [N06 天文露台](#n06)
 
-**ここで起こる場面**　[E109](threads/T08.md#e109) ・ [E116](threads/T08.md#e116)
+**ここで起こる場面**　[E109](threads/T08.md#e109) ・ [E116](threads/T08.md#e116) ・ [E189](threads/T13.md#e189) ・ [E194](threads/T13.md#e194) ・ [E199](threads/T14.md#e199) ・ [E207](threads/T14.md#e207)
 
 <a id="g05"></a>
 
@@ -485,7 +485,7 @@ flowchart TD
 
 **徒歩で隣接**　[G01 雨量庭園](#g01) ／ [G03 果樹回廊](#g03) ／ [G06 舟遊び池](#g06)
 
-**ここで起こる場面**　[E047](threads/T04.md#e047) ・ [E053](threads/T04.md#e053)
+**ここで起こる場面**　[E047](threads/T04.md#e047) ・ [E053](threads/T04.md#e053) ・ [E243](threads/T17.md#e243)
 
 <a id="g06"></a>
 
@@ -495,7 +495,7 @@ flowchart TD
 
 **徒歩で隣接**　[G02 中庭噴泉](#g02) ／ [G04 日時計庭](#g04) ／ [G05 庭師小屋](#g05) ／ [G07 回転温棚](#g07)
 
-**ここで起こる場面**　[E049](threads/T04.md#e049) ・ [E060](threads/T04.md#e060) ・ [E096](threads/T07.md#e096) ・ [E099](threads/T07.md#e099) ・ [E105](threads/T07.md#e105)
+**ここで起こる場面**　[E049](threads/T04.md#e049) ・ [E060](threads/T04.md#e060) ・ [E096](threads/T07.md#e096) ・ [E099](threads/T07.md#e099) ・ [E105](threads/T07.md#e105) ・ [E250](threads/T17.md#e250) ・ [E253](threads/T17.md#e253)
 
 <a id="g07"></a>
 
@@ -505,7 +505,7 @@ flowchart TD
 
 **徒歩で隣接**　[G03 果樹回廊](#g03) ／ [G06 舟遊び池](#g06) ／ [N07 療養温室](#n07)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E242](threads/T17.md#e242) ・ [E245](threads/T17.md#e245) ・ [E247](threads/T17.md#e247)
 
 ## 地下の仕事場
 
@@ -527,7 +527,7 @@ flowchart TD
 
 **徒歩で隣接**　[B01 旧水位室](#b01) ／ [B04 古い給茶室](#b04) ／ [B07 地下配膳廊](#b07)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E181](threads/T13.md#e181) ・ [E182](threads/T13.md#e182) ・ [E184](threads/T13.md#e184) ・ [E186](threads/T13.md#e186) ・ [E187](threads/T13.md#e187) ・ [E190](threads/T13.md#e190) ・ [E193](threads/T13.md#e193)
 
 <a id="b03"></a>
 
@@ -547,7 +547,7 @@ flowchart TD
 
 **徒歩で隣接**　[B02 貯氷室](#b02) ／ [B07 地下配膳廊](#b07) ／ [S07 パン窯室](#s07)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E169](threads/T12.md#e169) ・ [E174](threads/T12.md#e174) ・ [E180](threads/T12.md#e180) ・ [E185](threads/T13.md#e185) ・ [E191](threads/T13.md#e191) ・ [E195](threads/T13.md#e195)
 
 <a id="b05"></a>
 
@@ -557,7 +557,7 @@ flowchart TD
 
 **徒歩で隣接**　[B03 からくり工房](#b03) ／ [B07 地下配膳廊](#b07) ／ [E06 舞台倉](#e06) ／ [E08 小劇場](#e08)
 
-**ここで起こる場面**　[E078](threads/T06.md#e078) ・ [E086](threads/T06.md#e086)
+**ここで起こる場面**　[E078](threads/T06.md#e078) ・ [E086](threads/T06.md#e086) ・ [E215](threads/T15.md#e215) ・ [E221](threads/T15.md#e221) ・ [E222](threads/T15.md#e222)
 
 <a id="b06"></a>
 
@@ -567,7 +567,7 @@ flowchart TD
 
 **徒歩で隣接**　[B07 地下配膳廊](#b07) ／ [W06 地図架室](#w06) ／ [W07 製本台の間](#w07)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E227](threads/T16.md#e227) ・ [E230](threads/T16.md#e230) ・ [E232](threads/T16.md#e232) ・ [E233](threads/T16.md#e233) ・ [E240](threads/T16.md#e240)
 
 <a id="b07"></a>
 
@@ -577,7 +577,7 @@ flowchart TD
 
 **徒歩で隣接**　[B02 貯氷室](#b02) ／ [B04 古い給茶室](#b04) ／ [B05 舞台奈落](#b05) ／ [B06 帳票庫](#b06) ／ [S06 宴会厨房](#s06) ／ [S08 食器棚室](#s08)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E172](threads/T12.md#e172) ・ [E192](threads/T13.md#e192)
 
 ## 王家の礼拝区と境界
 
@@ -589,7 +589,7 @@ flowchart TD
 
 **徒歩で隣接**　[Q02 白礼拝廊](#q02) ／ [W04 香支度室](#w04)
 
-**ここで起こる場面**　[M17](main-route.md#m17)
+**ここで起こる場面**　[M17](main-route.md#m17) ・ [E271](threads/T19.md#e271) ・ [E272](threads/T19.md#e272) ・ [E273](threads/T19.md#e273) ・ [E274](threads/T19.md#e274) ・ [E275](threads/T19.md#e275) ・ [E281](threads/T19.md#e281)
 
 <a id="q02"></a>
 
@@ -599,7 +599,7 @@ flowchart TD
 
 **徒歩で隣接**　[Q01 無音祈祷室](#q01) ／ [Q03 旧礼拝堂](#q03)
 
-**ここで起こる場面**　[M18](main-route.md#m18)
+**ここで起こる場面**　[M18](main-route.md#m18) ・ [E276](threads/T19.md#e276) ・ [E277](threads/T19.md#e277) ・ [E278](threads/T19.md#e278) ・ [E279](threads/T19.md#e279) ・ [E280](threads/T19.md#e280)
 
 <a id="q03"></a>
 
@@ -609,7 +609,7 @@ flowchart TD
 
 **徒歩で隣接**　[Q02 白礼拝廊](#q02) ／ [Q04 王家の抜け穴](#q04)
 
-**ここで起こる場面**　[M19](main-route.md#m19)
+**ここで起こる場面**　[M19](main-route.md#m19) ・ [E282](threads/T19.md#e282) ・ [E283](threads/T19.md#e283) ・ [E284](threads/T19.md#e284) ・ [E285](threads/T19.md#e285)
 
 <a id="q04"></a>
 
@@ -619,7 +619,7 @@ flowchart TD
 
 **徒歩で隣接**　[Q03 旧礼拝堂](#q03) ／ [Q05 境石と外の草地](#q05)
 
-**ここで起こる場面**　途中の移動地点
+**ここで起こる場面**　[E286](threads/T20.md#e286) ・ [E287](threads/T20.md#e287) ・ [E288](threads/T20.md#e288) ・ [E289](threads/T20.md#e289) ・ [E290](threads/T20.md#e290) ・ [E291](threads/T20.md#e291) ・ [E292](threads/T20.md#e292) ・ [E293](threads/T20.md#e293) ・ [E294](threads/T20.md#e294) ・ [E295](threads/T20.md#e295) ・ [E296](threads/T20.md#e296)
 
 <a id="q05"></a>
 
@@ -629,4 +629,4 @@ flowchart TD
 
 **徒歩で隣接**　[Q04 王家の抜け穴](#q04)
 
-**ここで起こる場面**　[M20](main-route.md#m20)
+**ここで起こる場面**　[M20](main-route.md#m20) ・ [E297](threads/T20.md#e297) ・ [E298](threads/T20.md#e298) ・ [E299](threads/T20.md#e299) ・ [E300](threads/T20.md#e300)

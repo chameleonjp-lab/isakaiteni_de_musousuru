@@ -50,7 +50,7 @@
 
 **知っている範囲**　官署の作法と南門の例外。
 
-**登場**　[E003](threads/T01.md#e003) ・ [E005](threads/T01.md#e005) ・ [E007](threads/T01.md#e007) ・ [E013](threads/T01.md#e013)
+**登場**　[E003](threads/T01.md#e003) ・ [E005](threads/T01.md#e005) ・ [E007](threads/T01.md#e007) ・ [E013](threads/T01.md#e013) ・ [E156](threads/T11.md#e156) ・ [E220](threads/T15.md#e220)
 
 <a id="p05"></a>
 
@@ -62,7 +62,7 @@
 
 **知っている範囲**　拍と稽古場の合図。
 
-**登場**　[E087](threads/T06.md#e087) ・ [E116](threads/T08.md#e116)
+**登場**　[E087](threads/T06.md#e087) ・ [E116](threads/T08.md#e116) ・ [E197](threads/T14.md#e197) ・ [E199](threads/T14.md#e199) ・ [E201](threads/T14.md#e201) ・ [E206](threads/T14.md#e206) ・ [E207](threads/T14.md#e207) ・ [E210](threads/T14.md#e210) ・ [E224](threads/T15.md#e224)
 
 <a id="p06"></a>
 
@@ -74,7 +74,7 @@
 
 **知っている範囲**　商いと噂。王族の戸口は知らない。
 
-**登場**　[E008](threads/T01.md#e008) ・ [E010](threads/T01.md#e010) ・ [E050](threads/T04.md#e050) ・ [E063](threads/T05.md#e063) ・ [E071](threads/T05.md#e071) ・ [E093](threads/T07.md#e093)
+**登場**　[E008](threads/T01.md#e008) ・ [E010](threads/T01.md#e010) ・ [E050](threads/T04.md#e050) ・ [E063](threads/T05.md#e063) ・ [E071](threads/T05.md#e071) ・ [E093](threads/T07.md#e093) ・ [E160](threads/T11.md#e160) ・ [E235](threads/T16.md#e235) ・ [E238](threads/T16.md#e238) ・ [E266](threads/T18.md#e266)
 
 <a id="p07"></a>
 
@@ -98,7 +98,7 @@
 
 **知っている範囲**　紙の重なりと筆跡。
 
-**登場**　[E012](threads/T01.md#e012) ・ [E066](threads/T05.md#e066) ・ [E131](threads/T09.md#e131) ・ [E138](threads/T10.md#e138) ・ [E142](threads/T10.md#e142) ・ [E147](threads/T10.md#e147) ・ [E149](threads/T10.md#e149)
+**登場**　[E012](threads/T01.md#e012) ・ [E066](threads/T05.md#e066) ・ [E131](threads/T09.md#e131) ・ [E138](threads/T10.md#e138) ・ [E142](threads/T10.md#e142) ・ [E147](threads/T10.md#e147) ・ [E149](threads/T10.md#e149) ・ [E188](threads/T13.md#e188) ・ [E219](threads/T15.md#e219) ・ [E226](threads/T16.md#e226) ・ [E231](threads/T16.md#e231) ・ [E236](threads/T16.md#e236) ・ [E237](threads/T16.md#e237)
 
 <a id="p09"></a>
 
@@ -122,7 +122,7 @@
 
 **知っている範囲**　紙の寸法と綴じの向き。
 
-**登場**　[E097](threads/T07.md#e097) ・ [E139](threads/T10.md#e139)
+**登場**　[E097](threads/T07.md#e097) ・ [E139](threads/T10.md#e139) ・ [E228](threads/T16.md#e228) ・ [E234](threads/T16.md#e234) ・ [E239](threads/T16.md#e239)
 
 <a id="p11"></a>
 
@@ -146,7 +146,7 @@
 
 **知っている範囲**　上演衣装と星箱の繕い印。
 
-**登場**　[E009](threads/T01.md#e009) ・ [E017](threads/T02.md#e017) ・ [E020](threads/T02.md#e020) ・ [E022](threads/T02.md#e022) ・ [E024](threads/T02.md#e024) ・ [E030](threads/T02.md#e030) ・ [E084](threads/T06.md#e084) ・ [E095](threads/T07.md#e095) ・ [E101](threads/T07.md#e101)
+**登場**　[E009](threads/T01.md#e009) ・ [E017](threads/T02.md#e017) ・ [E020](threads/T02.md#e020) ・ [E022](threads/T02.md#e022) ・ [E024](threads/T02.md#e024) ・ [E030](threads/T02.md#e030) ・ [E084](threads/T06.md#e084) ・ [E095](threads/T07.md#e095) ・ [E101](threads/T07.md#e101) ・ [E212](threads/T15.md#e212) ・ [E229](threads/T16.md#e229)
 
 <a id="p13"></a>
 
@@ -170,7 +170,7 @@
 
 **知っている範囲**　舞台上の消失と道具の区別。
 
-**登場**　[E021](threads/T02.md#e021) ・ [E028](threads/T02.md#e028) ・ [E076](threads/T06.md#e076) ・ [E078](threads/T06.md#e078) ・ [E079](threads/T06.md#e079) ・ [E082](threads/T06.md#e082) ・ [E086](threads/T06.md#e086) ・ [E089](threads/T06.md#e089)
+**登場**　[E021](threads/T02.md#e021) ・ [E028](threads/T02.md#e028) ・ [E076](threads/T06.md#e076) ・ [E078](threads/T06.md#e078) ・ [E079](threads/T06.md#e079) ・ [E082](threads/T06.md#e082) ・ [E086](threads/T06.md#e086) ・ [E089](threads/T06.md#e089) ・ [E215](threads/T15.md#e215) ・ [E217](threads/T15.md#e217) ・ [E221](threads/T15.md#e221) ・ [E222](threads/T15.md#e222) ・ [E259](threads/T18.md#e259)
 
 <a id="p15"></a>
 
@@ -182,7 +182,7 @@
 
 **知っている範囲**　劇中の筋と役者の稽古。
 
-**登場**　[E004](threads/T01.md#e004) ・ [E077](threads/T06.md#e077) ・ [E081](threads/T06.md#e081) ・ [E090](threads/T06.md#e090)
+**登場**　[E004](threads/T01.md#e004) ・ [E077](threads/T06.md#e077) ・ [E081](threads/T06.md#e081) ・ [E090](threads/T06.md#e090) ・ [E203](threads/T14.md#e203) ・ [E211](threads/T15.md#e211) ・ [E214](threads/T15.md#e214) ・ [E216](threads/T15.md#e216) ・ [E218](threads/T15.md#e218) ・ [E223](threads/T15.md#e223) ・ [E225](threads/T15.md#e225)
 
 <a id="p16"></a>
 
@@ -194,7 +194,7 @@
 
 **知っている範囲**　立入りの境と詰所の持ち物。
 
-**登場**　[E085](threads/T06.md#e085)
+**登場**　[E085](threads/T06.md#e085) ・ [E213](threads/T15.md#e213) ・ [E260](threads/T18.md#e260) ・ [E263](threads/T18.md#e263) ・ [E264](threads/T18.md#e264) ・ [E269](threads/T18.md#e269)
 
 <a id="p17"></a>
 
@@ -242,7 +242,7 @@
 
 **知っている範囲**　葉の形と療養者の好み。
 
-**登場**　[E062](threads/T05.md#e062) ・ [E065](threads/T05.md#e065) ・ [E070](threads/T05.md#e070) ・ [E074](threads/T05.md#e074)
+**登場**　[E062](threads/T05.md#e062) ・ [E065](threads/T05.md#e065) ・ [E070](threads/T05.md#e070) ・ [E074](threads/T05.md#e074) ・ [E242](threads/T17.md#e242) ・ [E245](threads/T17.md#e245) ・ [E247](threads/T17.md#e247) ・ [E249](threads/T17.md#e249) ・ [E252](threads/T17.md#e252)
 
 <a id="p21"></a>
 
@@ -266,7 +266,7 @@
 
 **知っている範囲**　鐘肌、振動、鋳造記号。
 
-**登場**　[E038](threads/T03.md#e038)
+**登場**　[E038](threads/T03.md#e038) ・ [E196](threads/T14.md#e196) ・ [E200](threads/T14.md#e200) ・ [E202](threads/T14.md#e202) ・ [E204](threads/T14.md#e204) ・ [E205](threads/T14.md#e205) ・ [E208](threads/T14.md#e208)
 
 <a id="p23"></a>
 
@@ -278,7 +278,7 @@
 
 **知っている範囲**　公開の交代手順。白い廊下の行き先は知らない。
 
-**登場**　[M15](main-route.md#m15)
+**登場**　[M15](main-route.md#m15) ・ [E165](threads/T11.md#e165) ・ [E198](threads/T14.md#e198) ・ [E209](threads/T14.md#e209) ・ [E256](threads/T18.md#e256) ・ [E257](threads/T18.md#e257) ・ [E261](threads/T18.md#e261) ・ [E265](threads/T18.md#e265) ・ [E268](threads/T18.md#e268) ・ [E270](threads/T18.md#e270)
 
 <a id="p24"></a>
 
@@ -290,7 +290,7 @@
 
 **知っている範囲**　内側の検札と出門の違い。
 
-**登場**　
+**登場**　[E151](threads/T11.md#e151) ・ [E152](threads/T11.md#e152) ・ [E153](threads/T11.md#e153) ・ [E155](threads/T11.md#e155) ・ [E159](threads/T11.md#e159) ・ [E161](threads/T11.md#e161) ・ [E163](threads/T11.md#e163)
 
 <a id="p25"></a>
 
@@ -302,7 +302,7 @@
 
 **知っている範囲**　城内の馬車経路。
 
-**登場**　
+**登場**　[E154](threads/T11.md#e154) ・ [E157](threads/T11.md#e157) ・ [E158](threads/T11.md#e158) ・ [E162](threads/T11.md#e162)
 
 <a id="p26"></a>
 
@@ -314,7 +314,7 @@
 
 **知っている範囲**　厨房と配膳の履歴。
 
-**登場**　[E134](threads/T09.md#e134)
+**登場**　[E134](threads/T09.md#e134) ・ [E166](threads/T12.md#e166) ・ [E172](threads/T12.md#e172) ・ [E175](threads/T12.md#e175)
 
 <a id="p27"></a>
 
@@ -326,7 +326,7 @@
 
 **知っている範囲**　窯の余熱と菓子の昔の形。
 
-**登場**　
+**登場**　[E167](threads/T12.md#e167) ・ [E170](threads/T12.md#e170) ・ [E171](threads/T12.md#e171) ・ [E176](threads/T12.md#e176) ・ [E179](threads/T12.md#e179)
 
 <a id="p28"></a>
 
@@ -338,7 +338,7 @@
 
 **知っている範囲**　器の紋と宴の席順。
 
-**登場**　[E034](threads/T03.md#e034) ・ [E037](threads/T03.md#e037)
+**登場**　[E034](threads/T03.md#e034) ・ [E037](threads/T03.md#e037) ・ [E168](threads/T12.md#e168) ・ [E173](threads/T12.md#e173) ・ [E177](threads/T12.md#e177) ・ [E183](threads/T13.md#e183) ・ [E192](threads/T13.md#e192)
 
 <a id="p29"></a>
 
@@ -350,7 +350,7 @@
 
 **知っている範囲**　循環水と雨量。鍵の所在や王家の抜け穴は知らない。
 
-**登場**　[E046](threads/T04.md#e046) ・ [E047](threads/T04.md#e047) ・ [E051](threads/T04.md#e051) ・ [E053](threads/T04.md#e053) ・ [E054](threads/T04.md#e054) ・ [E056](threads/T04.md#e056)
+**登場**　[E046](threads/T04.md#e046) ・ [E047](threads/T04.md#e047) ・ [E051](threads/T04.md#e051) ・ [E053](threads/T04.md#e053) ・ [E054](threads/T04.md#e054) ・ [E056](threads/T04.md#e056) ・ [E243](threads/T17.md#e243)
 
 <a id="p30"></a>
 
@@ -362,7 +362,7 @@
 
 **知っている範囲**　庭の池の行き止まりと水草。
 
-**登場**　[E049](threads/T04.md#e049) ・ [E096](threads/T07.md#e096) ・ [E099](threads/T07.md#e099) ・ [E105](threads/T07.md#e105)
+**登場**　[E049](threads/T04.md#e049) ・ [E096](threads/T07.md#e096) ・ [E099](threads/T07.md#e099) ・ [E105](threads/T07.md#e105) ・ [E250](threads/T17.md#e250) ・ [E253](threads/T17.md#e253)
 
 <a id="p31"></a>
 
@@ -374,7 +374,7 @@
 
 **知っている範囲**　氷室の安全線と配分。
 
-**登場**　
+**登場**　[E181](threads/T13.md#e181) ・ [E182](threads/T13.md#e182) ・ [E184](threads/T13.md#e184) ・ [E186](threads/T13.md#e186) ・ [E187](threads/T13.md#e187) ・ [E189](threads/T13.md#e189) ・ [E190](threads/T13.md#e190) ・ [E193](threads/T13.md#e193)
 
 <a id="p32"></a>
 
@@ -386,7 +386,7 @@
 
 **知っている範囲**　公開設備のからくり。
 
-**登場**　[E036](threads/T03.md#e036) ・ [E040](threads/T03.md#e040) ・ [E048](threads/T04.md#e048) ・ [E052](threads/T04.md#e052) ・ [E055](threads/T04.md#e055) ・ [E129](threads/T09.md#e129)
+**登場**　[E036](threads/T03.md#e036) ・ [E040](threads/T03.md#e040) ・ [E048](threads/T04.md#e048) ・ [E052](threads/T04.md#e052) ・ [E055](threads/T04.md#e055) ・ [E129](threads/T09.md#e129) ・ [E258](threads/T18.md#e258) ・ [E262](threads/T18.md#e262) ・ [E267](threads/T18.md#e267)
 
 <a id="p33"></a>
 
@@ -398,7 +398,7 @@
 
 **知っている範囲**　茶碗の贈り主と古い配膳歌。
 
-**登場**　
+**登場**　[E169](threads/T12.md#e169) ・ [E174](threads/T12.md#e174) ・ [E178](threads/T12.md#e178) ・ [E180](threads/T12.md#e180) ・ [E185](threads/T13.md#e185) ・ [E191](threads/T13.md#e191) ・ [E195](threads/T13.md#e195)
 
 <a id="p34"></a>
 
@@ -410,7 +410,7 @@
 
 **知っている範囲**　受領書と署名。王家の私室の記録は扱わない。
 
-**登場**　
+**登場**　[E227](threads/T16.md#e227) ・ [E230](threads/T16.md#e230) ・ [E232](threads/T16.md#e232) ・ [E233](threads/T16.md#e233) ・ [E240](threads/T16.md#e240)
 
 <a id="p35"></a>
 
@@ -422,7 +422,7 @@
 
 **知っている範囲**　庭の遊びと背の低い人にしか見えない物。
 
-**登場**　[E023](threads/T02.md#e023) ・ [E057](threads/T04.md#e057) ・ [E060](threads/T04.md#e060) ・ [E091](threads/T07.md#e091) ・ [E094](threads/T07.md#e094) ・ [E098](threads/T07.md#e098) ・ [E100](threads/T07.md#e100) ・ [E104](threads/T07.md#e104) ・ [E109](threads/T08.md#e109) ・ [E125](threads/T09.md#e125)
+**登場**　[E023](threads/T02.md#e023) ・ [E057](threads/T04.md#e057) ・ [E060](threads/T04.md#e060) ・ [E091](threads/T07.md#e091) ・ [E094](threads/T07.md#e094) ・ [E098](threads/T07.md#e098) ・ [E100](threads/T07.md#e100) ・ [E104](threads/T07.md#e104) ・ [E109](threads/T08.md#e109) ・ [E125](threads/T09.md#e125) ・ [E164](threads/T11.md#e164) ・ [E194](threads/T13.md#e194) ・ [E244](threads/T17.md#e244) ・ [E248](threads/T17.md#e248)
 
 <a id="p36"></a>
 
@@ -434,4 +434,4 @@
 
 **知っている範囲**　花の開く順番と、絵だけの手紙。
 
-**登場**　[E068](threads/T05.md#e068) ・ [E075](threads/T05.md#e075)
+**登場**　[E068](threads/T05.md#e068) ・ [E075](threads/T05.md#e075) ・ [E241](threads/T17.md#e241) ・ [E246](threads/T17.md#e246) ・ [E251](threads/T17.md#e251) ・ [E254](threads/T17.md#e254) ・ [E255](threads/T17.md#e255)

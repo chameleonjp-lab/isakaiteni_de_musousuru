@@ -133,7 +133,7 @@ def phase(e):
     if n in AFTER: return '解除後、境石を越えるまで'
     return '謁見後、解除前'
 
-AFTER = set()
+AFTER = set(range(273, 301))
 if __name__=='__main__':
     arg=argparse.ArgumentParser()
     arg.add_argument('--check', action='store_true')

@@ -1,6 +1,7 @@
 # isakaiteni_de_musousuru
+
 異世界転移で無双する
 
 ## 王都からの脱出
 
-[最短20行程とクリア条件](docs/scenario/main-route.md)
+[シナリオ資料の目次](docs/scenario/README.md)から、最短20行程と、それ以外の300場面を読めます。部屋、人物、入手した情報、選択の結果からも関連する場面をたどれます。
