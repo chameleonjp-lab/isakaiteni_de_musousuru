@@ -4,7 +4,7 @@ const http = require("node:http");
 const { once } = require("node:events");
 const { chromium } = require("playwright");
 
-const sizes = [{width:402,height:700}, {width:700,height:402}];
+const sizes = [{width:402,height:700}, {width:700,height:402}, {width:874,height:402}];
 const pageErrors = [];
 const externalRequests = [];
 const saveKey = "ou-to-escape-v1";
@@ -31,7 +31,19 @@ async function checkLayout(page, selectors) {
 
 async function openStep(page, token) {
   const title = await page.evaluate(id => puzzles[id][0], token);
-  await button(page,title).tap();
+  await button(page,"調べる").tap();
+  await page.locator("#content").getByRole("button",{name:title,exact:true}).tap();
+  await page.locator("#desk-panel").waitFor({state:"hidden"});
+}
+
+async function checkExploration(page) {
+  await page.locator("#desk-panel").waitFor({state:"hidden"});
+  await checkLayout(page,["#castle-canvas","[data-tab=scene]",".tabs-tools"]);
+  assert.ok(await page.locator("#castle-canvas").evaluate(canvas => {
+    const rect=canvas.getBoundingClientRect();
+    return rect.width >= innerWidth * .99 && rect.height >= innerHeight * .85 &&
+      document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height*.76) === canvas;
+  }),"3D exploration should fill the viewport and receive touches behind the former menu");
 }
 
 async function seedOldSave(page, target, room = null) {
@@ -67,36 +79,50 @@ async function holdStick(page, vertical, finish) {
 }
 
 async function startAndRotate(page, viewport) {
-  await checkLayout(page, ["#help","#audio","#stage-close","#content",".tabs"]);
+  await checkLayout(page, ["#help","#audio","#stage-close","#audience-call"]);
+  await checkExploration(page);
   await button(page,"手元").tap();
   assert.equal(await button(page,"手元").getAttribute("aria-pressed"),"true");
-  await page.locator("#content").getByRole("button",{ name:"第一の声", exact:true }).tap();
+  await button(page,"第一の声").tap();
   await button(page,"伏せたまま待つ").tap();
   await button(page,"続ける").tap();
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
 
   await page.setViewportSize({width:viewport.height,height:viewport.width});
-  await checkLayout(page, ["#stage-close","#content",".tabs"]);
+  await checkLayout(page, ["#stage-close","#audience-call"]);
+  await checkExploration(page);
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
   await button(page,"第二の声").tap();
   await button(page,"今、顔を上げる").tap();
   await button(page,"続ける").tap();
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
-  await checkLayout(page, ["#walk-stick","#content",".tabs"]);
+  await checkLayout(page, ["#walk-stick","[data-tab=scene]"]);
+  await checkExploration(page);
+  const before=await page.locator("#castle-canvas").boundingBox();
   await button(page,"出口").tap();
   await page.locator("#content h2").waitFor({state:"visible"});
   assert.equal(await page.locator("#content h2").textContent(),"出口");
+  assert.equal(await button(page,"出口").getAttribute("aria-expanded"),"true");
+  assert.deepEqual(await page.locator("#castle-canvas").boundingBox(),before);
+  await button(page,"持ち物").tap();
+  assert.equal(await page.locator("#content h2").textContent(),"持ち物");
+  await button(page,"手帳").tap();
+  assert.equal(await page.locator("#content h2").textContent(),"記憶の手帳");
+  await button(page,"探索に戻る").tap();
+  await checkExploration(page);
   assert.equal((await readSave(page)).run.world.room,"C01");
   await holdStick(page,1,key => JSON.parse(localStorage.getItem(key)).run.world.room === "C02");
   assert.equal((await readSave(page)).run.world.room,"C02");
   await page.reload();
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
   assert.equal((await readSave(page)).position.room,"C02");
+  await checkExploration(page);
 }
 
 async function failAndRewind(page) {
   await seedOldSave(page,"M17");
-  await checkLayout(page, ["#stage-close","#stage-door","#content",".tabs"]);
+  await checkLayout(page, ["#stage-close","#stage-door","#walk-stick","[data-tab=scene]"]);
+  await checkExploration(page);
   await button(page,"扉手元").tap();
   assert.equal(await button(page,"扉手元").getAttribute("aria-pressed"),"true");
   assert.equal(await page.locator("#audio").textContent(),"音オフ");
@@ -223,7 +249,7 @@ async function program() {
       await failAndRewind(page);
       await exitCastle(page);
       await page.close();
-      console.log("Chromium: " + viewport.width + "×" + viewport.height + ", touch stick, corridor crossing, rotate, reload, rewind and walking escape.");
+      console.log("Chromium: " + viewport.width + "×" + viewport.height + ", exploration viewport, on-demand menus, touch stick, corridor crossing, rotate, reload, rewind and walking escape.");
     }
     const fallback = await browser.newPage();
     fallback.on("pageerror", error => pageErrors.push(error.message));

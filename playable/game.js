@@ -5,7 +5,9 @@ const $ = id => document.getElementById(id);
 const content = $("content");
 const stage = $("stage");
 const modal = $("dialog");
+const desk = $("desk");
 const tabs = [...document.querySelectorAll("[data-tab]")];
+const compactLayout = window.matchMedia("(max-width: 740px), (max-width: 1100px) and (pointer: coarse)");
 const key = "ou-to-escape-v1";
 const zones = { C:"中央宮", W:"西の記録棟", E:"東の暮らしと舞台", N:"北の学術・施療棟", S:"南の客舎と職場",
   G:"中庭と庭園", B:"地下の仕事場", Q:"王家の礼拝区" };
@@ -53,6 +55,7 @@ try {
 } catch { /* A blocked store is fine for the current tab. */ }
 
 let selectedTab = "scene";
+let audienceMission = null;
 let toastTimer;
 let timer = 0;
 let puzzleStarted = 0;
@@ -140,13 +143,45 @@ function updateStatus(walk) {
   $("audio").setAttribute("aria-pressed",String(audioEnabled));
   stage.dataset.mood = run.failure ? "danger" : w.escaped ? "clear" : "normal";
   $("walk-tab").textContent = view?.available() ? "出口" : "移動";
+  audienceMission = ["M01","M02"].find(id=>story.canMain(run,id));
+  const call = $("audience-call");
+  call.hidden = !audienceMission;
+  call.textContent = audienceMission ? puzzles[audienceMission][0] : "";
   view?.setRoom(room,run,walk);
+}
+function deskOpen() {
+  return compactLayout.matches && desk.dataset.open === "true";
+}
+function updateDeskControls() {
+  for (const tab of tabs) {
+    const selected = tab.dataset.tab === selectedTab;
+    if (compactLayout.matches) {
+      tab.removeAttribute("aria-pressed");
+      tab.setAttribute("aria-expanded",String(deskOpen() && selected));
+    } else {
+      tab.removeAttribute("aria-expanded");
+      tab.setAttribute("aria-pressed",String(selected));
+    }
+  }
+}
+function setDeskOpen(open, returnFocus = false) {
+  if (desk.dataset.open !== String(open)) view?.stopInput();
+  desk.dataset.open = String(open);
+  updateDeskControls();
+  if (returnFocus) tabs.find(tab=>tab.dataset.tab===selectedTab)?.focus({preventScroll:true});
+}
+function openDesk(tab) {
+  refresh(tab);
+  if (compactLayout.matches) {
+    setDeskOpen(true);
+    content.focus({preventScroll:true});
+  }
 }
 function refresh(tab = selectedTab, walk) {
   const changed = tab !== selectedTab;
   selectedTab = tab;
   updateStatus(walk);
-  for (const b of tabs) b.setAttribute("aria-pressed",String(b.dataset.tab===tab));
+  updateDeskControls();
   content.replaceChildren();
   if (tab==="walk") renderWalk();
   else if (tab==="notes") renderNotes();
@@ -166,7 +201,9 @@ function openDialog(kicker, title, texts, controls, locked = false) {
   $("dialog-close").hidden = locked;
   modal.dataset.locked = String(locked);
   if (!modal.open) {
-    dialogOrigin=document.activeElement;
+    dialogOrigin = deskOpen() && desk.contains(document.activeElement) ?
+      tabs.find(tab=>tab.dataset.tab===selectedTab) : document.activeElement;
+    setDeskOpen(false);
     modal.showModal();
   }
   modal.scrollTop=0;
@@ -242,7 +279,7 @@ function presentClear() {
     ...previousChoices("M20"),
     "進めた必須行程 "+run.world.main.length+"／20　見つけた任意場面 "+new Set([...run.world.side,...run.memory]).size+"／300",
     "探索した地点 "+run.visited.length+"／59　死に戻り "+run.fails+"回"
-  ],[action("手帳を開く",() => { closeDialog(); refresh("notes"); },{className:"primary"}),action("閉じる",closeDialog)]);
+  ],[action("手帳を開く",() => { closeDialog(); openDesk("notes"); },{className:"primary"}),action("閉じる",closeDialog)]);
 }
 function confirmReset() {
   openDialog("はじめから","最初の謁見からやり直す",["現在の周回の進み具合と手帳を消します。"],[
@@ -498,8 +535,8 @@ function renderScene() {
   }
   if (w.main.includes("M02")) {
     const tip=action("次に調べる場所を思い出す",showHint,{className:"subtle"});
-    appendSection("探索",[view?.available() ? action("出口を確認する",()=>refresh("walk")) :
-      action("隣の部屋へ移動",()=>refresh("walk")),tip]);
+    appendSection("探索",[view?.available() ? action("出口を確認する",()=>openDesk("walk")) :
+      action("隣の部屋へ移動",()=>openDesk("walk")),tip]);
   }
 }
 function enterRoom(id) {
@@ -507,6 +544,7 @@ function enterRoom(id) {
   const from=run.world.room;
   if (story.move(run,id)) {
     tone([193]);
+    setDeskOpen(false);
     refresh("scene",{from});
     content.scrollTop=0;
     save();
@@ -595,7 +633,16 @@ function showHint() {
 }
 $("dialog-close").addEventListener("click",closeDialog);
 modal.addEventListener("cancel",event=>{ event.preventDefault(); if (modal.dataset.locked!=="true") closeDialog(); });
-for(const tab of tabs) tab.addEventListener("click",() => refresh(tab.dataset.tab));
+for (const tab of tabs) tab.addEventListener("click",() => {
+  if (deskOpen() && tab.dataset.tab === selectedTab) setDeskOpen(false,true);
+  else openDesk(tab.dataset.tab);
+});
+$("desk-close").addEventListener("click",()=>setDeskOpen(false,true));
+$("audience-call").addEventListener("click",()=>{ if (audienceMission) inspectMainTalk(audienceMission); });
+compactLayout.addEventListener("change",()=>setDeskOpen(false));
+window.addEventListener("keydown",event=>{
+  if (event.key === "Escape" && deskOpen() && !modal.open) setDeskOpen(false,true);
+});
 $("audio").addEventListener("click",() => { audioEnabled=!audioEnabled; if(audioEnabled) tone([523]); updateStatus(); save(); });
 $("help").addEventListener("click",() => {
   openDialog("遊び方","首輪を外し、城の外へ",[
@@ -608,7 +655,7 @@ $("help").addEventListener("click",() => {
 
 try {
   view=createCastleView($("castle-canvas"),stage,{
-    initialPosition, savePosition, move:enterRoom, isBlocked:()=>modal.open,
+    initialPosition, savePosition, move:enterRoom, isBlocked:()=>modal.open || deskOpen(),
     modeChanged:()=>refresh(),
     exposed:()=> {
       const event=story.side.get("E280");
