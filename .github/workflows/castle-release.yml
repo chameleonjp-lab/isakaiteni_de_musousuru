@@ -1,0 +1,91 @@
+name: Castle release
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/castle-release.yml'
+      - 'playable/**'
+      - 'scripts/verify_scenario.py'
+      - 'docs/scenario/data/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/castle-release.yml'
+      - 'playable/**'
+      - 'scripts/verify_scenario.py'
+      - 'docs/scenario/data/**'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified main branch to GitHub Pages
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish && 'castle-github-pages' || format('castle-verify-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Build and verify the playable page
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Build and verify the game
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js \
+            -o "$RUNNER_TEMP/three.min.js"
+          python -B playable/build.py "$RUNNER_TEMP/castle-site/index.html" \
+            --three "$RUNNER_TEMP/three.min.js" --revision "$GITHUB_SHA"
+          node playable/verify.cjs
+          python -B scripts/verify_scenario.py
+          node playable/stages/verify.cjs "$RUNNER_TEMP/three.min.js"
+      - name: Install Chromium for browser tests
+        working-directory: playable
+        run: |
+          npm ci
+          npm exec -- playwright install --with-deps chromium
+      - name: Test the built page in Chromium
+        run: node playable/verify-browser.cjs "$RUNNER_TEMP/castle-site/index.html"
+      - name: Save the verified HTML
+        uses: actions/upload-artifact@v7
+        with:
+          name: castle-escape-html
+          path: ${{ runner.temp }}/castle-site/index.html
+          if-no-files-found: error
+          retention-days: 7
+      - name: Prepare the Pages archive
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/castle-site
+
+  deploy:
+    name: Publish the verified page
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
