@@ -179,8 +179,8 @@ function createCastleView(canvas, frame, actions) {
   function drawSpeaker(time) {
     models.applyPose(speaker,"idle",time);
     const face = speaker.headPivot.getWorldPosition(lookTarget).y + .19 * speaker.scale;
-    const aim = face - .34;
-    portraitCamera.position.set(0,aim + .14,1.92);
+    const aim = face - (landscapeTalk.matches ? .36 : .42);
+    portraitCamera.position.set(0,aim + .14,2.38);
     portraitCamera.lookAt(0,aim,0);
     portraitCamera.updateMatrixWorld();
     speakerNameplate.update(portraitCamera,nameplateViewportWidth);

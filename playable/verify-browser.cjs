@@ -293,7 +293,7 @@ async function verifyDialogueAndFinish(page) {
       assert.equal(await dialogue.count(),4);
       await choose(page,"衛兵の槍を奪う","click");
       assert.equal((await readSave(page)).run.failure.heading,"奪おうとした槍");
-      assert.match((await readSave(page)).run.failure.body,/キリの槍/);
+      assert.match((await readSave(page)).run.failure.body,/槍を奪おうとキリの手元/);
       await button(page,"安全だった直前に戻る").click();
     }
   }
