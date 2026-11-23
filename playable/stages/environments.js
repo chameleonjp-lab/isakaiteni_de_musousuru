@@ -255,6 +255,7 @@
     if (curLoc.id === "Q02") return targetLoc.id === "Q03" ? "N" : "S";
     if (curLoc.id === "Q03") return targetLoc.id === "Q04" ? "N" : "S";
     if (curLoc.id === "C01") return "S";
+    if (curLoc.id === "E08" && targetLoc.id === "C04") return "W";
     if (curLoc.id === "W01" && targetLoc.id === "C07") return "E";
     if (curLoc.id === "B07") {
       return { B02: "W", B04: "W", B05: "E", B06: "E", S06: "S", S08: "N" }[targetLoc.id];
@@ -311,6 +312,11 @@
     const glassMat = new THREE.MeshStandardMaterial({ color: 0xc8ebff, roughness: 0.1, metalness: 0.15, transparent: true, opacity: 0.42, envMap: envMap });
     const flameMat = new THREE.MeshBasicMaterial({ color: 0xffc864 });
 
+    function addSolid(node, shape = true) {
+      node.userData.walkObstacle = shape;
+      root.add(node);
+    }
+
     // 1. 地面・床
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), floorMat);
     floor.rotation.x = -Math.PI / 2;
@@ -349,7 +355,7 @@
           if (side === "N" || side === "S") seg.position.set(center, wallH / 2, wallPos);
           else seg.position.set(wallPos, wallH / 2, center);
           seg.rotation.y = rotY;
-          root.add(seg);
+          addSolid(seg);
         }
         // Header above doorway
         if (wallH > DOOR_H + 0.15) {
@@ -369,7 +375,7 @@
         if (side === "N" || side === "S") seg.position.set(center, wallH / 2, wallPos);
         else seg.position.set(wallPos, wallH / 2, center);
         seg.rotation.y = rotY;
-        root.add(seg);
+        addSolid(seg);
       }
 
       // Build actual 3D connecting corridors extending outward from each doorway!
@@ -407,7 +413,7 @@
       // Doorway stone archway jambs & district-colored lintel on room side
       [-DOOR_W / 2 - 0.14, DOOR_W / 2 + 0.14].forEach(function (jx) {
         const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.3, DOOR_H + 0.2, 0.56), trimMat);
-        jamb.position.set(jx, (DOOR_H + 0.2) / 2, 0); cg.add(jamb);
+        jamb.position.set(jx, (DOOR_H + 0.2) / 2, 0); cg.add(jamb); jamb.userData.walkObstacle = true;
       });
       const lintel = new THREE.Mesh(
         new THREE.BoxGeometry(DOOR_W + 0.64, 0.34, 0.6),
@@ -439,7 +445,7 @@
         for (let cz = 1.4; cz <= CORR_LEN - 0.6; cz += 1.9) {
           [-cW / 2, cW / 2].forEach(function (cx) {
             const col = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, cH - 0.2, 10), trimMat);
-            col.position.set(cx, (cH - 0.2) / 2, cz); cg.add(col);
+            col.position.set(cx, (cH - 0.2) / 2, cz); cg.add(col); col.userData.walkObstacle = "round";
           });
           const beam = new THREE.Mesh(new THREE.BoxGeometry(cW + 0.4, 0.16, 0.2), woodMat);
           beam.position.set(0, cH - 0.12, cz); cg.add(beam);
@@ -527,7 +533,7 @@
       // Left & right damp stone walls
       [-W / 2, W / 2].forEach(function (wx) {
         const sw = new THREE.Mesh(new THREE.BoxGeometry(0.5, sideH, D), wallMat);
-        sw.position.set(wx, sideH / 2, 0); root.add(sw);
+        sw.position.set(wx, sideH / 2, 0); addSolid(sw);
       });
       // Full-length semi-cylindrical vaulted stone tunnel ceiling
       const tunnelCeilingMat = wallMat.clone(); tunnelCeilingMat.side = THREE.BackSide;
@@ -541,7 +547,7 @@
         rib.position.set(0, sideH, rz); root.add(rib);
         [-W / 2 + 0.3, W / 2 - 0.3].forEach(function (px) {
           const pil = new THREE.Mesh(new THREE.BoxGeometry(0.32, sideH, 0.36), trimMat);
-          pil.position.set(px, sideH / 2, rz); root.add(pil);
+          pil.position.set(px, sideH / 2, rz); addSolid(pil);
         });
         // Flickering iron wall sconce torch on alternating sides
         const sideS = (Math.round(rz) % 2 === 0) ? -1 : 1;
@@ -574,7 +580,7 @@
 
       // Recessed stone niche with the decoy ceramic "偽りの青空" tile mural
       const nicheFrame = new THREE.Mesh(new THREE.BoxGeometry(0.26, 2.35, 3.25), trimMat);
-      nicheFrame.position.set(W / 2 - 0.22, 1.75, -1.2); root.add(nicheFrame);
+      nicheFrame.position.set(W / 2 - 0.22, 1.75, -1.2); addSolid(nicheFrame);
       const fakeSky = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 2.0), new THREE.MeshStandardMaterial({ map: getFakeSkyTileTex(), emissive: 0x3b82f6, emissiveIntensity: 0.25, roughness: 0.22 }));
       fakeSky.position.set(W / 2 - 0.36, 1.75, -1.2); fakeSky.rotation.y = -Math.PI / 2; root.add(fakeSky);
 
@@ -629,7 +635,7 @@
       // Wrought-iron garden lampposts at corners
       [[-W / 2 + 1.1, -D / 2 + 1.1], [W / 2 - 1.1, -D / 2 + 1.1], [-W / 2 + 1.1, D / 2 - 1.1], [W / 2 - 1.1, D / 2 - 1.1]].forEach(function (lp) {
         const post = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.09, 2.8, 8), ironMat);
-        post.position.set(lp[0], 1.4, lp[1]); root.add(post);
+        post.position.set(lp[0], 1.4, lp[1]); addSolid(post, "round");
         const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.12, 0.36, 6), new THREE.MeshBasicMaterial({ color: 0xffe59e }));
         lantern.position.set(lp[0], 2.95, lp[1]); root.add(lantern);
         const cap = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.18, 6), ironMat);
@@ -646,7 +652,7 @@
       // Corner stone pilasters & ceiling beams
       [[-W / 2 + 0.3, -D / 2 + 0.3], [W / 2 - 0.3, -D / 2 + 0.3], [-W / 2 + 0.3, D / 2 - 0.3], [W / 2 - 0.3, D / 2 - 0.3]].forEach(function (cp) {
         const pil = new THREE.Mesh(new THREE.BoxGeometry(0.55, H, 0.55), trimMat);
-        pil.position.set(cp[0], H / 2, cp[1]); root.add(pil);
+        pil.position.set(cp[0], H / 2, cp[1]); addSolid(pil);
       });
       for (let bz = -D / 2 + 2.2; bz <= D / 2 - 2.2; bz += 3.2) {
         const beam = new THREE.Mesh(new THREE.BoxGeometry(W - 0.4, 0.28, 0.26), darkWoodMat);
@@ -659,7 +665,6 @@
     // =========================================================================
     function addTable(x, z, tw, td) {
       const tg = new THREE.Group(); tg.position.set(x, 0, z);
-      tg.userData.walkObstacle = true;
       const top = new THREE.Mesh(new THREE.BoxGeometry(tw, 0.11, td), woodMat); top.position.y = 0.88; tg.add(top);
       const apron = new THREE.Mesh(new THREE.BoxGeometry(tw - 0.18, 0.14, td - 0.18), darkWoodMat); apron.position.y = 0.78; tg.add(apron);
       [[-tw / 2 + 0.14, -td / 2 + 0.14], [tw / 2 - 0.14, -td / 2 + 0.14], [-tw / 2 + 0.14, td / 2 - 0.14], [tw / 2 - 0.14, td / 2 - 0.14]].forEach(function (lp) {
@@ -670,7 +675,7 @@
       const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.05, 10), brassMat); holder.position.set(tw * 0.3, 0.96, -td * 0.2); tg.add(holder);
       const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.035, 0.2, 8), linenMat); candle.position.set(tw * 0.3, 1.08, -td * 0.2); tg.add(candle);
       const fl = new THREE.Mesh(new THREE.ConeGeometry(0.032, 0.09, 6), flameMat); fl.position.set(tw * 0.3, 1.22, -td * 0.2); tg.add(fl);
-      root.add(tg);
+      addSolid(tg);
     }
 
     function addChair(x, z, rotY) {
@@ -681,12 +686,11 @@
       [[-0.22, -0.22], [0.22, -0.22], [-0.22, 0.22], [0.22, 0.22]].forEach(function (lp) {
         const l = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.028, 0.5, 6), darkWoodMat); l.position.set(lp[0], 0.25, lp[1]); cg.add(l);
       });
-      root.add(cg);
+      addSolid(cg);
     }
 
     function addBookshelf(x, z, rotY) {
       const sg = new THREE.Group(); sg.position.set(x, 0, z); sg.rotation.y = rotY || 0;
-      sg.userData.walkObstacle = true;
       const frame = new THREE.Mesh(new THREE.BoxGeometry(2.3, 3.0, 0.62), darkWoodMat); frame.position.y = 1.5; sg.add(frame);
       const crown = new THREE.Mesh(new THREE.BoxGeometry(2.44, 0.16, 0.7), woodMat); crown.position.y = 3.04; sg.add(crown);
       const cols = [0x8c2424, 0x244675, 0x2f6142, 0x7a5724, 0x5c2d5e, 0x9c6d2c];
@@ -701,13 +705,13 @@
           sg.add(bk);
         }
       }
-      root.add(sg);
+      addSolid(sg);
     }
 
     function addRealisticTree(x, z, sc, hasFruit) {
       const tg = new THREE.Group(); tg.position.set(x, 0, z); tg.scale.setScalar(sc || 1);
       const barkMat = new THREE.MeshStandardMaterial({ map: getWoodTex("#4a3322", 2, 4), roughness: 0.92 });
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.3, 2.3, 10), barkMat); trunk.position.y = 1.15; tg.add(trunk);
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.3, 2.3, 10), barkMat); trunk.position.y = 1.15; tg.add(trunk); trunk.userData.walkObstacle = "round";
       // Diverging branches
       [[-0.4, 2.0, 0.2, 0.55], [0.42, 2.1, -0.15, -0.5], [0.05, 2.2, 0.38, 0.25]].forEach(function (br) {
         const b = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.11, 1.1, 7), barkMat);
@@ -800,7 +804,7 @@
     function addDetailedCarriage(x, z) {
       const cg = new THREE.Group(); cg.position.set(x, 0, z);
       const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3b2316, map: getWoodTex("#3b2316", 2, 2), roughness: 0.62 });
-      const cab = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.65, 3.4), bodyMat); cab.position.set(0, 1.78, 0); cg.add(cab);
+      const cab = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.65, 3.4), bodyMat); cab.position.set(0, 1.78, 0); cg.add(cab); cab.userData.walkObstacle = true;
       const roof = new THREE.Mesh(new THREE.CylinderGeometry(1.12, 1.12, 3.48, 12, 1, false, 0, Math.PI), darkWoodMat);
       roof.rotation.z = Math.PI / 2; roof.rotation.y = Math.PI / 2; roof.scale.set(1, 0.35, 1); roof.position.set(0, 2.6, 0); cg.add(roof);
       // Framed windows & gold royal trim
@@ -810,10 +814,10 @@
         const strip = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 3.44), goldMat); strip.position.set(sx, 1.38, 0); cg.add(strip);
       });
       // Driver box & shafts
-      const box = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.65, 0.9), darkWoodMat); box.position.set(0, 1.6, 2.15); cg.add(box);
+      const box = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.65, 0.9), darkWoodMat); box.position.set(0, 1.6, 2.15); cg.add(box); box.userData.walkObstacle = true;
       [-0.65, 0.65].forEach(function (shx) {
         const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 2.3, 8), woodMat);
-        sh.rotation.x = Math.PI / 2; sh.position.set(shx, 1.05, 3.1); cg.add(sh);
+        sh.rotation.x = Math.PI / 2; sh.position.set(shx, 1.05, 3.1); cg.add(sh); sh.userData.walkObstacle = true;
         const lant = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.22, 6), flameMat);
         lant.position.set(shx * 1.4, 2.25, 1.72); cg.add(lant);
       });
@@ -826,7 +830,7 @@
           const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, wp[2] * 1.92, 6), woodMat);
           sp.rotation.x = (s * Math.PI) / 8; wg.add(sp);
         }
-        cg.add(wg);
+        cg.add(wg); wg.userData.walkObstacle = true;
       });
       root.add(cg);
     }
@@ -839,10 +843,10 @@
       // C01 玉座の間: 赤絨毯・段差・ゴシック王座・列柱・ステンドグラス風天窓光柱
       const carpet = new THREE.Mesh(new THREE.PlaneGeometry(3.8, D - 1.4), new THREE.MeshStandardMaterial({ map: getCarpetTex(), roughness: 0.85 }));
       carpet.rotation.x = -Math.PI / 2; carpet.position.y = 0.02; root.add(carpet);
-      const dais1 = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.42, 4.4), trimMat); dais1.position.set(0, 0.21, -D / 2 + 2.8); root.add(dais1);
-      const dais2 = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.36, 3.2), trimMat); dais2.position.set(0, 0.6, -D / 2 + 2.4); root.add(dais2);
+      const dais1 = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.42, 4.4), trimMat); dais1.position.set(0, 0.21, -D / 2 + 2.8); addSolid(dais1);
+      const dais2 = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.36, 3.2), trimMat); dais2.position.set(0, 0.6, -D / 2 + 2.4); addSolid(dais2);
       // Detailed Gothic throne
-      const tBase = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.65, 1.25), darkWoodMat); tBase.position.set(0, 1.1, -D / 2 + 2.1); root.add(tBase);
+      const tBase = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.65, 1.25), darkWoodMat); tBase.position.set(0, 1.1, -D / 2 + 2.1); addSolid(tBase);
       const tCush = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.16, 1.05), velvetMat); tCush.position.set(0, 1.48, -D / 2 + 2.14); root.add(tCush);
       const tBack = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.35, 0.22), darkWoodMat); tBack.position.set(0, 2.42, -D / 2 + 1.56); root.add(tBack);
       const tVel = new THREE.Mesh(new THREE.BoxGeometry(1.12, 1.9, 0.12), velvetMat); tVel.position.set(0, 2.4, -D / 2 + 1.66); root.add(tVel);
@@ -850,7 +854,7 @@
       // Twin rows of grand columns & banners
       for (let z = -D / 2 + 5.2; z <= D / 2 - 2.6; z += 3.6) {
         [-W / 2 + 2.2, W / 2 - 2.2].forEach(function (px) {
-          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, H - 0.3, 14), trimMat); col.position.set(px, H / 2, z); root.add(col);
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, H - 0.3, 14), trimMat); col.position.set(px, H / 2, z); addSolid(col, "round");
           const ban = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 3.2), velvetMat); ban.position.set(px + (px < 0 ? 0.5 : -0.5), 4.2, z); ban.rotation.y = px < 0 ? Math.PI / 2 : -Math.PI / 2; root.add(ban);
         });
       }
@@ -875,17 +879,30 @@
         });
       }
     } else if (k === "gallery") {
-      const rail = new THREE.Mesh(new THREE.BoxGeometry(W - 1.8, 1.0, 0.24), darkWoodMat); rail.position.set(0, 0.5, -D / 2 + 1.0); root.add(rail);
+      const railZ = -D / 2 + 1.0;
+      const gaps = sideBuckets.N.map((_, index, all) => (index - (all.length - 1) / 2) *
+        Math.min(3.5, (W - 2.2) / all.length));
+      let start = -W / 2 + 0.9;
+      function addRail(end) {
+        if (end <= start) return;
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(end - start, 1, 0.24), darkWoodMat);
+        rail.position.set((start + end) / 2, 0.5, railZ); addSolid(rail);
+      }
+      gaps.forEach(function (center) {
+        addRail(center - DOOR_W / 2);
+        start = center + DOOR_W / 2;
+      });
+      addRail(W / 2 - 0.9);
       [-2.8, -0.8, 1.2, 3.0].forEach(function (mx) {
-        const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 1.15, 8), darkWoodMat); stand.position.set(mx, 0.58, -1.2); root.add(stand);
+        const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 1.15, 8), darkWoodMat); stand.position.set(mx, 0.58, -1.2); addSolid(stand, "round");
         const desk = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.38, 0.04), woodMat); desk.position.set(mx, 1.22, -1.2); desk.rotation.x = -0.45; root.add(desk);
         addChair(mx, -0.2, 0);
       });
       const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.65, 16), velvetMat); drum.position.set(-3.4, 0.45, 1.2); root.add(drum);
     } else if (k === "wardrobe") {
       [-2.2, 0, 2.2].forEach(function (mx) {
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.55, 8), darkWoodMat); pole.position.set(mx, 0.78, -2.5); root.add(pole);
-        const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.28, 0.72, 12), velvetMat); torso.position.set(mx, 1.32, -2.5); root.add(torso);
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.55, 8), darkWoodMat); pole.position.set(mx, 0.78, -2.5); addSolid(pole, "round");
+        const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.28, 0.72, 12), velvetMat); torso.position.set(mx, 1.32, -2.5); addSolid(torso, "round");
       });
       addTable(0, 1.2, 2.8, 1.1);
     } else if (k === "lounge") {
@@ -896,29 +913,29 @@
       const ring = new THREE.Mesh(new THREE.RingGeometry(1.7, 2.8, 32), goldMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.03; root.add(ring);
       const star = new THREE.Mesh(new THREE.CircleGeometry(1.65, 8), marbleMat); star.rotation.x = -Math.PI / 2; star.position.y = 0.025; root.add(star);
       [[-4.2, -4.2], [4.2, -4.2], [-4.2, 4.2], [4.2, 4.2]].forEach(function (pp) {
-        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.52, H - 0.3, 14), trimMat); col.position.set(pp[0], H / 2, pp[1]); root.add(col);
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.52, H - 0.3, 14), trimMat); col.position.set(pp[0], H / 2, pp[1]); addSolid(col, "round");
       });
     } else if (k === "bedroom") {
-      const bed = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.56, 3.0), darkWoodMat); bed.position.set(-2.3, 0.28, -2.1); root.add(bed);
-      const hb = new THREE.Mesh(new THREE.BoxGeometry(2.35, 1.35, 0.16), darkWoodMat); hb.position.set(-2.3, 0.7, -3.55); root.add(hb);
-      const blanket = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.2, 2.15), velvetMat); blanket.position.set(-2.3, 0.62, -1.75); root.add(blanket);
-      const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, 0.54), linenMat); pillow.position.set(-2.3, 0.66, -3.12); root.add(pillow);
+      const bed = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.56, 3.0), darkWoodMat); bed.position.set(-2.3, 0.28, 1.0); addSolid(bed);
+      const hb = new THREE.Mesh(new THREE.BoxGeometry(2.35, 1.35, 0.16), darkWoodMat); hb.position.set(-2.3, 0.7, -0.45); addSolid(hb);
+      const blanket = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.2, 2.15), velvetMat); blanket.position.set(-2.3, 0.62, 1.35); root.add(blanket);
+      const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, 0.54), linenMat); pillow.position.set(-2.3, 0.66, -0.02); root.add(pillow);
       addTable(2.3, -2.0, 2.0, 1.0); addChair(2.3, -1.0, Math.PI);
     } else if (k === "archive") {
       [-3.4, 0, 3.4].forEach(function (bx) { addBookshelf(bx, -D / 2 + 1.1, 0); });
       addTable(0, 1.0, 3.6, 1.4); addChair(-1.0, 2.2, Math.PI); addChair(1.0, 2.2, Math.PI);
     } else if (k === "tapestry") {
       const tap = new THREE.Mesh(new THREE.BoxGeometry(0.22, 4.2, 8.5), new THREE.MeshStandardMaterial({ color: 0x324c7a, roughness: 0.82 }));
-      tap.position.set(-1.3, 2.4, 0); root.add(tap);
+      tap.position.set(-1.3, 2.4, 0); addSolid(tap);
       const frame = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.22, 8.8), goldMat); frame.position.set(-1.3, 4.55, 0); root.add(frame);
-      const bench = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.5, 4.2), woodMat); bench.position.set(1.6, 0.25, 0); root.add(bench);
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.5, 4.2), woodMat); bench.position.set(1.6, 0.25, 0); addSolid(bench);
     } else if (k === "portrait") {
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(1.85, 2.35, 0.14), goldMat); frame.position.set(0, 1.78, -2.1); frame.rotation.x = -0.14; root.add(frame);
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(1.85, 2.35, 0.14), goldMat); frame.position.set(0, 1.78, -2.1); frame.rotation.x = -0.14; addSolid(frame);
       const canvasP = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 2.05), new THREE.MeshStandardMaterial({ color: 0x5c3e4c, roughness: 0.78 }));
       canvasP.position.set(0, 1.78, -2.02); canvasP.rotation.x = -0.14; root.add(canvasP);
       addTable(-2.8, 1.4, 2.2, 1.0); addTable(2.8, 1.4, 2.0, 1.0);
     } else if (k === "incense") {
-      const cart = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.82, 1.8), woodMat); cart.position.set(0, 0.65, -0.5); root.add(cart);
+      const cart = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.82, 1.8), woodMat); cart.position.set(0, 0.65, -0.5); addSolid(cart);
       const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.2, 0.34, 12), brassMat); burner.position.set(0, 1.24, -0.5); root.add(burner);
       const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.12, 18), brassMat); dial.rotation.x = Math.PI / 2; dial.position.set(0, 2.3, -D / 2 + 0.35); root.add(dial);
     } else if (k === "scriptorium") {
@@ -931,7 +948,7 @@
       addTable(0, 1.8, 3.6, 1.5);
     } else if (k === "bindery") {
       addTable(0, -1.0, 3.4, 1.3);
-      const press = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.26, 0.95), ironMat); press.position.set(0, 1.38, -1.0); root.add(press);
+      const press = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.26, 0.95), ironMat); press.position.set(0, 1.38, -1.0); addSolid(press);
       const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.85, 10), brassMat); screw.position.set(0, 1.72, -1.0); root.add(screw);
     } else if (k === "scaffold") {
       const mural = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 6.2), new THREE.MeshStandardMaterial({ color: 0x997954, roughness: 0.85 }));
@@ -940,11 +957,11 @@
         const deck = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.14, 1.7), woodMat); deck.position.set(0, sy, -D / 2 + 2.0); root.add(deck);
       });
       [[-2.7, -D / 2 + 1.2], [2.7, -D / 2 + 1.2], [-2.7, -D / 2 + 2.8], [2.7, -D / 2 + 2.8]].forEach(function (pp) {
-        const p = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 5.4, 8), darkWoodMat); p.position.set(pp[0], 2.7, pp[1]); root.add(p);
+        const p = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 5.4, 8), darkWoodMat); p.position.set(pp[0], 2.7, pp[1]); addSolid(p, "round");
       });
     } else if (k === "laundry") {
       [-3.0, 0, 3.0].forEach(function (tx) {
-        const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.66, 0.82, 16), woodMat); tub.position.set(tx, 0.41, -1.5); root.add(tub);
+        const tub = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.66, 0.82, 16), woodMat); tub.position.set(tx, 0.41, -1.5); addSolid(tub, "round");
         const wat = new THREE.Mesh(new THREE.CircleGeometry(0.74, 16), waterMat); wat.rotation.x = -Math.PI / 2; wat.position.set(tx, 0.78, -1.5); root.add(wat);
       });
       const line = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 7.6, 6), ironMat); line.rotation.z = Math.PI / 2; line.position.set(0, 2.75, 1.8); root.add(line);
@@ -952,10 +969,10 @@
         const sheet = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 1.55), linenMat); sheet.position.set(cx, 1.95, 1.8); sheet.material = linenMat.clone(); sheet.material.side = THREE.DoubleSide; root.add(sheet);
       });
     } else if (k === "east_hall") {
-      const chest = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.9, 0.95), darkWoodMat); chest.position.set(-W / 2 + 1.0, 0.45, 0); root.add(chest);
+      const chest = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.9, 0.95), darkWoodMat); chest.position.set(-W / 2 + 1.0, 0.45, 0); addSolid(chest);
       const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.2, 0), goldMat); star.position.set(-W / 2 + 1.0, 1.02, 0); root.add(star);
     } else if (k === "dovecote") {
-      const coop = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.8, 1.3), woodMat); coop.position.set(0, 1.4, -2.5); root.add(coop);
+      const coop = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.8, 1.3), woodMat); coop.position.set(0, 1.4, -2.5); addSolid(coop);
       for (let bx = -1.6; bx <= 1.6; bx += 0.8) {
         const hole = new THREE.Mesh(new THREE.CircleGeometry(0.19, 10), new THREE.MeshBasicMaterial({ color: 0x16120e }));
         hole.position.set(bx, 1.95, -1.84); root.add(hole);
@@ -965,15 +982,15 @@
     } else if (k === "sewing") {
       addTable(0, -1.2, 3.8, 1.3);
       [-2.6, 2.6].forEach(function (mx) {
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.6, 8), darkWoodMat); pole.position.set(mx, 0.8, 1.8); root.add(pole);
-        const dress = new THREE.Mesh(new THREE.ConeGeometry(0.38, 1.15, 12), velvetMat); dress.position.set(mx, 1.15, 1.8); root.add(dress);
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.6, 8), darkWoodMat); pole.position.set(mx, 0.8, 1.8); addSolid(pole, "round");
+        const dress = new THREE.Mesh(new THREE.ConeGeometry(0.38, 1.15, 12), velvetMat); dress.position.set(mx, 1.15, 1.8); addSolid(dress, "round");
       });
     } else if (k === "rooftop") {
       // E05 物干し屋根: 瓦屋根スロープ・煙突・風見鶏＆風向き旗・物干しシーツ
       const tileMat = new THREE.MeshStandardMaterial({ color: 0x8f4c38, roughness: 0.82 });
-      const chimney = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.8, 1.2), trimMat); chimney.position.set(-4.2, 1.4, -3.8); root.add(chimney);
-      const ridge = new THREE.Mesh(new THREE.BoxGeometry(W - 1.5, 0.32, 0.45), tileMat); ridge.position.set(0, 0.16, 0); root.add(ridge);
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4.4, 8), ironMat); pole.position.set(3.8, 2.2, -3.2); root.add(pole);
+      const chimney = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.8, 1.2), trimMat); chimney.position.set(-4.2, 1.4, -3.8); addSolid(chimney);
+      const ridge = new THREE.Mesh(new THREE.BoxGeometry(W - 1.5, 0.32, 0.45), tileMat); ridge.position.set(0, 0.16, 0); addSolid(ridge);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4.4, 8), ironMat); pole.position.set(3.8, 2.2, -3.2); addSolid(pole, "round");
       const sock = new THREE.Mesh(new THREE.ConeGeometry(0.24, 1.35, 10), velvetMat); sock.rotation.z = -Math.PI / 2; sock.position.set(4.5, 4.1, -3.2); root.add(sock);
       animators.push(function (t) { sock.rotation.y = Math.sin(t * 2.5) * 0.25; });
       const line = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 7.6, 6), ironMat); line.rotation.z = Math.PI / 2; line.position.set(-0.5, 2.7, 1.2); root.add(line);
@@ -984,34 +1001,34 @@
       });
     } else if (k === "propstore") {
       [[-3.0, -2.5], [-1.5, -2.5], [2.8, -2.2], [-2.5, 2.0]].forEach(function (cp) {
-        const cr = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.1, 1.2), woodMat); cr.position.set(cp[0], 0.55, cp[1]); root.add(cr);
+        const cr = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.1, 1.2), woodMat); cr.position.set(cp[0], 0.55, cp[1]); addSolid(cr);
       });
-      const chest = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.85, 0.9), goldMat); chest.position.set(2.2, 0.42, 2.0); root.add(chest);
+      const chest = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.85, 0.9), goldMat); chest.position.set(2.2, 0.42, 2.0); addSolid(chest);
     } else if (k === "guardpost") {
       const redLine = new THREE.Mesh(new THREE.PlaneGeometry(W - 1.2, 0.22), new THREE.MeshBasicMaterial({ color: 0xe24444 }));
       redLine.rotation.x = -Math.PI / 2; redLine.position.set(0, 0.025, 0.8); root.add(redLine);
       addTable(0, -1.8, 3.6, 1.2); addChair(0, -2.8, 0);
       const bell = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.42, 12), ironMat); bell.position.set(3.2, 2.5, -2.5); root.add(bell);
     } else if (k === "theatre") {
-      const stage = new THREE.Mesh(new THREE.BoxGeometry(W - 2.4, 0.88, 5.2), darkWoodMat); stage.position.set(0, 0.44, -D / 2 + 3.0); root.add(stage);
+      const stage = new THREE.Mesh(new THREE.BoxGeometry(W - 2.4, 0.88, 5.2), darkWoodMat); stage.position.set(0, 0.44, -D / 2 + 3.0); addSolid(stage);
       [-W / 2 + 1.8, W / 2 - 1.8].forEach(function (cx) {
-        const cur = new THREE.Mesh(new THREE.BoxGeometry(1.4, H - 1.2, 0.5), velvetMat); cur.position.set(cx, H / 2, -D / 2 + 5.2); root.add(cur);
+        const cur = new THREE.Mesh(new THREE.BoxGeometry(1.4, H - 1.2, 0.5), velvetMat); cur.position.set(cx, H / 2, -D / 2 + 5.2); addSolid(cur);
       });
       [1.8, 3.8].forEach(function (rz) {
-        const bench = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.55, 0.85), woodMat); bench.position.set(0, 0.28, rz); root.add(bench);
+        const bench = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.55, 0.85), woodMat); bench.position.set(0, 0.28, rz); addSolid(bench);
       });
     } else if (k === "kiln" || k === "foundry" || k === "bakery") {
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(2.1, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), trimMat); dome.position.set(0, 0, -2.6); root.add(dome);
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(2.1, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), trimMat); dome.position.set(0, 0, -2.6); addSolid(dome, "round");
       const fire = new THREE.Mesh(new THREE.CircleGeometry(0.75, 14), flameMat); fire.position.set(0, 0.8, -0.52); root.add(fire);
       addTable(-3.0, 2.0, 2.4, 1.1); addTable(3.0, 2.0, 2.4, 1.1);
     } else if (k === "infirmary") {
       [-3.2, 0, 3.2].forEach(function (bx) {
-        const bed = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.62, 2.65), linenMat); bed.position.set(bx, 0.31, -2.2); root.add(bed);
-        const pil = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.16, 0.48), marbleMat); pil.position.set(bx, 0.68, -3.1); root.add(pil);
+        const bed = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.62, 2.65), linenMat); bed.position.set(bx, 0.31, -2.2); addSolid(bed);
+        const pil = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.16, 0.48), marbleMat); pil.position.set(bx, 0.68, -3.1); addSolid(pil);
       });
       addTable(0, 2.2, 3.4, 1.2);
     } else if (k === "astro" || k === "observatory") {
-      const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.15, 1.35, 8), marbleMat); ped.position.y = 0.68; root.add(ped);
+      const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.15, 1.35, 8), marbleMat); ped.position.y = 0.68; addSolid(ped, "round");
       const r1 = new THREE.Mesh(new THREE.TorusGeometry(1.48, 0.06, 10, 32), goldMat); r1.position.y = 2.65; root.add(r1);
       const r2 = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.05, 10, 28), brassMat); r2.position.y = 2.65; r2.rotation.y = Math.PI / 3; root.add(r2);
       const sun = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), flameMat); sun.position.y = 2.65; root.add(sun);
@@ -1037,13 +1054,13 @@
     } else if (k === "specimen") {
       for (let sz = -4.2; sz <= 4.2; sz += 2.8) {
         [-1.8, 1.8].forEach(function (sx) {
-          const base = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.95, 1.1), woodMat); base.position.set(sx, 0.48, sz); root.add(base);
+          const base = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.95, 1.1), woodMat); base.position.set(sx, 0.48, sz); addSolid(base);
           const caseG = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.95, 0.95), glassMat); caseG.position.set(sx, 1.42, sz); root.add(caseG);
         });
       }
     } else if (k === "returnvault") {
-      const decoy = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.85, 0.95), goldMat); decoy.position.set(-2.0, 0.42, -1.6); root.add(decoy);
-      const realBox = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.78, 0.85), ironMat); realBox.position.set(2.0, 0.39, -1.6); root.add(realBox);
+      const decoy = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.85, 0.95), goldMat); decoy.position.set(-2.0, 0.42, -1.6); addSolid(decoy);
+      const realBox = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.78, 0.85), ironMat); realBox.position.set(2.0, 0.39, -1.6); addSolid(realBox);
       addTable(0, 1.8, 2.8, 1.0);
     } else if (k === "winterroom") {
       const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.68, H, 0.68), woodMat); pillar.position.set(-2.2, H / 2, -1.5); root.add(pillar);
@@ -1052,9 +1069,11 @@
       const board = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.8, 0.14), darkWoodMat); board.position.set(0, 2.0, -D / 2 + 0.38); root.add(board);
       const bell = new THREE.Mesh(new THREE.ConeGeometry(0.75, 1.15, 16), brassMat); bell.position.set(0, H - 1.3, 0); root.add(bell);
     } else if (k === "southgate") {
+      const grille = new THREE.Group();
       for (let gx = -3.6; gx <= 3.6; gx += 0.6) {
-        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 4.6, 8), ironMat); bar.position.set(gx, 2.3, -D / 2 + 1.0); root.add(bar);
+        const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 4.6, 8), ironMat); bar.position.set(gx, 2.3, -D / 2 + 1.0); grille.add(bar);
       }
+      addSolid(grille);
       const redZone = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 2.2), new THREE.MeshBasicMaterial({ color: 0xe24444, transparent: true, opacity: 0.35 }));
       redZone.rotation.x = -Math.PI / 2; redZone.position.set(0, 0.025, -0.5); root.add(redZone);
     } else if (k === "carriageyard") {
@@ -1067,7 +1086,7 @@
     } else if (k === "raingarden") {
       // G01 雨量庭園: 彫刻石盤＋水面＋高精細ブロンズ鷺＋周囲の庭園樹＆石畳
       const path = new THREE.Mesh(new THREE.RingGeometry(1.7, 3.0, 24), trimMat); path.rotation.x = -Math.PI / 2; path.position.y = 0.02; root.add(path);
-      const basin = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.6, 0.44, 24), trimMat); basin.position.y = 0.22; root.add(basin);
+      const basin = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.6, 0.44, 24), trimMat); basin.position.y = 0.22; addSolid(basin, "round");
       const water = new THREE.Mesh(new THREE.CircleGeometry(1.28, 24), waterMat); water.rotation.x = -Math.PI / 2; water.position.y = 0.45; root.add(water);
       const br = new THREE.MeshStandardMaterial({ color: 0x527367, roughness: 0.38, metalness: 0.72, envMap: envMap });
       const rl = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.044, 1.05, 8), br); rl.position.set(-0.08, 0.96, 0); root.add(rl);
@@ -1079,7 +1098,7 @@
       [[-4.4, -4.2], [4.4, -4.2], [-4.4, 4.2], [4.4, 4.2]].forEach(function (tp) { addRealisticTree(tp[0], tp[1], 0.85, false); });
     } else if (k === "fountain") {
       // G02 中庭噴泉: 八角彫刻水盤＋2段噴水塔＋アニメーション水柱＆波紋＋石ベンチ＋樹木
-      const basin = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.65, 8), trimMat); basin.position.y = 0.32; root.add(basin);
+      const basin = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.65, 8), trimMat); basin.position.y = 0.32; addSolid(basin, "round");
       const pool = new THREE.Mesh(new THREE.CircleGeometry(2.9, 24), waterMat); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.62; root.add(pool);
       const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.68, 1.5, 12), marbleMat); tier1.position.y = 1.2; root.add(tier1);
       const bowl1 = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 0.55, 0.38, 16), marbleMat); bowl1.position.y = 1.95; root.add(bowl1);
@@ -1090,7 +1109,7 @@
     } else if (k === "pond") {
       // G06 舟遊び池: リアル木造小舟＋木製桟橋＆係留杭＋波紋池＋睡蓮＆葦＋石橋＋周囲の庭園樹
       const rim = new THREE.Mesh(new THREE.TorusGeometry(5.1, 0.36, 10, 32), trimMat); rim.rotation.x = Math.PI / 2; rim.position.y = 0.25; root.add(rim);
-      const pool = new THREE.Mesh(new THREE.CircleGeometry(5.05, 32), waterMat); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.22; root.add(pool);
+      const pool = new THREE.Mesh(new THREE.CircleGeometry(5.05, 32), waterMat); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.22; addSolid(pool, "water");
       // Wooden pier dock on pilings
       const pier = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.18, 2.8), woodMat); pier.position.set(-3.4, 0.46, 2.8); pier.rotation.y = 0.65; root.add(pier);
       [[-4.1, 2.2], [-2.7, 3.4], [-3.8, 3.6]].forEach(function (pp) {
@@ -1115,7 +1134,7 @@
         [-3.2, 3.2].forEach(function (tx) { addRealisticTree(tx, tz, 0.95, true); });
       });
     } else if (k === "sundial") {
-      const dial = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 2.2, 0.55, 24), marbleMat); dial.position.y = 0.28; root.add(dial);
+      const dial = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 2.2, 0.55, 24), marbleMat); dial.position.y = 0.28; addSolid(dial, "round");
       const ring = new THREE.Mesh(new THREE.TorusGeometry(1.75, 0.06, 8, 24), brassMat); ring.rotation.x = Math.PI / 2; ring.position.y = 0.58; root.add(ring);
       const gnomon = new THREE.Mesh(new THREE.ConeGeometry(0.22, 1.85, 4), goldMat); gnomon.position.set(0, 1.38, 0); gnomon.rotation.x = 0.45; root.add(gnomon);
       [[-4.8, -4.8], [4.8, -4.8], [-4.8, 4.8], [4.8, 4.8]].forEach(function (tp) { addRealisticTree(tp[0], tp[1], 0.85, false); });
@@ -1123,7 +1142,7 @@
       addTable(0, -2.0, 2.8, 1.0);
       [-1.8, -0.6, 0.6, 1.8].forEach(function (px) {
         const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.18, 0.36, 10), new THREE.MeshStandardMaterial({ color: 0xa65e3a }));
-        pot.position.set(px, 0.18, 1.8); root.add(pot);
+        pot.position.set(px, 0.18, 1.8); addSolid(pot, "round");
       });
     } else if (k === "cistern") {
       const pool = new THREE.Mesh(new THREE.PlaneGeometry(W - 2.4, D - 2.4), waterMat); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.08; root.add(pool);
@@ -1132,7 +1151,7 @@
     } else if (k === "icevault") {
       const iceMat = new THREE.MeshStandardMaterial({ color: 0xbce8ff, roughness: 0.1, transparent: true, opacity: 0.84, envMap: envMap });
       [-2.4, 0, 2.4].forEach(function (ix) {
-        const blk = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.35, 1.6), iceMat); blk.position.set(ix, 0.68, -2.2); root.add(blk);
+        const blk = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.35, 1.6), iceMat); blk.position.set(ix, 0.68, -2.2); addSolid(blk);
       });
     } else if (k === "clockwork") {
       addTable(0, -1.2, 3.6, 1.3);
@@ -1146,17 +1165,17 @@
       addChair(2.6, 0, -Math.PI / 2);
       const kettle = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 10), ironMat); kettle.position.set(0, 1.08, 0); root.add(kettle);
     } else if (k === "understage") {
-      const lift = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.28, 3.6), woodMat); lift.position.set(0, 0.45, 0); root.add(lift);
+      const lift = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.28, 3.6), woodMat); lift.position.set(0, 0.45, 0); addSolid(lift);
       const star = new THREE.Mesh(new THREE.CircleGeometry(0.55, 5), new THREE.MeshBasicMaterial({ color: 0xffe49e })); star.rotation.x = -Math.PI / 2; star.position.set(0, 0.6, 0); root.add(star);
     } else if (k === "ledgervault") {
       addBookshelf(-3.2, -3.8, 0); addBookshelf(3.2, -3.8, 0); addTable(0, 0.6, 2.4, 1.2);
       const oath = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.1, 0.74), velvetMat); oath.position.set(0, 0.98, 0.6); root.add(oath);
     } else if (k === "servicecorridor") {
       [-3.8, 0, 3.8].forEach(function (tz) {
-        const rack = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.75, 1.2), woodMat); rack.position.set(-W / 2 + 1.0, 0.88, tz); root.add(rack);
+        const rack = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.75, 1.2), woodMat); rack.position.set(-W / 2 + 1.0, 0.88, tz); addSolid(rack);
       });
     } else if (k === "silentchapel") {
-      const altar = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 1.05), marbleMat); altar.position.set(0, 0.55, -2.4); root.add(altar);
+      const altar = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 1.05), marbleMat); altar.position.set(0, 0.55, -2.4); addSolid(altar);
       const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.42, 8), linenMat); candle.position.set(0, 1.31, -2.4); root.add(candle);
       const fl = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 6), flameMat); fl.position.set(0, 1.58, -2.4); root.add(fl);
     } else if (k === "whitecorridor") {
@@ -1168,18 +1187,18 @@
       }
     } else if (k === "oldchapel") {
       [-3.3, -1.1, 1.1, 3.3].forEach(function (sx, i) {
-        const ped = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.78, 1.1), trimMat); ped.position.set(sx, 0.39, -3.2); root.add(ped);
+        const ped = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.78, 1.1), trimMat); ped.position.set(sx, 0.39, -3.2); addSolid(ped, "round");
         const body = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.38, 1.45, 14), marbleMat); body.position.set(sx, 1.5, -3.2); root.add(body);
         const hd = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 10), marbleMat); hd.position.set(sx, 2.4, -3.2); root.add(hd);
         if (i !== 2) {
-          const cr = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.16, 0.12, 10), goldMat); cr.position.set(sx, 2.58, -3.2); root.add(cr);
+          const cr = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.16, 0.12, 10), goldMat); cr.position.set(sx, 2.58, -3.2); addSolid(cr);
         }
       });
     } else if (k === "boundary") {
       // Q05 境石と外の草地: 城側石畳 vs 外側の野草・花畑・本格樹木＋金王冠刻みの境石
       const innerSlab = new THREE.Mesh(new THREE.PlaneGeometry(W, D / 2), new THREE.MeshStandardMaterial({ map: getStoneTex("#c8c0ae", "rgba(35,30,22,0.28)", 6, 3), roughness: 0.9 }));
       innerSlab.rotation.x = -Math.PI / 2; innerSlab.position.set(0, 0.025, D / 4); root.add(innerSlab);
-      const stone = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.56), trimMat); stone.position.set(0, 1.02, 0); root.add(stone);
+      const stone = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.56), trimMat); stone.position.set(0, 1.02, 0); addSolid(stone);
       const cap = new THREE.Mesh(new THREE.ConeGeometry(0.68, 0.38, 4), trimMat); cap.rotation.y = Math.PI / 4; cap.position.set(0, 2.22, 0); root.add(cap);
       const crownMark = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.32, 4), goldMat); crownMark.rotation.y = Math.PI / 4; crownMark.position.set(0, 1.48, 0.3); root.add(crownMark);
       // Wildflower meadow & realistic multi-branch trees on the free outside (-Z)

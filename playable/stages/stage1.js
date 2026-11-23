@@ -397,6 +397,7 @@
       const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.11, 3.2, 2.24), doorWood);
       leaf.position.set(0, 1.6, 1.12);
       pivot.add(leaf);
+      leaf.userData.walkObstacle = "oriented";
       const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.22, 8), doorBrass);
       handle.position.set(0.11, 1.08, 1.95);
       pivot.add(handle);
@@ -405,6 +406,7 @@
     }
     const doorW04 = makeSwingDoor(pW04);
     const doorQ02 = makeSwingDoor(pQ02);
+    const walkingDoorAngle = -Math.PI * 0.46;
 
     // 主人公 P00（既存単環首輪を完全非表示）
     const hero = createActorRig("P00", { envMap: opts.envMap });
@@ -479,8 +481,8 @@
       const hp = gs.heroPos || cfg.heroPath.unlock;
       hero.rig.position.set(hp[0], 0, hp[1]);
       hero.rig.rotation.y = (gs.heroYaw !== undefined) ? gs.heroYaw : 0;
-      doorW04.pivot.rotation.y = (gs.doors && gs.doors.W04Open) ? -Math.PI * 0.34 : 0;
-      doorQ02.pivot.rotation.y = (gs.doors && gs.doors.Q02Open) ? -Math.PI * 0.34 : 0;
+      doorW04.pivot.rotation.y = (gs.doors && gs.doors.W04Open) ? walkingDoorAngle : 0;
+      doorQ02.pivot.rotation.y = (gs.doors && gs.doors.Q02Open) ? walkingDoorAngle : 0;
 
       if (gs.collarRemoved) {
         collar.group.visible = false;
@@ -786,6 +788,7 @@
       keyHolder.visible = false;
       state.collarState = "stowed";
       const p = smoothstep(t / T.walkToQ02);
+      doorQ02.pivot.rotation.y = walkingDoorAngle * Math.min(1, p * 2);
       hero.rig.position.set(lerp(cfg.heroPath.unlock[0], cfg.heroPath.toQ02[0], p), 0, lerp(cfg.heroPath.unlock[1], cfg.heroPath.toQ02[1], p));
       hero.rig.rotation.y = lerpAngle(0, -Math.PI * 0.5, p);
       if (p < 0.98) charApi.applyPose(hero.charObj, "walk", sec * 2.6);
@@ -899,18 +902,22 @@
     const eastPillar = new THREE.Mesh(new THREE.BoxGeometry(0.95, 6.4, 1.15), stoneMat);
     eastPillar.position.set(cfg.guard.pillarPos[0], 3.2, cfg.guard.pillarPos[1]);
     root.add(eastPillar);
+    eastPillar.userData.walkObstacle = true;
     const alcoveWall = new THREE.Mesh(new THREE.BoxGeometry(0.95, 6.4, 0.6), stoneMat);
     alcoveWall.position.set(cfg.guard.pillarPos[0], 3.2, -4.8);
     root.add(alcoveWall);
+    alcoveWall.userData.walkObstacle = true;
 
     // 入口側の西壁沿い低い欄干＋結び目（E279）
     const railMat = new THREE.MeshStandardMaterial({ color: 0x5c4636, roughness: 0.76 });
     const railPost = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.72, 8), railMat);
     railPost.position.set(cfg.railingKnotPos[0], 0.36, cfg.railingKnotPos[2]);
     root.add(railPost);
+    railPost.userData.walkObstacle = true;
     const railBar = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 1.5), railMat);
     railBar.position.set(cfg.railingKnotPos[0], 0.68, cfg.railingKnotPos[2]);
     root.add(railBar);
+    railBar.userData.walkObstacle = true;
     const knotPivot = new THREE.Group();
     knotPivot.position.set(cfg.railingKnotPos[0] + 0.08, cfg.railingKnotPos[1], cfg.railingKnotPos[2]);
     const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.24, 6), new THREE.MeshStandardMaterial({ color: 0xe8dcc2, roughness: 0.85 }));
@@ -951,6 +958,7 @@
     drapeL.position.set(-0.2, 0.25, 0.14);
     westGuard.charObj.upperBody.add(drapeL);
     root.add(westGuard.rig);
+    westGuard.rig.userData.walkObstacle = "actor";
 
     const dbg = createDebugLayer();
     dbg.addPath([cfg.heroPath.enter, cfg.heroPath.waitSafe, cfg.heroPath.crossEnd, cfg.heroPath.exitTurn], 0x38bdf8, 0.08);
@@ -1261,10 +1269,13 @@
     // ピット南壁・西壁（北壁はQ04地下通路へ抜ける開口にするため塞がない！）
     const pitSouth = new THREE.Mesh(new THREE.BoxGeometry(op.widthX + 0.12, 2.2, 0.12), wellWallMat);
     pitSouth.position.set(op.centerX, -1.1, maxZ + 0.04); stairWell.add(pitSouth);
+    pitSouth.userData.walkObstacle = true;
     const pitWest = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.2, op.lengthZ + 2.6), wellWallMat);
     pitWest.position.set(minX - 0.06, -1.1, op.centerZ - 1.2); stairWell.add(pitWest);
+    pitWest.userData.walkObstacle = true;
     const pitEastNorth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.2, 2.5), wellWallMat);
     pitEastNorth.position.set(maxX + 0.06, -1.1, minZ - 1.25); stairWell.add(pitEastNorth);
+    pitEastNorth.userData.walkObstacle = true;
 
     // 各段を単一座標定義から生成（段iの上面 = -(i+1)*stepHeight）
     const stepW = op.widthX / op.stepCount;
@@ -1303,6 +1314,7 @@
       if (ch.isMesh && ch.position.z < -0.15) ch.visible = false;
     });
     root.add(statueObj.group);
+    statueObj.group.userData.walkObstacle = true;
 
     // 単一の背面受け口（(1.1, 1.30, -3.50)、幅 0.26m）
     const socketGroup = new THREE.Group();
