@@ -51,15 +51,15 @@ async function seedOldSave(page, target, room = null) {
   await page.reload();
 }
 
-async function holdStickDown(page) {
+async function holdStick(page, vertical, finish) {
   const input = await page.context().newCDPSession(page);
   const stick = await page.locator("#walk-stick").boundingBox();
   const x = Math.round(stick.x + stick.width / 2);
   const y = Math.round(stick.y + stick.height / 2);
   await input.send("Input.dispatchTouchEvent", { type:"touchStart", touchPoints:[{x,y}] });
-  await input.send("Input.dispatchTouchEvent", { type:"touchMove", touchPoints:[{x,y:y+28}] });
+  await input.send("Input.dispatchTouchEvent", { type:"touchMove", touchPoints:[{x,y:y+vertical*28}] });
   try {
-    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).run.world.room === "C02", saveKey);
+    await page.waitForFunction(finish, saveKey);
   } finally {
     await input.send("Input.dispatchTouchEvent", { type:"touchEnd", touchPoints:[] });
     await input.detach();
@@ -87,7 +87,7 @@ async function startAndRotate(page, viewport) {
   await page.locator("#content h2").waitFor({state:"visible"});
   assert.equal(await page.locator("#content h2").textContent(),"出口");
   assert.equal((await readSave(page)).run.world.room,"C01");
-  await holdStickDown(page);
+  await holdStick(page,1,key => JSON.parse(localStorage.getItem(key)).run.world.room === "C02");
   assert.equal((await readSave(page)).run.world.room,"C02");
   await page.reload();
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
@@ -114,19 +114,13 @@ async function failAndRewind(page) {
   assert.equal(run.world.main.at(-1),"M17");
   await page.locator("#dialog").waitFor({state:"hidden"});
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
-  await page.keyboard.down("ArrowUp");
-  try {
-    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).run.failure?.event === "E280", saveKey);
-  } finally { await page.keyboard.up("ArrowUp"); }
+  await holdStick(page,-1,key => JSON.parse(localStorage.getItem(key)).run.failure?.event === "E280");
 }
 
 async function exitCastle(page) {
   await seedOldSave(page,"M20","Q04");
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
-  await page.keyboard.down("ArrowUp");
-  try {
-    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).run.world.room === "Q05", saveKey);
-  } finally { await page.keyboard.up("ArrowUp"); }
+  await holdStick(page,-1,key => JSON.parse(localStorage.getItem(key)).run.world.room === "Q05");
   await openStep(page,"M20");
   assert.equal((await readSave(page)).run.world.escaped,false);
   assert.equal(await button(page,"境石を越え、外の草地を踏む").count(),0);
