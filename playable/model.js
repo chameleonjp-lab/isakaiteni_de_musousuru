@@ -23,7 +23,7 @@ function createStory(data) {
   const crossing = data.escape.unseen_crossing;
   function fresh() {
     const world = { room: start, minutes: 0, main: [], side: [], choices: {}, seen: false, escaped: false };
-    return { world, memory: [], visited: [start], fails: 0, checkpoint: null, beforeRemoval: null, beforeDeadline: copyWorld(world), failure: null };
+    return { world, memory: [], visited: [start], warnings: [], fails: 0, checkpoint: null, beforeRemoval: null, beforeDeadline: copyWorld(world), failure: null };
   }
   const copyWorld = world => JSON.parse(JSON.stringify(world));
   const pushOnce = (list, id) => { if (!list.includes(id)) list.push(id); };
@@ -55,14 +55,27 @@ function createStory(data) {
       && !has(run, id) && event.requires.every(flag => has(run, flag))
       && (!collarOff(run.world) || event.room.startsWith("Q"));
   }
-  function fail(run, event, heading, body, world = run.world) {
+  function fail(run, event, heading, body, world = run.world, witnessed = false) {
     if (run.failure || run.world.escaped) return false;
     run.checkpoint = copyWorld(world);
-    if (event?.kind === "発見") run.world.seen = true;
+    if (event?.kind === "発見" || witnessed) run.world.seen = true;
     if (event) pushOnce(run.memory, event.id);
     run.failure = { heading, body, event: event?.id || null };
     run.fails += 1;
     return false;
+  }
+  function choose(run, key, person) {
+    if (run.failure || run.world.escaped) return false;
+    if (!Array.isArray(run.warnings)) run.warnings = [];
+    const used = run.warnings.indexOf(key);
+    if (used < 0) {
+      run.warnings.push(key);
+      return true;
+    }
+    run.warnings.splice(used,1);
+    const reason = person ? `${person}は「しつこい。何か探っているな」と声を上げた。` :
+      "同じ場所で繰り返される物音を不審に思い、見回りの兵が立ち止まった。";
+    return fail(run,null,"同じ行動を怪しまれた",reason+"駆けつけた衛兵に処刑された。",run.world,collarOff(run.world));
   }
   function advanceClock(run, minutes) {
     if (collarOff(run.world)) return true;
@@ -158,7 +171,7 @@ function createStory(data) {
       && (!world.escaped || (world.main.includes(finish) && collarOff(world) && !world.seen));
   }
   return { fresh, rooms, main, side, cast, neighbors, byRoom, has, canMove, canSide, canMain,
-    move, completeMain, playSide, rewind, fail, routeTo, collarOff, validSave };
+    move, completeMain, playSide, rewind, fail, choose, routeTo, collarOff, validSave };
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { createStory };

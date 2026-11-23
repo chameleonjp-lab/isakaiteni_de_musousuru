@@ -141,6 +141,60 @@ async function exitCastle(page) {
   assert.equal(await page.locator("#room").textContent(),"城の外");
 }
 
+async function verifyDialogueAndFinish(page) {
+  const dialogue = page.locator("#dialog-actions button");
+  await button(page,"第一の声").click();
+  assert.equal(await dialogue.count(),4);
+  await button(page,"すぐに顔を上げる").click();
+  assert.equal((await readSave(page)).run.failure.event,"E002");
+  await button(page,"安全だった直前に戻る").click();
+  await button(page,"第一の声").click();
+  await button(page,"伏せたまま待つ").click();
+  await button(page,"続ける").click();
+  await button(page,"第二の声").click();
+  assert.equal(await dialogue.count(),4);
+  const minutes=(await readSave(page)).run.world.minutes;
+  await button(page,"伏せたまま様子をうかがう").click();
+  assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
+  assert.equal((await readSave(page)).run.world.minutes,minutes);
+  await page.reload();
+  await button(page,"第二の声").click();
+  await button(page,"伏せたまま様子をうかがう").click();
+  assert.equal((await readSave(page)).run.failure.heading,"同じ行動を怪しまれた");
+  await button(page,"安全だった直前に戻る").click();
+
+  const missions=await page.evaluate(()=>[...story.main.values()].slice(1).map(m=>[m.id,m.room,puzzles[m.id][3]]));
+  for (const [id,room,correct] of missions) {
+    const route=await page.evaluate(target=>story.routeTo(run,target).slice(1).map(r=>story.rooms.get(r).name),room);
+    for (const name of route) {
+      await button(page,"移動").click();
+      const target=page.locator("#content button").filter({hasText:name});
+      assert.equal(await target.count(),1,name);
+      await target.click();
+    }
+    const label=await page.evaluate(id=>puzzles[id][0],id);
+    await page.locator("#content").getByRole("button",{name:label,exact:true}).first().click();
+    if (id==="M10") await button(page,"マントを羽織る").click();
+    if (id==="M18") {
+      await button(page,"巡回環をかざす").click();
+      await page.getByText("巡回環　空番。二つの欠けが重なった。",{exact:true}).waitFor();
+    }
+    await button(page,id==="M18" ? "白百合の壁際を渡る" : correct).click();
+    assert.ok((await readSave(page)).run.world.main.includes(id),id);
+    if (id!=="M20") await button(page,"続ける").click();
+    if (id==="M02") {
+      await button(page,"王女リゼに声をかける").click();
+      assert.equal(await dialogue.count(),4);
+      await button(page,"自分の言葉で書いたことなら、あとでも読めると答える").click();
+      await page.locator("#dialog-actions").getByRole("button",{name:"閉じる",exact:true}).click();
+      await button(page,"佩剣に手をかける").click();
+      assert.equal(await dialogue.count(),4);
+      await page.locator("#dialog-close").click();
+    }
+  }
+  assert.ok((await readSave(page)).run.world.escaped);
+}
+
 async function program() {
   const path = process.argv[2];
   if (!path) throw Error("Usage: node playable/verify-browser.cjs /path/to/index.html");
@@ -182,10 +236,7 @@ async function program() {
     });
     await fallback.goto(origin);
     await fallback.locator("#stage.unavailable").waitFor();
-    await seedOldSave(fallback,"M20");
-    await button(fallback,"境石と夜露").click();
-    await button(fallback,"境石を越え、外の草地を踏む").click();
-    assert.equal((await readSave(fallback)).run.world.escaped,true);
+    await verifyDialogueAndFinish(fallback);
     await fallback.close();
     assert.deepEqual(externalRequests,[]);
     assert.deepEqual(pageErrors,[]);

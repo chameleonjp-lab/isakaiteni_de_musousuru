@@ -2,6 +2,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { createStory } = require("./model.js");
+const { characterReplies, mainTalk, fatalSceneReply, rizeTalk, talkChoices } = require("./dialogue.js");
+const { puzzles, itemNotes } = require("./puzzles.js");
 const folder = path.join(__dirname, "../docs/scenario/data");
 const read = file => JSON.parse(fs.readFileSync(path.join(folder,file),"utf8"));
 const data = Object.fromEntries(["main","rooms","people","items","escape"].map(k=>[k,read(k+".json")]));
@@ -83,6 +85,61 @@ for(const [id,e] of story.side) {
   if (e.branches) for(const branch of e.branches) reachable(branch.id);
   else reachable(id);
 }
+function verifyTalk(key, correct, replies, fatal, allFatal = false) {
+  const options=talkChoices(key,correct,replies,fatal,allFatal);
+  assert.equal(options.length,4,key);
+  assert.equal(new Set(options.map(option=>option.key)).size,4,key);
+  assert.equal(new Set(options.map(option=>option.label.replace(/[。\s]/g,""))).size,4,key);
+  assert.equal(options.filter(option=>option.outcome==="correct").length,1,key);
+  assert.equal(options.filter(option=>option.outcome==="death").length,allFatal ? 3 : 2,key);
+  assert.equal(options.filter(option=>option.outcome==="neutral").length,allFatal ? 0 : 1,key);
+}
+assert.deepEqual(Object.keys(characterReplies),data.people.map(person=>person.id));
+assert.deepEqual(Object.keys(puzzles),data.main.map(scene=>scene.id));
+assert.deepEqual(Object.keys(itemNotes),data.items.map(item=>item.id));
+const speaking=new Set(["P02","P16"]);
+verifyTalk("P02",rizeTalk.correct,characterReplies.P02);
+let talks=2; // 王女と玉座の間の抜刀。後者はブラウザー側で確認。
+for (const [id,[person,...replies]] of Object.entries(mainTalk)) {
+  assert.ok(story.main.has(id) && story.cast.has(person),id);
+  verifyTalk(id,puzzles[id][3],replies,null,id==="M01");
+  speaking.add(person);
+  talks++;
+}
+for (const e of story.side.values()) {
+  if (!e.person) continue;
+  const fatal = ["死因","発見","期限切れ"].includes(e.kind);
+  const safe = fatalSceneReply[e.id];
+  assert.equal(Boolean(safe),fatal,e.id);
+  for (const branch of e.branches || [null]) {
+    verifyTalk(branch?.id || e.id,safe?.[0] || branch?.choice || e.action,characterReplies[e.person],
+      safe ? [e.action,characterReplies[e.person][0]] : null);
+    talks++;
+  }
+  speaking.add(e.person);
+}
+assert.equal(speaking.size,36);
+
+const oldSave=story.fresh();
+delete oldSave.warnings;
+assert.ok(story.validSave(oldSave));
+assert.ok(story.choose(oldSave,"M01.danger1","国王"));
+story.playSide(oldSave,"E002");
+assert.ok(story.rewind(oldSave));
+const restored=JSON.parse(JSON.stringify(oldSave));
+assert.ok(story.validSave(restored));
+assert.equal(story.choose(restored,"M01.danger1","国王"),false);
+assert.match(restored.failure.body,/しつこい/);
+assert.equal(story.choose(restored,"M01.correct","国王"),false);
+assert.ok(story.rewind(restored));
+assert.ok(story.choose(restored,"M01.correct","国王"));
+assert.ok(story.completeMain(restored,"M01"));
+assert.ok(story.choose(restored,"M02.neutral","国王"));
+assert.deepEqual(restored.world.main,["M01"]);
+assert.equal(story.choose(restored,"M02.neutral","国王"),false);
+assert.ok(story.rewind(restored));
+assert.ok(story.choose(restored,"M02.neutral","国王"));
+assert.ok(story.completeMain(restored,"M02"));
 const run=story.fresh();
 assert.equal(story.completeMain(run,"M20",escape.boundary_event),false);
 assert.equal(story.canMove(run.world,"C02"),false);
@@ -101,6 +158,10 @@ act(run,"M17");
 assert.ok(story.collarOff(run.world));
 assert.equal(story.canMove(run.world,"W04"),false);
 walk(run,"Q02");
+assert.ok(story.choose(run,"M18.wrong0"));
+assert.equal(story.choose(run,"M18.wrong0"),false);
+assert.ok(run.world.seen && !story.completeMain(run,"M18",proof("M18")));
+assert.ok(story.rewind(run) && !run.world.seen);
 assert.equal(story.completeMain(run,"M18",null),false);
 assert.equal(story.playSide(run,"E278"),false);
 assert.ok(run.failure && run.world.seen);
@@ -117,3 +178,4 @@ assert.ok(run.world.escaped);
 assert.equal(run.world.main.length,20);
 assert.ok(story.validSave(JSON.parse(JSON.stringify(run))));
 console.log("全300場面・84選択値を独立した周回で確認。20行程・南門・目撃・死に戻り・境界を検証。");
+console.log("36人・"+talks+"件の会話と、選択の反復・旧セーブとの互換性を確認。");
