@@ -16,7 +16,8 @@ const gradient = { addColorStop() {} };
 const paint = new Proxy({
   createLinearGradient: () => gradient,
   createRadialGradient: () => gradient,
-  getImageData: () => ({data: new Uint8ClampedArray(4)})
+  getImageData: () => ({data: new Uint8ClampedArray(4)}),
+  measureText: text => ({width: text.length * 13})
 }, {
   get(target, key) { return target[key] ?? (() => {}); }
 });
@@ -28,6 +29,7 @@ for (const name of ["characters","items","environments","stage1","stage2","stage
 }
 vm.runInContext(read("../walk.js"), context, { filename:"walk.js" });
 vm.runInContext(read("../residents.js"), context, { filename:"residents.js" });
+vm.runInContext(read("../nameplates.js"), context, { filename:"nameplates.js" });
 
 const result = vm.runInContext(`
 (() => {
@@ -140,6 +142,33 @@ const result = vm.runInContext(`
     if (!ctrl) disposeCastleStage({root});
   }
   requireThat(foundResidents.size === 36,"36人全員に配置場所がある");
+
+  const named = window.CastleEscapeModels.createCharacter("P02",{});
+  const nameplate = createCastleNameplate(named,story.cast.get("P02").name);
+  const sprite = named.headPivot.children.find(node => node.isSprite);
+  const camera = new THREE.PerspectiveCamera(54,402/652,.05,150);
+  camera.position.set(0,1.8,5);
+  camera.lookAt(0,1.8,0);
+  camera.updateMatrixWorld();
+  nameplate.resize(2/(652*camera.projectionMatrix.elements[5]));
+  requireThat(sprite.name === "王女リゼ" && sprite.material.depthTest && !sprite.material.sizeAttenuation,
+    "名前を頭に固定し、手前の物に隠れ、遠くからも読める大きさで表示する");
+  const placeHead = x => {
+    const head = sprite.getWorldPosition(new THREE.Vector3());
+    named.group.position.add(new THREE.Vector3(x,0,0).unproject(camera).sub(head));
+    nameplate.update(camera,402);
+  };
+  placeHead(.97);
+  requireThat(sprite.visible && sprite.center.x > .5,"画面右端の名前を画面内へ寄せる");
+  placeHead(-.97);
+  requireThat(sprite.visible && sprite.center.x < .5,"画面左端の名前を画面内へ寄せる");
+  placeHead(1.12);
+  requireThat(!sprite.visible,"画面外の人物の名前は表示しない");
+  const patrol = stage.setRoom("Q02");
+  createCastleRoomNameplates(story,[],patrol);
+  requireThat(patrol._inspect.westGuard.charObj.headPivot.children.some(node => node.isSprite && node.name === "西番"),
+    "西番に、流用モデルの名前が出ない");
+
   for (const [room,model] of [["C01","PROP_THRONE"],["G01","PROP_HERON"],["N03","PROP_ASTRO"],
       ["N06","PROP_ASTRO"],["Q03","PROP_STATUE"],["Q05","PROP_BOUNDARY"]]) {
     const ctrl = stage.setRoom(room);

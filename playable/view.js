@@ -16,6 +16,7 @@ function createCastleView(canvas, frame, actions) {
   cloak.visible = false;
   player.upperBody.add(cloak);
   stage3D.scene.add(player.group);
+  const playerNameplate = createCastleNameplate(player,"主人公");
 
   const stick = frame.querySelector("#walk-stick");
   const passage = frame.querySelector("#walk-passage");
@@ -27,6 +28,8 @@ function createCastleView(canvas, frame, actions) {
   let area;
   let plainArea;
   let residents = [];
+  let nameplates = [];
+  let nameplateViewportWidth = 1;
   let controller;
   let snapshotKey;
   let current;
@@ -121,6 +124,8 @@ function createCastleView(canvas, frame, actions) {
       if (plainArea) stage3D.scene.add(plainArea.group);
       area = controller?.env || plainArea;
       residents = placeCastleResidents(area, controller);
+      nameplates = createCastleRoomNameplates(story,residents,controller);
+      resizeNameplates();
       current = room.id;
       area.surfaceY = controller?._inspect?.getSurfaceY ?? controller?._inspect?.getStairSurfaceY;
       stage3D.scene.background.setHex(area.theme.bg);
@@ -152,12 +157,20 @@ function createCastleView(canvas, frame, actions) {
     return { room, x: position.x, z: position.z, yaw: position.yaw };
   }
 
+  function resizeNameplates() {
+    nameplateViewportWidth = frame.clientWidth;
+    const unitsPerPixel = 2 / (Math.max(1,frame.clientHeight) * camera.projectionMatrix.elements[5]);
+    playerNameplate.resize(unitsPerPixel);
+    for (const plate of nameplates) plate.resize(unitsPerPixel);
+  }
+
   const size = new ResizeObserver(() => {
     camera.aspect = Math.max(1, frame.clientWidth) / Math.max(1, frame.clientHeight);
     camera.fov = camera.aspect < 1.25 ? 54 : 48;
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.35));
     renderer.setSize(frame.clientWidth, frame.clientHeight, false);
     camera.updateProjectionMatrix();
+    resizeNameplates();
   });
   size.observe(frame);
 
@@ -301,6 +314,9 @@ function createCastleView(canvas, frame, actions) {
     if (plainArea) plainArea.update(now / 1000);
     for (const resident of residents) resident.update(now / 1000);
     const completed = stage3D.update(dt, now / 1000);
+    camera.updateMatrixWorld();
+    playerNameplate.update(camera,nameplateViewportWidth);
+    for (const plate of nameplates) plate.update(camera,nameplateViewportWidth);
     renderer.render(stage3D.scene, camera);
     completed?.();
   }
