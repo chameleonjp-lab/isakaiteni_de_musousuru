@@ -421,3 +421,39 @@ progress { width: 100%; accent-color: #edc780; height: .8rem; }
   .game-page .desk-panel .content { padding: .2rem .8rem .85rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+dialog[data-layout="story"][data-speaker="true"] {
+  inset-block-start: max(12px, env(safe-area-inset-top));
+  height: auto;
+  max-height: none;
+  pointer-events: none;
+}
+dialog[data-layout="story"][data-speaker="true"][open] {
+  grid-template-rows: minmax(0,1fr) auto minmax(108px,auto);
+}
+dialog[data-layout="story"][data-speaker="true"] .dialog-actions {
+  justify-self: center;
+  align-self: end;
+  width: min(380px, 100%);
+  margin-inline: 0;
+  margin-block-end: clamp(0px, calc(50dvh - 230px), 70px);
+  pointer-events: auto;
+}
+dialog[data-layout="story"][data-speaker="true"] .dialog-content { pointer-events: auto; }
+.game-page:has(.stage[data-speaking="true"]) :is(.stage-cameras,.stage-top,.tabs-tools) {
+  visibility: hidden;
+}
+@media (max-height: 460px) and (min-width: 560px) {
+  dialog[data-layout="story"][data-speaker="true"] .dialog-actions:has(> :nth-child(3)) {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-height: 460px) {
+  dialog[data-layout="story"][data-speaker="true"][open] {
+    grid-template-rows: minmax(0,1fr) auto minmax(88px,auto);
+  }
+  dialog[data-layout="story"][data-speaker="true"] .dialog-content {
+    min-height: 88px;
+    max-height: 31dvh;
+  }
+}

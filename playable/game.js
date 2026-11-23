@@ -240,10 +240,11 @@ function advanceDialogue() {
   dialogActions.hidden = false;
   dialogActions.firstElementChild?.focus({preventScroll:true});
 }
-function openDialog(kicker, title, texts, controls, {locked = false, mode = "story", speaker = false} = {}) {
+function openDialog(kicker, title, texts, controls, {locked = false, mode = "story", speaker = null} = {}) {
   stopTimer();
   stopDialogue();
   view?.stopInput();
+  view?.setSpeaker(speaker?.id);
   $("dialog-kicker").textContent = kicker;
   $("dialog-title").textContent = title;
   dialogCopy.replaceChildren();
@@ -251,7 +252,7 @@ function openDialog(kicker, title, texts, controls, {locked = false, mode = "sto
   $("dialog-close").hidden = locked;
   modal.dataset.locked = String(locked);
   modal.dataset.layout = mode === "panel" ? "panel" : "story";
-  modal.dataset.speaker = String(speaker);
+  modal.dataset.speaker = String(Boolean(speaker));
   modal.setAttribute("aria-labelledby",speaker ? "dialog-kicker" : "dialog-title");
   const progressive = mode === "story" && texts.some(Boolean) && controls.length > 0;
   dialogActions.hidden = progressive;
@@ -275,12 +276,13 @@ function openDialog(kicker, title, texts, controls, {locked = false, mode = "sto
 function closeDialog() {
   stopTimer();
   stopDialogue();
+  view?.setSpeaker(null);
   modal.close();
   if (dialogOrigin?.isConnected) dialogOrigin.focus({preventScroll:true});
 }
-function tracked(key, respond, person = null) {
+function tracked(key, respond, person = null, repeatedDeath) {
   return () => {
-    if (!story.choose(run,key,person)) {
+    if (!story.choose(run,key,person,repeatedDeath)) {
       if (run.failure) { save(); presentFailure(); }
       return;
     }
@@ -294,9 +296,9 @@ function previousChoices(id) {
     return earlier.map(b=>"前に選んだこと　"+b.choice+"。"+b.effect);
   });
 }
-function fatalReply(person, label) {
-  const body = `「${label}」と動くと、${person.name}が危険を知らせた。駆けつけた衛兵に出口を塞がれ、城の禁制に触れた客として処刑された。`;
-  story.fail(run,null,"城の禁制",body,run.world,story.collarOff(run.world));
+function fatalReply(person, choice) {
+  const {heading,body} = conversationDeath(person,choice);
+  story.fail(run,null,heading,body,run.world,story.collarOff(run.world));
   save();
   presentFailure();
 }
@@ -307,15 +309,17 @@ function openConversation({person, key, title, lines, correct, onCorrect, replie
     const respond = () => {
       if (choice.outcome === "correct") return onCorrect();
       if (choice.outcome === "death") {
-        if (onFatal?.(choice.key)) return;
-        return fatalReply(person,choice.label);
+        if (onFatal?.(choice)) return;
+        return fatalReply(person,choice);
       }
-      openDialog(person.name,"そのまま会話を終えた",["相手は作業に戻った。"],[action("もう一度話す",reopen),action("閉じる",closeDialog)]);
+      openDialog(person.name,"そのまま会話を終えた",["相手は作業に戻った。"],[action("もう一度話す",reopen),action("閉じる",closeDialog)],{speaker:person});
     };
-    return action(choice.label,tracked(person.id+" "+choice.label,respond,person.name));
+    return action(choice.label,tracked(person.id+" "+choice.label,respond,person.name,
+      () => conversationDeath(person,choice,true)));
   });
-  openDialog(person.name,title,lines,controls,{speaker:true});
+  openDialog(person.name,title,lines,controls,{speaker:person});
 }
+
 function presentFailure() {
   updateStatus();
   const { heading, body, event } = run.failure;
@@ -351,7 +355,7 @@ function confirmReset() {
     action("戻る",closeDialog)
   ],{mode:"panel"});
 }
-function postMain(id, proof) {
+function postMain(id, proof, speaker = null) {
   const success=story.completeMain(run,id,proof);
   save();
   if (run.failure) return presentFailure();
@@ -367,7 +371,7 @@ function postMain(id, proof) {
     [action("続ける",() => {
       closeDialog();
       view?.play(CASTLE_STAGE_EFFECTS[id]);
-    },{className:"primary"})]);
+    },{className:"primary"})],{speaker});
 }
 function wrongMain(id, index) {
   const bad = id==="M18" ? (index===0 ? "E280" : "E278") : id==="M19" && index===0 ? "E284" : null;
@@ -487,12 +491,12 @@ function inspectMainTalk(id) {
   openConversation({
     person,key:id,title:speaker,lines:[spoken,brief],correct,replies,allFatal:id==="M01",
     onCorrect:() => {
-      if (story.canMain(run,id)) return postMain(id);
-      openDialog("以前の会話",speaker,[story.main.get(id).effect],[action("閉じる",closeDialog)]);
+      if (story.canMain(run,id)) return postMain(id,null,person);
+      openDialog(person.name,speaker,[story.main.get(id).effect],[action("閉じる",closeDialog)],{speaker:person});
     },
-    onFatal:key=> {
-      if (key!=="M01.danger1" || !story.canSide(run,story.side.get("E002"))) return false;
-      seeOutcome(story.side.get("E002"),null);
+    onFatal:choice=> {
+      if (choice.key!=="M01.danger1" || !story.canSide(run,story.side.get("E002"))) return false;
+      seeOutcome(story.side.get("E002"),null,{death:conversationDeath(person,choice)});
       return true;
     }
   });
@@ -501,14 +505,15 @@ function canRevisitMainTalk(id) {
   return Boolean(mainTalk[id] && !run.failure && !run.world.escaped && !story.collarOff(run.world) &&
     run.world.room===story.main.get(id).room && run.world.main.includes(id));
 }
-function seeOutcome(event, branch) {
+function seeOutcome(event, branch, {speaker = null, death = null} = {}) {
   const done = story.playSide(run,event.id,branch?.id);
+  if (death && run.failure?.event === event.id) Object.assign(run.failure,death);
   save();
   if (run.failure) return presentFailure();
   if (!done) return;
   tone(event.kind==="宝箱" ? [392,523.25,659.25] : [300,440]);
   refresh();
-  openDialog(event.kind,event.title,[
+  openDialog(speaker?.name || event.kind,event.title,[
     event.scene,
     branch?.effect || event.effect,
     ...previousChoices(event.id)
@@ -516,7 +521,7 @@ function seeOutcome(event, branch) {
     closeDialog();
     const variant = CASTLE_STAGE_EFFECTS[branch?.id || event.id];
     if (variant) view?.play(variant);
-  },{className:"primary"})]);
+  },{className:"primary"})],{speaker});
 }
 function inspectSide(event, branch = null) {
   if (!story.canSide(run,event)) return;
@@ -531,12 +536,16 @@ function inspectSide(event, branch = null) {
       lines:[event.actor_note || story.rooms.get(event.room).feature,person.line],correct,
       fatal:safe ? [event.action,alternatives[0]] : null,
       onCorrect:() => {
-        if (!safe && !known) return seeOutcome(event,branch);
-        openDialog(person.name,event.title,[safe?.[1] || branch?.effect || event.effect],[action("閉じる",closeDialog)]);
+        if (!safe && !known) return seeOutcome(event,branch,{speaker:person});
+        openDialog(person.name,event.title,[safe?.[1] || branch?.effect || event.effect],[action("閉じる",closeDialog)],{speaker:person});
       },
-      onFatal:key=> {
-        if (!safe || !key.endsWith(".danger1")) return false;
-        seeOutcome(event,null);
+      onFatal:choice=> {
+        if (!safe || !choice.key.endsWith(".danger1")) return false;
+        seeOutcome(event,null,{death:{
+          heading:event.title,
+          body:`${person.name}の前で「${choice.label.replace(/。$/,"")}」と決めた。
+${event.scene}`
+        }});
         return true;
       }
     });
@@ -567,14 +576,14 @@ function renderScene() {
   if (w.room==="C01" && w.main.includes("M02") && !story.collarOff(w)) {
     sceneButtons.push(action(rizeTalk.title,()=>openConversation({
       person:story.cast.get("P02"),key:"P02",title:rizeTalk.title,lines:[rizeTalk.line],correct:rizeTalk.correct,
-      onCorrect:()=>openDialog("王女リゼ",rizeTalk.title,[rizeTalk.result],[action("閉じる",closeDialog)])
+      onCorrect:()=>openDialog("王女リゼ",rizeTalk.title,[rizeTalk.result],[action("閉じる",closeDialog)],{speaker:story.cast.get("P02")})
     })));
     sceneButtons.push(action("佩剣に手をかける",() => {
       openConversation({
         person:story.cast.get("P16"),key:"C01.sword",title:"抜刀のしるし",
         lines:["側に立つ衛兵はあなたの手元を見ている。『刃は鞘に。両手をこちらへ』"],
         correct:"剣から手を離し、両方の手のひらを示す",replies:["剣を抜く","衛兵の槍を奪う","足元を見てそのまま立つ"],
-        onCorrect:()=>openDialog("東番キリ","刃は鞘の内側",["衛兵があなたの空の手を見て、槍を下ろした。"],[action("閉じる",closeDialog)])
+        onCorrect:()=>openDialog("東番キリ","刃は鞘の内側",["衛兵があなたの空の手を見て、槍を下ろした。"],[action("閉じる",closeDialog)],{speaker:story.cast.get("P16")})
       });
     }));
   }

@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { createStory } = require("./model.js");
 const { characterReplies, mainTalk, fatalSceneReply, rizeTalk, talkChoices } = require("./dialogue.js");
+const { characterDeaths, sceneReplyDeaths, repeatedReplyDeaths } = require("./dialogue-deaths.js");
 const { puzzles, itemNotes } = require("./puzzles.js");
 const folder = path.join(__dirname, "../docs/scenario/data");
 const read = file => JSON.parse(fs.readFileSync(path.join(folder,file),"utf8"));
@@ -95,6 +96,18 @@ function verifyTalk(key, correct, replies, fatal, allFatal = false) {
   assert.equal(options.filter(option=>option.outcome==="neutral").length,allFatal ? 0 : 1,key);
 }
 assert.deepEqual(Object.keys(characterReplies),data.people.map(person=>person.id));
+assert.deepEqual(Object.keys(characterDeaths),Object.keys(characterReplies));
+assert.deepEqual(Object.keys(repeatedReplyDeaths),Object.keys(characterReplies));
+const deathTexts = Object.values(characterDeaths).flat().concat(Object.values(sceneReplyDeaths));
+assert.equal(new Set(deathTexts.map(([,body])=>body)).size,deathTexts.length,"Separate fatal responses have distinct text");
+assert.equal(new Set(Object.values(repeatedReplyDeaths)).size,36);
+for (const [id,replies] of Object.entries(characterDeaths)) assert.equal(replies.length,2,id);
+for (const [id,[person,...replies]] of Object.entries(mainTalk)) {
+  for (const choice of talkChoices(id,puzzles[id][3],replies,null,id==="M01")) {
+    if (choice.outcome === "death") assert.ok(sceneReplyDeaths[choice.key],choice.key);
+  }
+}
+for (const key of ["C01.sword.danger1","C01.sword.danger2"]) assert.ok(sceneReplyDeaths[key],key);
 assert.deepEqual(Object.keys(puzzles),data.main.map(scene=>scene.id));
 assert.deepEqual(Object.keys(itemNotes),data.items.map(item=>item.id));
 const speaking=new Set(["P02","P16"]);
