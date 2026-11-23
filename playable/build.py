@@ -31,10 +31,12 @@ def library(local):
         raise RuntimeError("Three.js integrity check failed.")
     return source.decode("utf-8")
 
-def build(output, local):
-    original = read("page.html")
-    code = [library(local), data_pack(), *(read(file) for file in
-            ("model.js", "puzzles.js", "throne.js", "view.js", "game.js"))]
+def build(output, local, scenes=False):
+    original = read("stages/page.html" if scenes else "page.html")
+    modules = ["model.js", *("stages/" + name + ".js" for name in
+               ("characters", "items", "environments", "stage1", "stage2", "stage3", "bridge"))]
+    modules += ["stages/check.js"] if scenes else ["puzzles.js", "throne.js", "view.js", "game.js"]
+    code = [library(local), data_pack(), *(read(file) for file in modules)]
     if any("</script" in part.lower() for part in code):
         raise RuntimeError("An unescaped inline script closer was found.")
     html = original.replace("/* CASTLE_CSS */", read("style.css")).replace("/* CASTLE_SCRIPT */", "\n".join(code))
@@ -46,5 +48,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
     parser.add_argument("--three", type=Path, help="Use a local copy of the pinned Three.js asset.")
+    parser.add_argument("--scenes", action="store_true", help="Build the scene verification page.")
     options = parser.parse_args()
-    build(options.output, options.three)
+    build(options.output, options.three, options.scenes)

@@ -77,7 +77,10 @@ button.danger { color: var(--warn); }
 }
 .drawing i:nth-child(2) { left: 42%; bottom: 18%; height: 78%; }
 .drawing i:nth-child(3) { left: 69%; }
-.unavailable canvas { display: none; }
+.unavailable canvas, .unavailable .stage-cameras { display: none; }
+.stage-cameras { position: absolute; right: 12px; top: 3.55rem; display: flex; gap: .35rem; }
+.stage-cameras button { background: #121c22e8; }
+.stage-cameras button[aria-pressed="true"] { color: #222321; background: var(--gold); }
 .veil {
   pointer-events: none;
   background: linear-gradient(180deg,#0c141b90 0%,transparent 30%,transparent 53%,#131a20b5 76%,#131a20 100%);

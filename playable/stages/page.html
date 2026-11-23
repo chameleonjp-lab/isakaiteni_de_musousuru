@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>王都からの脱出 — 全3段階 統合確認</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #10131c; color: #f1efe9; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif; user-select: none; -webkit-user-select: none; }
+  #stage-wrap { position: fixed; inset: 0; }
+  #scene-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  #top-bar { position: fixed; top: 8px; left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); z-index: 20; display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
+  .bar-row { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; pointer-events: auto; }
+  .bar-row::-webkit-scrollbar { display: none; }
+  #top-bar button { flex-shrink: 0; border: 1px solid rgba(230,195,110,0.45); background: rgba(16,20,32,0.88); color: #f3ead3; border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+  #top-bar button.active { background: #d9a944; color: #161822; }
+  #bottom-panel { position: fixed; left: 8px; right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 20; background: rgba(15,19,30,0.9); border: 1px solid rgba(230,195,110,0.38); border-radius: 13px; padding: 7px 9px; display: flex; flex-direction: column; gap: 5px; max-width: 580px; margin: 0 auto; }
+  .status-row { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+  #scene-badge { background: #d9a944; color: #141720; font-weight: 800; padding: 2px 6px; border-radius: 6px; flex-shrink: 0; }
+  #status-text { color: #e6dfd0; flex: 1; overflow-wrap: anywhere; }
+  #run-summary { font-size: 10.5px; color: #93c5fd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill-row { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .pill-row::-webkit-scrollbar { display: none; }
+  .pill-row button { flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); background: rgba(34,41,60,0.9); color: #ece7db; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .pill-row button.active { background: #38bdf8; color: #0c1420; font-weight: 800; }
+  .ctrl-row { display: flex; flex-wrap: wrap; gap: 4px; justify-content: space-between; }
+  .ctrl-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .ctrl-row button { border: 1px solid rgba(230,195,110,0.42); background: rgba(28,34,50,0.92); color: #f6eedc; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+  .ctrl-row button.primary { background: #d9a944; color: #141720; }
+  .ctrl-row button.danger { background: #991b1b; color: #fee2e2; border-color: #f87171; }
+  [hidden] { display: none !important; }
+  button { min-height: 34px; }
+  button:disabled { opacity: .52; }
+  button:focus-visible { outline: 2px solid #e6c36e; outline-offset: -2px; }
+  #run-summary { white-space: normal; }
+  @media (max-height: 500px) { #bottom-panel { left: auto; right: 8px; bottom: 8px; width: min(335px, calc(100vw - 16px)); } }
+</style>
+</head>
+<body>
+<div id="stage-wrap"><canvas id="scene-canvas" aria-hidden="true"></canvas></div>
+<div id="top-bar">
+  <div class="bar-row" id="mode-tabs">
+    <button type="button" id="btn-mode-run" class="active">通し確認</button>
+    <button type="button" id="btn-mode-sample">演出見本</button>
+    <button type="button" id="btn-start-c01">C01から新規開始</button>
+    <button type="button" id="btn-start-w04">W04から確認</button>
+    <button type="button" id="btn-optional-east">東詰所</button>
+    <button type="button" id="btn-optional-south">南門</button>
+  </div>
+  <div class="bar-row" id="scene-tabs"></div>
+</div>
+<div id="bottom-panel">
+  <div class="status-row"><span id="scene-badge">C01</span><span id="status-text">初期状態</span></div>
+  <div id="run-summary">通し確認</div>
+  <div class="pill-row" id="variant-row"></div>
+  <div class="ctrl-row">
+    <div class="ctrl-group">
+      <button type="button" id="btn-play" class="primary">再生</button>
+      <button type="button" id="btn-next">次の場面</button>
+      <button type="button" id="btn-reset">場面を戻す</button>
+      <button type="button" id="btn-death" class="danger">死に戻り</button>
+    </div>
+    <div class="ctrl-group">
+      <button type="button" id="btn-wide" class="active">引き</button>
+      <button type="button" id="btn-close">手元</button>
+      <button type="button" id="btn-door" hidden>扉手元</button>
+      <button type="button" id="btn-dbg">位置表示</button>
+      <button type="button" id="btn-zin">＋</button>
+      <button type="button" id="btn-zout">－</button>
+    </div>
+  </div>
+</div>
+<script>/* CASTLE_SCRIPT */</script>
+</body>
+</html>

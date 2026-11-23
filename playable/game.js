@@ -55,6 +55,7 @@ let puzzleStarted = 0;
 let dialogOrigin;
 let sound;
 let view;
+let boundaryAttempt;
 function save() {
   try { localStorage.setItem(key,JSON.stringify({run,audioEnabled})); } catch { /* play without persistence */ }
 }
@@ -162,6 +163,7 @@ function closeDialog() {
 function presentFailure() {
   updateStatus();
   const { heading, body, event } = run.failure;
+  if (CASTLE_STAGE_EFFECTS[event]) view?.play(CASTLE_STAGE_EFFECTS[event]);
   const label = event && story.side.get(event)?.kind === "発見" ? "発見された" : "死に戻り";
   tone([182,119,65],"sine");
   const doRewind = (earlier = false) => {
@@ -205,7 +207,10 @@ function postMain(id, proof) {
   openDialog(reward ? "入手　"+reward.name : (id==="M17" ? "翻訳が止まる" : "場面が進んだ"),
     id==="M17" ? "首輪が外れた" : puzzles[id][0],
     [scene.scene,scene.effect],
-    [action("続ける",closeDialog,{className:"primary"})]);
+    [action("続ける",() => {
+      closeDialog();
+      view?.play(CASTLE_STAGE_EFFECTS[id]);
+    },{className:"primary"})]);
 }
 function wrongMain(id, index) {
   const bad = id==="M01" ? "E002" : id==="M18" ? (index===0 ? "E280" : "E278") : id==="M19" && index===0 ? "E284" : null;
@@ -218,6 +223,9 @@ function wrongMain(id, index) {
     closeDialog();
     return hintToast("裏見台の入口に戻った。マントはまた使える。");
   }
+  const variant = { M06:"singleSlotFail", M08:"rodOnlyFail", M12:"oneOnlyFail",
+    M16:"wrongOrientation", M17:"doorOpen", M19:"wrongStatue", M20:"stopBeforeStone" }[id];
+  if (variant && index === 0) view?.play(variant);
   tone([240],"sine");
   openDialog("観察",puzzles[id][0],[answers[id]],[action("調べ直す",() => inspectMain(id),{className:"primary"}), action("閉じる",closeDialog)]);
 }
@@ -274,6 +282,21 @@ function patrolCrossing() {
   },80);
 }
 
+function crossBoundary(proof) {
+  if (boundaryAttempt || !story.canMain(run, "M20")) return;
+  const attempt = { run, world: run.world };
+  boundaryAttempt = attempt;
+  closeDialog();
+  const finish = crossed => {
+    if (boundaryAttempt !== attempt) return;
+    boundaryAttempt = null;
+    if (run !== attempt.run || run.world !== attempt.world || run.world.room !== "Q05") return;
+    if (crossed) postMain("M20", proof);
+    else if (!run.failure) hintToast("境石を越える操作を、もう一度選べます。");
+  };
+  if (!view?.play("clearSuccess", finish)) finish(true);
+}
+
 function inspectMain(id) {
   if (!story.canMain(run,id)) return;
   const [,speaker,brief,right,wrong] = puzzles[id];
@@ -290,7 +313,7 @@ function inspectMain(id) {
     return;
   }
   const proof = id==="M20" ? CASTLE_DATA.escape.boundary_event : null;
-  const options = [action(right,() => postMain(id,proof)), ...wrong.map((text,i)=>action(text,()=>wrongMain(id,i)))];
+  const options = [action(right,() => id === "M20" ? crossBoundary(proof) : postMain(id,proof)), ...wrong.map((text,i)=>action(text,()=>wrongMain(id,i)))];
   if (id!=="M20") options.splice(0,0,...options.splice(Number(id.slice(1))%options.length));
   openDialog("調べる",speaker,[brief],options);
 }
@@ -309,7 +332,11 @@ function seeOutcome(event, branch) {
     branch && earlier.length===0 ? null : event.scene,
     branch?.effect || event.effect,
     ...earlier
-  ],[action("戻る",closeDialog,{className:"primary"})]);
+  ],[action("戻る",() => {
+    closeDialog();
+    const variant = CASTLE_STAGE_EFFECTS[branch?.id || event.id];
+    if (variant) view?.play(variant);
+  },{className:"primary"})]);
 }
 function inspectSide(event) {
   if (!story.canSide(run,event)) return;
