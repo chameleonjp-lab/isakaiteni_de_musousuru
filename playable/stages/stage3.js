@@ -256,6 +256,7 @@
       props.astro = global.CastleEscapeItems.createItemOrProp("PROP_ASTRO", { envMap: opts.envMap });
       props.astro.group.position.set(cfg.astroPos[0], cfg.astroPos[1], cfg.astroPos[2]);
       props.astro.group.scale.setScalar(1.35); root.add(props.astro.group);
+      props.astro.group.userData.walkObstacle = true;
       props.i08 = global.CastleEscapeItems.createItemOrProp("I08", { envMap: opts.envMap }); props.i08.group.scale.setScalar(0.42); root.add(props.i08.group);
       props.i09 = global.CastleEscapeItems.createItemOrProp("I09", { envMap: opts.envMap }); props.i09.group.scale.setScalar(0.36); root.add(props.i09.group);
       props.i10 = global.CastleEscapeItems.createItemOrProp("I10", { envMap: opts.envMap }); props.i10.group.scale.setScalar(0.36); props.i10.group.visible = false; root.add(props.i10.group);
@@ -295,8 +296,10 @@
         b.position.set(gx, 2.1, 0); props.innerGrate.add(b);
       }
       root.add(props.innerGrate);
+      props.innerGrate.userData.walkObstacle = true;
       const outerDoor = new THREE.Mesh(new THREE.BoxGeometry(5.8, 4.4, 0.25), woodMat);
       outerDoor.position.set(0, 2.2, -6.25); root.add(outerDoor);
+      outerDoor.userData.walkObstacle = true;
       const barLock = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.22, 0.34), ironMat);
       barLock.position.set(0, 1.85, -6.08); root.add(barLock);
     } else {
@@ -319,6 +322,7 @@
         props.secretTextGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.22), new THREE.MeshBasicMaterial({ color: 0xffe8a3, transparent: true, opacity: 0.0 }));
         props.secretTextGlow.position.set(0, 0.35, 0.09); props.portraitPivot.add(props.secretTextGlow);
         root.add(props.portraitPivot);
+        props.portraitPivot.userData.walkObstacle = true;
       }
       if (sceneId === "E03") {
         // 鳩番オト(P13)の肩に追従する鳩
@@ -329,11 +333,15 @@
       if (sceneId === "S03") {
         const rack = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.2, 0.45), woodMat);
         rack.position.set(cfg.spearRackPos[0], 0.6, cfg.spearRackPos[2]); root.add(rack);
+        rack.userData.walkObstacle = true;
         // ドルが預ける槍（手持ち→槍受けへ移動）
         props.rackSpear = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.028, 2.35, 8), woodMat);
         props.rackSpear.position.set(cfg.spearRackPos[0], 1.18, cfg.spearRackPos[2]);
         props.rackSpear.visible = false; root.add(props.rackSpear);
       }
+    }
+    for (const [name, actor] of Object.entries(actors)) {
+      if (name !== "hero") actor.rig.userData.walkObstacle = "actor";
     }
     root.add(dbg.group);
 

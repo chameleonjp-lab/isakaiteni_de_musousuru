@@ -267,6 +267,7 @@
     cartGroup.add(doorStop);
     cartGroup.position.set(cfg.cartPath[0][0], 0, cfg.cartPath[0][1]);
     root.add(cartGroup);
+    cartGroup.userData.walkObstacle = true;
 
     // Q01側開閉扉（Z = pQ01.z = -1.70、蝶番で回転開閉が目で分かる）
     const q01DoorPivot = new THREE.Group();
@@ -274,6 +275,7 @@
     const q01DoorLeaf = new THREE.Mesh(new THREE.BoxGeometry(0.11, 3.1, 2.24), darkWoodMat);
     q01DoorLeaf.position.set(0, 1.55, 1.12);
     q01DoorPivot.add(q01DoorLeaf);
+    q01DoorLeaf.userData.walkObstacle = "oriented";
     root.add(q01DoorPivot);
 
     // 戸の向こう低い位置の白百合印

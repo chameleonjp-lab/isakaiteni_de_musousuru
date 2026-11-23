@@ -186,6 +186,144 @@ dialog::backdrop { background: #0b1218b5; }
 .dialog-content h2 { margin: .15rem 0 .7rem; font: 700 1.52rem/1.35 var(--serif); }
 .dialog-content p { margin: .4rem 0 .7rem; line-height: 1.76; font-size: .91rem; white-space: pre-line; }
 .dialog-actions { padding: 0 1rem 1rem; display: grid; gap: .44rem; }
+dialog[data-layout="story"] {
+  --dialog-bg: #0e1320f0;
+  --dialog-border: #f4f6fb;
+  --dialog-accent: #f3c669;
+  position: fixed;
+  inset: auto auto max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  width: min(calc(100vw - 314px), 58vw, 940px);
+  max-width: none;
+  max-height: min(calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 680px);
+  margin: 0;
+  padding: 3px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: #f6f8ff;
+  overflow: visible;
+}
+dialog[data-layout="story"][open] {
+  display: grid;
+  grid-template-rows: minmax(0, auto) auto minmax(108px, auto);
+}
+dialog[data-layout="story"]::backdrop { background: #090d1624; }
+dialog[data-layout="story"] .dialog-header {
+  grid-row: 2;
+  z-index: 1;
+  padding: 0 0 0 6px;
+  margin-bottom: -2px;
+  pointer-events: none;
+}
+dialog[data-layout="story"] .dialog-kicker {
+  align-self: end;
+  padding: 4px 13px;
+  border: 2px solid var(--dialog-border);
+  background: var(--dialog-bg);
+  color: inherit;
+  box-shadow: 0 0 0 2px #090d16, inset 0 0 0 1px #ffffff38;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+dialog[data-layout="story"] #dialog-close {
+  pointer-events: auto;
+  min-height: 44px;
+  margin: 0 0 3px;
+  border-radius: 0;
+  border-color: #aab7cd80;
+  background: var(--dialog-bg);
+  color: inherit;
+}
+dialog[data-layout="story"] .dialog-content {
+  position: relative;
+  grid-row: 3;
+  min-height: 108px;
+  max-height: min(42dvh, 230px);
+  padding: 10px 15px 16px;
+  border: 2px solid var(--dialog-border);
+  background: var(--dialog-bg);
+  box-shadow: 0 10px 28px #000b, 0 0 0 2px #090d16, inset 0 0 0 2px #aab7cd38;
+  overflow: auto;
+}
+dialog[data-layout="story"] .dialog-content:has(#dialog-next:not([hidden])) { padding-bottom: 30px; }
+dialog[data-layout="story"] #dialog-title {
+  margin: 0 0 .25rem;
+  font: 700 .94rem/1.55 var(--sans);
+}
+dialog[data-layout="story"][data-speaker="true"] #dialog-title { display: none; }
+dialog[data-layout="story"] #dialog-copy p {
+  margin: 0;
+  color: inherit;
+  font-size: clamp(13.5px, 3.4vw, 16px);
+  line-height: 1.62;
+  letter-spacing: .03em;
+  overflow-wrap: anywhere;
+}
+#dialog-next {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+#dialog-next:focus-visible { outline-offset: -5px; }
+#dialog-hint {
+  position: absolute;
+  right: 12px;
+  bottom: 7px;
+  color: #e2e8f4;
+  font-size: 11px;
+}
+#dialog-hint:not(:empty)::after { content: " ▼"; color: #fff; }
+dialog[data-layout="story"] .dialog-actions {
+  grid-row: 1;
+  justify-self: end;
+  width: min(310px, 100%);
+  min-height: 0;
+  max-height: 100%;
+  padding: 6px;
+  gap: 5px;
+  margin-inline-end: 2px;
+  border: 2px solid var(--dialog-border);
+  background: var(--dialog-bg);
+  box-shadow: 0 12px 28px #000b, 0 0 0 2px #090d16;
+  overflow: auto;
+}
+dialog[data-layout="story"] .dialog-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid #ffffff36;
+  border-radius: 0;
+  background: #ffffff0d;
+  padding: 5px 8px;
+  color: inherit;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+dialog[data-layout="story"] .dialog-actions button::before {
+  content: "";
+  flex: none;
+  border: 4px solid transparent;
+  border-left: 6px solid var(--dialog-accent);
+  border-right: 0;
+}
+dialog[data-layout="story"] .dialog-actions button:is(:hover,:focus-visible,:active) {
+  background: #f3c66938;
+  border-color: var(--dialog-accent);
+  outline: none;
+}
+@media (max-width: 740px), (max-width: 1100px) and (pointer: coarse) {
+  dialog[data-layout="story"] {
+    inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+    width: auto;
+  }
+}
 progress { width: 100%; accent-color: #edc780; height: .8rem; }
 @media (max-width: 740px), (max-width: 1100px) and (pointer: coarse) {
   .game-page {

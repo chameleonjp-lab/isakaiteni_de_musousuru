@@ -36,11 +36,7 @@ const result = vm.runInContext(`
   const map = window.CastleEscapeEnvironments;
   for (const room of story.rooms.keys()) {
     const area = map.createEnvironment(room);
-    area.group.updateMatrixWorld(true);
-    area.obstacles = [];
-    area.group.traverse(node => {
-      if (node.userData.walkObstacle) area.obstacles.push(new THREE.Box3().setFromObject(node));
-    });
+    area.obstacles = castleObstacles(area.group);
     const exits = area.corridorPortals.map(portal => portal.targetId).sort();
     requireThat(area.id === room && exits.join() === story.neighbors.get(room).slice().sort().join(), room+" の行き先が一致");
     for (const portal of area.corridorPortals) {
@@ -54,6 +50,23 @@ const result = vm.runInContext(`
     }
     disposeCastleStage({root:area.group});
   }
+  const solids = [
+    ["C01", -5.3, -.2, "列柱"],
+    ["C08", -2.3, 1, "ベッド"],
+    ["S05", -1.8, -1.2, "馬車"],
+    ["G03", 3.2, 0, "木の幹"],
+    ["G06", 0, 0, "池"],
+    ["Q05", 0, 0, "境石"]
+  ];
+  for (const [room,x,z,name] of solids) {
+    const area = map.createEnvironment(room);
+    area.obstacles = castleObstacles(area.group);
+    requireThat(!castleWalkable(area,x,z),room+" の"+name+"を通り抜けられない");
+    const safe = castleSafePosition(area,x,z);
+    requireThat(castleWalkable(area,safe.x,safe.z),room+" の旧セーブを歩ける位置に復元");
+    disposeCastleStage({root:area.group});
+  }
+
   const stage = createCastleStage();
   const entries = CASTLE_STAGE_LIBRARIES.flatMap(([module,key]) => Object.entries(module[key]));
   const run = story.fresh();
@@ -62,6 +75,30 @@ const result = vm.runInContext(`
   requireThat(!castleStageState(story,run).grateOpen,"南門：一礼だけでは閉鎖");
   run.world.choices.E152.push("A");
   requireThat(castleStageState(story,run).grateOpen,"南門：正しい礼で格子だけ開放");
+
+  function snapshotWalk(room, state, check) {
+    const ctrl = stage.setRoom(room,state);
+    const area = ctrl.env;
+    area.obstacles = castleObstacles(ctrl.root);
+    check(area);
+  }
+  for (const open of [false,true]) {
+    snapshotWalk("S04",{grateOpen:open},area => {
+      requireThat(castleWalkable(area,0,-5.5) === open,"南門の格子は礼法に応じて歩行を止める");
+      requireThat(!castleWalkable(area,0,-6.18),"南門の外扉はいつも通れない");
+      const start = {x:0,z:-4.9};
+      castleMove(area,start,0,-1);
+      requireThat(open ? start.z < -5.6 : start.z > -5.3,"厚みの薄い格子を飛び越さない");
+    });
+    snapshotWalk("Q01",{doors:{W04Open:!open,Q02Open:open},collarRemoved:open},area => {
+      const door = area.corridorPortals.find(portal => portal.targetId === "Q02");
+      const stand = depth => castleWalkable(area,door.entryX+door.dirX*depth,door.entryZ+door.dirZ*depth);
+      requireThat(stand(-.24) === open,"首輪を外した場合だけQ02側の木扉を通れる");
+      if (open) for (let depth=-1.1;depth<.5;depth+=.05) {
+        requireThat(stand(depth),"開いた木扉はQ02への通行を妨げない");
+      }
+    });
+  }
 
   function update(duration) {
     for (let t=0; t<duration; t+=.05) stage.update(.05,t)?.();

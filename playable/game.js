@@ -5,6 +5,10 @@ const $ = id => document.getElementById(id);
 const content = $("content");
 const stage = $("stage");
 const modal = $("dialog");
+const dialogCopy = $("dialog-copy");
+const dialogNext = $("dialog-next");
+const dialogActions = $("dialog-actions");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const desk = $("desk");
 const tabs = [...document.querySelectorAll("[data-tab]")];
 const compactLayout = window.matchMedia("(max-width: 740px), (max-width: 1100px) and (pointer: coarse)");
@@ -60,6 +64,9 @@ let toastTimer;
 let timer = 0;
 let puzzleStarted = 0;
 let dialogOrigin;
+let dialogueLines = [];
+let finishLine;
+let dialogueFrame = 0;
 let sound;
 let view;
 let boundaryAttempt;
@@ -190,27 +197,84 @@ function refresh(tab = selectedTab, walk) {
   if (changed) content.scrollTop = 0;
 }
 function stopTimer() { clearInterval(timer); timer = 0; puzzleStarted = 0; }
-function openDialog(kicker, title, texts, controls, locked = false) {
+function stopDialogue() {
+  cancelAnimationFrame(dialogueFrame);
+  dialogueFrame = 0;
+  finishLine = null;
+  dialogueLines = [];
+}
+function showDialogueLine() {
+  const line = dialogueLines.shift();
+  const text = element("p");
+  dialogCopy.replaceChildren(text);
+  dialogCopy.closest(".dialog-content").scrollTop = 0;
+  const hint = $("dialog-hint");
+  const showFullLine = () => {
+    cancelAnimationFrame(dialogueFrame);
+    dialogueFrame = 0;
+    finishLine = null;
+    hint.textContent = dialogueLines.length ? "タップで進む" : "選択肢を表示";
+    dialogNext.setAttribute("aria-label",hint.textContent);
+    text.textContent = line;
+  };
+  if (reducedMotion.matches) return showFullLine();
+
+  const characters = Array.from(line);
+  const started = performance.now();
+  finishLine = showFullLine;
+  hint.textContent = "";
+  dialogNext.setAttribute("aria-label","セリフを最後まで表示");
+  const type = now => {
+    const count = Math.max(1, Math.floor((now - started) * .028));
+    if (count >= characters.length) return showFullLine();
+    const nextText = characters.slice(0,count).join("");
+    if (text.textContent !== nextText) text.textContent = nextText;
+    dialogueFrame = requestAnimationFrame(type);
+  };
+  dialogueFrame = requestAnimationFrame(type);
+}
+function advanceDialogue() {
+  if (finishLine) return finishLine();
+  if (dialogueLines.length) return showDialogueLine();
+  dialogNext.hidden = true;
+  dialogActions.hidden = false;
+  dialogActions.firstElementChild?.focus({preventScroll:true});
+}
+function openDialog(kicker, title, texts, controls, {locked = false, mode = "story", speaker = false} = {}) {
   stopTimer();
+  stopDialogue();
   view?.stopInput();
   $("dialog-kicker").textContent = kicker;
   $("dialog-title").textContent = title;
-  $("dialog-copy").replaceChildren();
-  paragraphs($("dialog-copy"),texts);
-  $("dialog-actions").replaceChildren(...controls);
+  dialogCopy.replaceChildren();
+  dialogActions.replaceChildren(...controls);
   $("dialog-close").hidden = locked;
   modal.dataset.locked = String(locked);
+  modal.dataset.layout = mode === "panel" ? "panel" : "story";
+  modal.dataset.speaker = String(speaker);
+  modal.setAttribute("aria-labelledby",speaker ? "dialog-kicker" : "dialog-title");
+  const progressive = mode === "story" && texts.some(Boolean) && controls.length > 0;
+  dialogActions.hidden = progressive;
+  dialogNext.hidden = !progressive;
+  if (progressive) {
+    dialogueLines = texts.filter(Boolean);
+    showDialogueLine();
+  } else {
+    paragraphs(dialogCopy,texts);
+  }
   if (!modal.open) {
     dialogOrigin = deskOpen() && desk.contains(document.activeElement) ?
       tabs.find(tab=>tab.dataset.tab===selectedTab) : document.activeElement;
     setDeskOpen(false);
     modal.showModal();
   }
-  modal.scrollTop=0;
-  $("dialog-close").hidden ? controls[0]?.focus({preventScroll:true}) : $("dialog-close").focus({preventScroll:true});
+  modal.scrollTop = 0;
+  const focus = progressive ? dialogNext : locked ? controls[0] : $("dialog-close");
+  focus?.focus({preventScroll:true});
 }
 function closeDialog() {
   stopTimer();
+  stopDialogue();
   modal.close();
   if (dialogOrigin?.isConnected) dialogOrigin.focus({preventScroll:true});
 }
@@ -250,7 +314,7 @@ function openConversation({person, key, title, lines, correct, onCorrect, replie
     };
     return action(choice.label,tracked(person.id+" "+choice.label,respond,person.name));
   });
-  openDialog(person.name,title,lines,controls);
+  openDialog(person.name,title,lines,controls,{speaker:true});
 }
 function presentFailure() {
   updateStatus();
@@ -269,7 +333,7 @@ function presentFailure() {
   if (run.beforeRemoval && story.collarOff(run.world)) {
     controls.push(action("首輪を外す前まで戻る",() => doRewind(true)));
   }
-  openDialog(label,heading,[body,event ? story.side.get(event)?.effect : null],controls,true);
+  openDialog(label,heading,[body,event ? story.side.get(event)?.effect : null],controls,{locked:true,mode:"panel"});
 }
 function presentClear() {
   refresh("scene");
@@ -279,13 +343,13 @@ function presentClear() {
     ...previousChoices("M20"),
     "進めた必須行程 "+run.world.main.length+"／20　見つけた任意場面 "+new Set([...run.world.side,...run.memory]).size+"／300",
     "探索した地点 "+run.visited.length+"／59　死に戻り "+run.fails+"回"
-  ],[action("手帳を開く",() => { closeDialog(); openDesk("notes"); },{className:"primary"}),action("閉じる",closeDialog)]);
+  ],[action("手帳を開く",() => { closeDialog(); openDesk("notes"); },{className:"primary"}),action("閉じる",closeDialog)],{mode:"panel"});
 }
 function confirmReset() {
   openDialog("はじめから","最初の謁見からやり直す",["現在の周回の進み具合と手帳を消します。"],[
     action("やり直す",() => { run=story.fresh(); closeDialog(); refresh("scene",{reset:true}); save(); },{className:"danger"}),
     action("戻る",closeDialog)
-  ]);
+  ],{mode:"panel"});
 }
 function postMain(id, proof) {
   const success=story.completeMain(run,id,proof);
@@ -345,7 +409,7 @@ function timedCloak(id) {
       else wrongMain(id,1);
     })),
     ...wrong.map((text,i)=>action(text,tracked(id+".wrong"+i,()=>wrongMain(id,i))))
-  ]);
+  ],{mode:"timed"});
   timerUI(10,() => openDialog("隠密が切れた","裏見台の手前",[
     "十の星が消えた。入口なら落ち着いて使い直せる。"
   ],[action("マントを使い直す",() => timedCloak(id),{className:"primary"}),action("閉じる",closeDialog)]),"隠密のマント　残り 10 秒");
@@ -364,7 +428,7 @@ function patrolCrossing() {
   }));
   openDialog("巡回環","白礼拝廊の空番",[brief],[
     passage, ...wrong.map((text,index) => action(text,tracked(id+".wrong"+index,() => wrongMain(id,index))))
-  ]);
+  ],{mode:"timed"});
   const gauge=element("p","巡回環　点呼前。まだ番がいる。","record");
   gauge.setAttribute("role","status");
   $("dialog-copy").append(gauge);
@@ -418,8 +482,10 @@ function inspectMainTalk(id) {
   if (!story.canMain(run,id) && !canRevisitMainTalk(id)) return;
   const [personId,...replies] = mainTalk[id];
   const [,speaker,brief,correct] = puzzles[id];
+  const person = story.cast.get(personId);
+  const spoken = speaker.match(/「(.+)」$/)?.[1] || person.line;
   openConversation({
-    person:story.cast.get(personId),key:id,title:speaker,lines:[brief],correct,replies,allFatal:id==="M01",
+    person,key:id,title:speaker,lines:[spoken,brief],correct,replies,allFatal:id==="M01",
     onCorrect:() => {
       if (story.canMain(run,id)) return postMain(id);
       openDialog("以前の会話",speaker,[story.main.get(id).effect],[action("閉じる",closeDialog)]);
@@ -632,6 +698,7 @@ function showHint() {
   ]);
 }
 $("dialog-close").addEventListener("click",closeDialog);
+dialogNext.addEventListener("click",advanceDialogue);
 modal.addEventListener("cancel",event=>{ event.preventDefault(); if (modal.dataset.locked!=="true") closeDialog(); });
 for (const tab of tabs) tab.addEventListener("click",() => {
   if (deskOpen() && tab.dataset.tab === selectedTab) setDeskOpen(false,true);
@@ -650,7 +717,7 @@ $("help").addEventListener("click",() => {
     view?.available() ? "謁見が終わったら、左下のスティックで自由に歩ける。画面をドラッグすると視点が回り、行き先の札が付いた廊下を歩いて隣室に入る。人物や物には「調べる」で関われる。" :
       "「調べる」で人物や物に関わり、「移動」で隣室へ行ける。",
     "会話は4択。同じ相手に同じ返答を二度すると怪しまれる。選んだ記憶は死に戻りでも残るので、違う答えを試そう。使い道が分からない道具は「持ち物」で確認できる。"
-  ],[action("ゲームに戻る",closeDialog,{className:"primary"}),action("はじめから",confirmReset)]);
+  ],[action("ゲームに戻る",closeDialog,{className:"primary"}),action("はじめから",confirmReset)],{mode:"panel"});
 });
 
 try {

@@ -81,12 +81,13 @@ function createCastleView(canvas, frame, actions) {
       defaults.z = entry.entryZ - entry.dirZ * 1.05;
       defaults.yaw = Math.atan2(entry.dirX, entry.dirZ);
     }
-    const safeRestore = restore?.room === current && [restore.x, restore.z, restore.yaw].every(Number.isFinite) &&
-      castleWalkable(area, restore.x, restore.z) && (current !== "Q05" || restore.z > 0);
-    const next = safeRestore ? restore : defaults;
-    const safeDefault = castleWalkable(area, next.x, next.z);
-    position.x = safeDefault ? next.x : 0;
-    position.z = safeDefault ? next.z : Math.min(3.1, area.spec.dLen / 2 - .5);
+    const validRestore = restore?.room === current && [restore.x, restore.z, restore.yaw].every(Number.isFinite) &&
+      Math.abs(restore.x) < area.spec.w && Math.abs(restore.z) < area.spec.dLen &&
+      (current !== "Q05" || restore.z > 0);
+    const next = validRestore ? restore : defaults;
+    const safe = castleSafePosition(area, next.x, next.z);
+    position.x = safe.x;
+    position.z = safe.z;
     position.yaw = next.yaw;
     position.facing = next.yaw + Math.PI;
     position.pitch = .36;
@@ -102,7 +103,8 @@ function createCastleView(canvas, frame, actions) {
     const snapshot = castleStageState(story, run);
     const nextKey = JSON.stringify([snapshot, run.failure?.event, run.fails]);
     const changed = room.id !== current;
-    if (nextKey !== snapshotKey || run !== previousRun || reset) {
+    const stateChanged = nextKey !== snapshotKey || run !== previousRun || reset;
+    if (stateChanged) {
       playing = false;
       controller = stage3D.setRoom(room.id, snapshot);
       snapshotKey = nextKey;
@@ -113,11 +115,7 @@ function createCastleView(canvas, frame, actions) {
       if (plainArea) stage3D.scene.add(plainArea.group);
       area = controller?.env || plainArea;
       current = room.id;
-      area.group.updateMatrixWorld(true);
-      area.obstacles = [];
-      area.group.traverse(node => {
-        if (node.userData.walkObstacle) area.obstacles.push(new THREE.Box3().setFromObject(node));
-      });
+      area.surfaceY = controller?._inspect?.getSurfaceY ?? controller?._inspect?.getStairSurfaceY;
       stage3D.scene.background.setHex(area.theme.bg);
       stage3D.scene.fog = new THREE.FogExp2(area.theme.fog, area.theme.fogDensity);
     }
@@ -126,12 +124,16 @@ function createCastleView(canvas, frame, actions) {
       portal.barrier.visible = !open;
       portal.hitMeshes[1].visible = false;
     }
+    if (changed || stateChanged) area.obstacles = castleObstacles(controller?.root || area.group);
     if (changed || reset || run !== previousRun) {
       if (!from) stopInput();
       spawn(from, !reset && savedPosition);
       savedPosition = null;
       cameraMode = "wide";
       orbitYaw = 0;
+    } else if (stateChanged && !castleWalkable(area, position.x, position.z)) {
+      Object.assign(position, castleSafePosition(area, position.x, position.z));
+      positionDirty = true;
     }
     if (player.collarMesh) player.collarMesh.visible = !snapshot.collarRemoved;
     updateControls();
@@ -206,10 +208,7 @@ function createCastleView(canvas, frame, actions) {
     const prevX = position.x, prevZ = position.z;
     const speed = 4.6;
     if (length > .055) {
-      const nextX = prevX + dx * speed * dt;
-      const nextZ = prevZ + dz * speed * dt;
-      if (castleWalkable(area, nextX, prevZ)) position.x = nextX;
-      if (castleWalkable(area, position.x, nextZ)) position.z = nextZ;
+      castleMove(area, position, dx * speed * dt, dz * speed * dt);
       const target = Math.atan2(dx, dz);
       const diff = target - position.facing;
       position.facing += Math.atan2(Math.sin(diff), Math.cos(diff)) * Math.min(1, dt * 12);
@@ -254,9 +253,11 @@ function createCastleView(canvas, frame, actions) {
 
     const fX = Math.sin(position.yaw), fZ = Math.cos(position.yaw);
     const followDistance = camera.aspect < .8 ? 3.6 : 2.55;
-    let distance = followDistance * Math.cos(position.pitch);
-    while (distance > .35 && !castleWalkable(area, position.x + fX * distance, position.z + fZ * distance)) {
-      distance -= .26;
+    const desired = followDistance * Math.cos(position.pitch);
+    let distance = 0;
+    for (let step = .2; step <= desired; step += .2) {
+      if (!castleWalkable(area, position.x + fX * step, position.z + fZ * step)) break;
+      distance = step;
     }
     camera.position.set(position.x + fX * distance, floor + 1.62 + Math.sin(position.pitch) * 2.4,
       position.z + fZ * distance);
@@ -309,6 +310,10 @@ function createCastleView(canvas, frame, actions) {
   function play(variant, done) {
     if (contextLost || !stage3D.play(variant, complete => {
       playing = false;
+      if (variant !== "clearSuccess") {
+        stage3D.restore(castleStageState(story,run));
+        area.obstacles = castleObstacles(controller.root);
+      }
       updateControls();
       done?.(complete);
     })) return false;

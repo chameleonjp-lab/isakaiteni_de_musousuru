@@ -29,7 +29,7 @@ function castleStageState(story, run) {
     audienceStep: has("M02") ? 2 : has("M01") ? 1 : 0,
     reserved: has("M16"),
     stopPulled: collarRemoved,
-    doors: { W04Open: !collarRemoved && has("M16"), Q02Open: has("M18") },
+    doors: { W04Open: !collarRemoved && has("M16"), Q02Open: has("M17") },
     guardPresent: !has("M18"),
     detected: w.seen,
     detectedAfterRemoval: w.seen,

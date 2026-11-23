@@ -13,6 +13,19 @@ function button(page, name) {
   return page.getByRole("button", { name, exact:true });
 }
 
+async function revealOptions(page, input) {
+  const advance = page.locator("#dialog-next");
+  for (let line = 0; line < 24 && await advance.isVisible(); line++) {
+    await advance[input]();
+  }
+  assert.equal(await advance.isVisible(),false,"Dialogue should show actions after the last line");
+}
+
+async function choose(page, name, input = "tap") {
+  await revealOptions(page,input);
+  await button(page,name)[input]();
+}
+
 function readSave(page) {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)), saveKey);
 }
@@ -46,8 +59,8 @@ async function checkExploration(page) {
   }),"3D exploration should fill the viewport and receive touches behind the former menu");
 }
 
-async function seedOldSave(page, target, room = null) {
-  await page.evaluate(({ key, target, room }) => {
+async function seedOldSave(page, target, room = null, position = null) {
+  await page.evaluate(({ key, target, room, position }) => {
     const legacy = story.fresh();
     for (const [id, step] of story.main) {
       for (const room of story.routeTo(legacy,step.room).slice(1)) {
@@ -57,9 +70,15 @@ async function seedOldSave(page, target, room = null) {
       const proof = id === "M10" ? "cloak" : id === "M18" ? "white-lily" : null;
       if (!story.completeMain(legacy,id,proof)) throw Error("Old save fixture could not complete " + id);
     }
-    if (room && !story.move(legacy,room)) throw Error("Old save fixture could not enter " + room);
-    localStorage.setItem(key,JSON.stringify({run:legacy,audioEnabled:false}));
-  }, { key:saveKey, target, room });
+    if (room) {
+      const route = story.routeTo(legacy,room);
+      if (!route.length) throw Error("Old save fixture could not find " + room);
+      for (const step of route.slice(1)) {
+        if (!story.move(legacy,step)) throw Error("Old save fixture could not enter " + step);
+      }
+    }
+    localStorage.setItem(key,JSON.stringify({run:legacy,audioEnabled:false,position}));
+  }, { key:saveKey, target, room, position });
   await page.reload();
 }
 
@@ -84,8 +103,33 @@ async function startAndRotate(page, viewport) {
   await button(page,"手元").tap();
   assert.equal(await button(page,"手元").getAttribute("aria-pressed"),"true");
   await button(page,"第一の声").tap();
+  await page.locator("#dialog-next").waitFor({state:"visible"});
+  assert.equal(await page.locator("#dialog-kicker").textContent(),"国王");
+  assert.equal(await page.locator("#dialog-actions").isVisible(),false);
+  if (viewport.width === 402) {
+    const next = page.locator("#dialog-next");
+    if (await next.getAttribute("aria-label") === "セリフを最後まで表示") {
+      await next.evaluate(node => {
+        if (node.getAttribute("aria-label") === "セリフを最後まで表示") node.click();
+      });
+    }
+    assert.equal(await page.locator("#dialog-actions").isVisible(),false);
+    await page.emulateMedia({reducedMotion:"reduce"});
+  }
+  assert.equal(await page.locator("#dialog-copy").textContent(),"面を上げよ");
+  await page.locator("#dialog-next").tap();
+  assert.match(await page.locator("#dialog-copy").textContent(),/赤い絨毯/);
+  assert.equal(await page.locator("#dialog-actions").isVisible(),false);
+  await checkLayout(page,[".dialog-content","#dialog-next"]);
+  const text = await page.locator(".dialog-content").boundingBox();
+  assert.ok(text.y > (await page.evaluate(() => innerHeight)) / 2);
+  await revealOptions(page,"tap");
+  await checkLayout(page,["#dialog-actions",".dialog-content"]);
+  const options = await page.locator("#dialog-actions").boundingBox();
+  assert.ok(options.y + options.height <= text.y && options.x >= text.x);
+  assert.equal(await page.locator("#dialog-actions button:visible").count(),4);
   await button(page,"伏せたまま待つ").tap();
-  await button(page,"続ける").tap();
+  await choose(page,"続ける");
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
 
   await page.setViewportSize({width:viewport.height,height:viewport.width});
@@ -93,8 +137,8 @@ async function startAndRotate(page, viewport) {
   await checkExploration(page);
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
   await button(page,"第二の声").tap();
-  await button(page,"今、顔を上げる").tap();
-  await button(page,"続ける").tap();
+  await choose(page,"今、顔を上げる");
+  await choose(page,"続ける");
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
   await checkLayout(page, ["#walk-stick","[data-tab=scene]"]);
   await checkExploration(page);
@@ -119,6 +163,25 @@ async function startAndRotate(page, viewport) {
   await checkExploration(page);
 }
 
+async function walkAroundPillar(page) {
+  await seedOldSave(page,"M03","C01",{room:"C01",x:-5.3,z:1.5,yaw:0});
+  await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
+  await page.keyboard.down("ArrowUp");
+  try {
+    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).position?.z < 1.2,saveKey);
+    await page.waitForTimeout(600);
+    assert.ok((await readSave(page)).position.z > .44, "The player must stop at the throne-room pillar");
+  } finally { await page.keyboard.up("ArrowUp"); }
+  await page.keyboard.down("ArrowRight");
+  try {
+    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).position?.x > -4.4,saveKey);
+  } finally { await page.keyboard.up("ArrowRight"); }
+  await page.keyboard.down("ArrowUp");
+  try {
+    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).position?.z < -.8,saveKey);
+  } finally { await page.keyboard.up("ArrowUp"); }
+}
+
 async function failAndRewind(page) {
   await seedOldSave(page,"M17");
   await checkLayout(page, ["#stage-close","#stage-door","#walk-stick","[data-tab=scene]"]);
@@ -128,7 +191,7 @@ async function failAndRewind(page) {
   assert.equal(await page.locator("#audio").textContent(),"音オフ");
   await seedOldSave(page,"M18");
   await openStep(page,"M18");
-  await button(page,"巡回環をかざす").tap();
+  await choose(page,"巡回環をかざす");
   await button(page,"マントを使って中央を渡る").tap();
   assert.equal((await readSave(page)).run.failure.event,"E278");
   await page.reload();
@@ -149,8 +212,9 @@ async function exitCastle(page) {
   await holdStick(page,-1,key => JSON.parse(localStorage.getItem(key)).run.world.room === "Q05");
   await openStep(page,"M20");
   assert.equal((await readSave(page)).run.world.escaped,false);
+  await revealOptions(page,"tap");
   assert.equal(await button(page,"境石を越え、外の草地を踏む").count(),0);
-  await button(page,"戻る").tap();
+  await choose(page,"戻る");
   await page.keyboard.down("ArrowRight");
   try {
     await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).position?.x > 1.1, saveKey);
@@ -170,22 +234,24 @@ async function exitCastle(page) {
 async function verifyDialogueAndFinish(page) {
   const dialogue = page.locator("#dialog-actions button");
   await button(page,"第一の声").click();
+  assert.equal(await page.locator("#dialog-actions").isVisible(),false);
+  await revealOptions(page,"click");
   assert.equal(await dialogue.count(),4);
   await button(page,"すぐに顔を上げる").click();
   assert.equal((await readSave(page)).run.failure.event,"E002");
   await button(page,"安全だった直前に戻る").click();
   await button(page,"第一の声").click();
-  await button(page,"伏せたまま待つ").click();
-  await button(page,"続ける").click();
+  await choose(page,"伏せたまま待つ","click");
+  await choose(page,"続ける","click");
   await button(page,"第二の声").click();
   assert.equal(await dialogue.count(),4);
   const minutes=(await readSave(page)).run.world.minutes;
-  await button(page,"伏せたまま様子をうかがう").click();
+  await choose(page,"伏せたまま様子をうかがう","click");
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
   assert.equal((await readSave(page)).run.world.minutes,minutes);
   await page.reload();
   await button(page,"第二の声").click();
-  await button(page,"伏せたまま様子をうかがう").click();
+  await choose(page,"伏せたまま様子をうかがう","click");
   assert.equal((await readSave(page)).run.failure.heading,"同じ行動を怪しまれた");
   await button(page,"安全だった直前に戻る").click();
 
@@ -200,18 +266,19 @@ async function verifyDialogueAndFinish(page) {
     }
     const label=await page.evaluate(id=>puzzles[id][0],id);
     await page.locator("#content").getByRole("button",{name:label,exact:true}).first().click();
-    if (id==="M10") await button(page,"マントを羽織る").click();
+    if (id==="M10") await choose(page,"マントを羽織る","click");
     if (id==="M18") {
-      await button(page,"巡回環をかざす").click();
+      await choose(page,"巡回環をかざす","click");
       await page.getByText("巡回環　空番。二つの欠けが重なった。",{exact:true}).waitFor();
     }
-    await button(page,id==="M18" ? "白百合の壁際を渡る" : correct).click();
+    await choose(page,id==="M18" ? "白百合の壁際を渡る" : correct,"click");
     assert.ok((await readSave(page)).run.world.main.includes(id),id);
-    if (id!=="M20") await button(page,"続ける").click();
+    if (id!=="M20") await choose(page,"続ける","click");
     if (id==="M02") {
       await button(page,"王女リゼに声をかける").click();
       assert.equal(await dialogue.count(),4);
-      await button(page,"自分の言葉で書いたことなら、あとでも読めると答える").click();
+      await choose(page,"自分の言葉で書いたことなら、あとでも読めると答える","click");
+      await revealOptions(page,"click");
       await page.locator("#dialog-actions").getByRole("button",{name:"閉じる",exact:true}).click();
       await button(page,"佩剣に手をかける").click();
       assert.equal(await dialogue.count(),4);
@@ -234,9 +301,10 @@ async function program() {
   const origin = "http://127.0.0.1:" + server.address().port;
   let browser;
   try {
-    browser = await chromium.launch({args:["--use-angle=swiftshader","--enable-unsafe-swiftshader"]});
+    browser = await chromium.launch({executablePath:process.env.CASTLE_CHROMIUM, args:["--use-angle=swiftshader","--enable-unsafe-swiftshader"]});
     for (const viewport of sizes) {
-      const page = await browser.newPage({viewport,isMobile:true,hasTouch:true,deviceScaleFactor:1});
+      const page = await browser.newPage({viewport,isMobile:true,hasTouch:true,deviceScaleFactor:1,
+        reducedMotion:viewport.width === 402 ? "no-preference" : "reduce"});
       page.on("pageerror", error => pageErrors.push(error.message));
       await page.route("**/*", route => {
         const url = new URL(route.request().url());
@@ -246,12 +314,13 @@ async function program() {
       });
       await page.goto(origin);
       await startAndRotate(page,viewport);
+      if (viewport.width === 402) await walkAroundPillar(page);
       await failAndRewind(page);
       await exitCastle(page);
       await page.close();
       console.log("Chromium: " + viewport.width + "×" + viewport.height + ", exploration viewport, on-demand menus, touch stick, corridor crossing, rotate, reload, rewind and walking escape.");
     }
-    const fallback = await browser.newPage();
+    const fallback = await browser.newPage({reducedMotion:"reduce"});
     fallback.on("pageerror", error => pageErrors.push(error.message));
     await fallback.addInitScript(() => {
       const getContext = HTMLCanvasElement.prototype.getContext;
