@@ -26,11 +26,33 @@ vm.runInContext(fs.readFileSync(threePath, "utf8"), context);
 for (const name of ["characters","items","environments","stage1","stage2","stage3","bridge"]) {
   vm.runInContext(read(name+".js"), context, { filename:name+".js" });
 }
+vm.runInContext(read("../walk.js"), context, { filename:"walk.js" });
 
 const result = vm.runInContext(`
 (() => {
   function requireThat(condition, description) {
     if (!condition) throw new Error(description);
+  }
+  const map = window.CastleEscapeEnvironments;
+  for (const room of story.rooms.keys()) {
+    const area = map.createEnvironment(room);
+    area.group.updateMatrixWorld(true);
+    area.obstacles = [];
+    area.group.traverse(node => {
+      if (node.userData.walkObstacle) area.obstacles.push(new THREE.Box3().setFromObject(node));
+    });
+    const exits = area.corridorPortals.map(portal => portal.targetId).sort();
+    requireThat(area.id === room && exits.join() === story.neighbors.get(room).slice().sort().join(), room+" の行き先が一致");
+    for (const portal of area.corridorPortals) {
+      const canStand = depth => castleWalkable(area,portal.entryX+portal.dirX*depth,portal.entryZ+portal.dirZ*depth);
+      for (let depth=-1.05; depth<portal.length-.36; depth+=.08) {
+        requireThat(canStand(depth),room+" → "+portal.targetId+" の通路が塞がっていない");
+      }
+      portal.barrier.visible = true;
+      requireThat(!canStand(.6),room+" → "+portal.targetId+" は閉鎖中に通れない");
+      portal.barrier.visible = false;
+    }
+    disposeCastleStage({root:area.group});
   }
   const stage = createCastleStage();
   const entries = CASTLE_STAGE_LIBRARIES.flatMap(([module,key]) => Object.entries(module[key]));
@@ -119,3 +141,4 @@ const result = vm.runInContext(`
 
 assert.deepEqual({...result}, {rooms:22,variants:47});
 console.log("全22場面・47見本、南門、未開封品、石段、境界と保存復元、50回の場面切り替えを確認。");
+console.log("全59地点の通路の接続、通行幅、閉鎖を確認。");

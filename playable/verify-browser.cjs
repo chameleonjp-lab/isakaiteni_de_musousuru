@@ -34,8 +34,8 @@ async function openStep(page, token) {
   await button(page,title).tap();
 }
 
-async function seedOldSave(page, target) {
-  await page.evaluate(({ key, target }) => {
+async function seedOldSave(page, target, room = null) {
+  await page.evaluate(({ key, target, room }) => {
     const legacy = story.fresh();
     for (const [id, step] of story.main) {
       for (const room of story.routeTo(legacy,step.room).slice(1)) {
@@ -45,9 +45,25 @@ async function seedOldSave(page, target) {
       const proof = id === "M10" ? "cloak" : id === "M18" ? "white-lily" : null;
       if (!story.completeMain(legacy,id,proof)) throw Error("Old save fixture could not complete " + id);
     }
+    if (room && !story.move(legacy,room)) throw Error("Old save fixture could not enter " + room);
     localStorage.setItem(key,JSON.stringify({run:legacy,audioEnabled:false}));
-  }, { key:saveKey, target });
+  }, { key:saveKey, target, room });
   await page.reload();
+}
+
+async function holdStick(page, vertical, finish) {
+  const input = await page.context().newCDPSession(page);
+  const stick = await page.locator("#walk-stick").boundingBox();
+  const x = Math.round(stick.x + stick.width / 2);
+  const y = Math.round(stick.y + stick.height / 2);
+  await input.send("Input.dispatchTouchEvent", { type:"touchStart", touchPoints:[{x,y}] });
+  await input.send("Input.dispatchTouchEvent", { type:"touchMove", touchPoints:[{x,y:y+vertical*28}] });
+  try {
+    await page.waitForFunction(finish, saveKey);
+  } finally {
+    await input.send("Input.dispatchTouchEvent", { type:"touchEnd", touchPoints:[] });
+    await input.detach();
+  }
 }
 
 async function startAndRotate(page, viewport) {
@@ -65,9 +81,17 @@ async function startAndRotate(page, viewport) {
   await button(page,"第二の声").tap();
   await button(page,"今、顔を上げる").tap();
   await button(page,"続ける").tap();
-  await button(page,"移動").tap();
+  await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
+  await checkLayout(page, ["#walk-stick","#content",".tabs"]);
+  await button(page,"出口").tap();
   await page.locator("#content h2").waitFor({state:"visible"});
-  assert.equal(await page.locator("#content h2").textContent(),"隣の部屋");
+  assert.equal(await page.locator("#content h2").textContent(),"出口");
+  assert.equal((await readSave(page)).run.world.room,"C01");
+  await holdStick(page,1,key => JSON.parse(localStorage.getItem(key)).run.world.room === "C02");
+  assert.equal((await readSave(page)).run.world.room,"C02");
+  await page.reload();
+  await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
+  assert.equal((await readSave(page)).position.room,"C02");
 }
 
 async function failAndRewind(page) {
@@ -88,17 +112,28 @@ async function failAndRewind(page) {
   assert.equal(run.world.seen,false);
   assert.equal(run.failure,null);
   assert.equal(run.world.main.at(-1),"M17");
+  await page.locator("#dialog").waitFor({state:"hidden"});
+  await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
+  await holdStick(page,-1,key => JSON.parse(localStorage.getItem(key)).run.failure?.event === "E280");
 }
 
 async function exitCastle(page) {
-  await seedOldSave(page,"M20");
+  await seedOldSave(page,"M20","Q04");
+  await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
+  await holdStick(page,-1,key => JSON.parse(localStorage.getItem(key)).run.world.room === "Q05");
   await openStep(page,"M20");
-  await button(page,"境石の手前で立ち止まる").tap();
   assert.equal((await readSave(page)).run.world.escaped,false);
-  await button(page,"調べ直す").tap();
-  await button(page,"境石を越え、外の草地を踏む").tap();
+  assert.equal(await button(page,"境石を越え、外の草地を踏む").count(),0);
+  await button(page,"戻る").tap();
+  await page.keyboard.down("ArrowRight");
+  try {
+    await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).position?.x > 1.1, saveKey);
+  } finally { await page.keyboard.up("ArrowRight"); }
   assert.equal((await readSave(page)).run.world.escaped,false);
-  await page.getByRole("heading",{ name:"もう客ではない", exact:true }).waitFor({state:"visible",timeout:30000});
+  await page.keyboard.down("ArrowUp");
+  try {
+    await page.getByRole("heading",{ name:"もう客ではない", exact:true }).waitFor({state:"visible",timeout:30000});
+  } finally { await page.keyboard.up("ArrowUp"); }
   const done = (await readSave(page)).run.world;
   assert.equal(done.escaped,true);
   assert.equal(done.main.length,20);
@@ -134,7 +169,7 @@ async function program() {
       await failAndRewind(page);
       await exitCastle(page);
       await page.close();
-      console.log("Chromium: " + viewport.width + "×" + viewport.height + ", rotate, reload, rewind and escape.");
+      console.log("Chromium: " + viewport.width + "×" + viewport.height + ", touch stick, corridor crossing, rotate, reload, rewind and walking escape.");
     }
     const fallback = await browser.newPage();
     fallback.on("pageerror", error => pageErrors.push(error.message));

@@ -34,11 +34,13 @@
         <p id="feature"></p>
       </div>
       <div id="toast" role="status" hidden></div>
+      <button type="button" id="walk-stick" aria-label="移動スティック。キーボードでは矢印キーで移動" hidden><span></span></button>
+      <p id="walk-passage" hidden></p>
     </section>
     <section class="desk" aria-label="行動と記録">
       <nav class="tabs" aria-label="操作">
         <button type="button" data-tab="scene" aria-pressed="true">調べる</button>
-        <button type="button" data-tab="walk" aria-pressed="false">移動</button>
+        <button type="button" id="walk-tab" data-tab="walk" aria-pressed="false">出口</button>
         <button type="button" data-tab="notes" aria-pressed="false">手帳</button>
         <button type="button" data-tab="items" aria-pressed="false">持ち物</button>
       </nav>
