@@ -7,7 +7,7 @@
   <title>王都からの脱出</title>
   <style>/* CASTLE_CSS */</style>
 </head>
-<body>
+<body class="game-page">
   <header class="top">
     <div class="title">王都からの脱出</div>
     <div class="top-actions">
@@ -37,14 +37,20 @@
       <button type="button" id="walk-stick" aria-label="移動スティック。キーボードでは矢印キーで移動" hidden><span></span></button>
       <p id="walk-passage" hidden></p>
     </section>
-    <section class="desk" aria-label="行動と記録">
+    <section class="desk" id="desk" aria-label="行動と記録" data-open="false">
       <nav class="tabs" aria-label="操作">
-        <button type="button" data-tab="scene" aria-pressed="true">調べる</button>
-        <button type="button" id="walk-tab" data-tab="walk" aria-pressed="false">出口</button>
-        <button type="button" data-tab="notes" aria-pressed="false">手帳</button>
-        <button type="button" data-tab="items" aria-pressed="false">持ち物</button>
+        <button type="button" data-tab="scene" aria-controls="desk-panel" aria-pressed="true">調べる</button>
+        <div class="tabs-tools">
+          <button type="button" id="walk-tab" data-tab="walk" aria-controls="desk-panel" aria-pressed="false">出口</button>
+          <button type="button" data-tab="notes" aria-controls="desk-panel" aria-pressed="false">手帳</button>
+          <button type="button" data-tab="items" aria-controls="desk-panel" aria-pressed="false">持ち物</button>
+        </div>
       </nav>
-      <div id="content" class="content" tabindex="-1"></div>
+      <button type="button" id="audience-call" class="primary" hidden></button>
+      <div class="desk-panel" id="desk-panel">
+        <button type="button" id="desk-close">探索に戻る</button>
+        <div id="content" class="content" tabindex="-1"></div>
+      </div>
     </section>
   </main>
   <dialog id="dialog" aria-labelledby="dialog-title">

@@ -253,7 +253,8 @@ function createCastleView(canvas, frame, actions) {
     player.group.rotation.y = position.facing;
 
     const fX = Math.sin(position.yaw), fZ = Math.cos(position.yaw);
-    let distance = 2.55 * Math.cos(position.pitch);
+    const followDistance = camera.aspect < .8 ? 3.6 : 2.55;
+    let distance = followDistance * Math.cos(position.pitch);
     while (distance > .35 && !castleWalkable(area, position.x + fX * distance, position.z + fZ * distance)) {
       distance -= .26;
     }
