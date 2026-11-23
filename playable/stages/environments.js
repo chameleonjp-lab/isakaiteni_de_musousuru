@@ -224,7 +224,7 @@
     g.fillStyle = badgeColor || "#d9a944"; g.fillRect(0, 0, 16, 72); g.fillRect(304, 0, 16, 72);
     g.strokeStyle = "#e8c46b"; g.lineWidth = 3; g.strokeRect(3, 3, 314, 66);
     g.fillStyle = "#ffe8ad"; g.font = "bold 22px sans-serif"; g.textAlign = "center";
-    g.fillText("→ " + targetId + " " + targetName, 160, 44);
+    g.fillText(targetName, 160, 44, 278);
     const tex = new THREE.CanvasTexture(c);
     tex.castleShared = true;
     texCache[key] = tex;
@@ -255,6 +255,10 @@
     if (curLoc.id === "Q02") return targetLoc.id === "Q03" ? "N" : "S";
     if (curLoc.id === "Q03") return targetLoc.id === "Q04" ? "N" : "S";
     if (curLoc.id === "C01") return "S";
+    if (curLoc.id === "W01" && targetLoc.id === "C07") return "E";
+    if (curLoc.id === "B07") {
+      return { B02: "W", B04: "W", B05: "E", B06: "E", S06: "S", S08: "N" }[targetLoc.id];
+    }
     if (targetLoc.d === "N") return "N";
     if (targetLoc.d === "S") return "S";
     if (targetLoc.d === "W" || targetLoc.d === "Q") return "W";
@@ -494,6 +498,11 @@
       farSign.position.set(0, cH - 0.5, CORR_LEN - 0.12);
       cg.add(farSign);
 
+      const barrier = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W, DOOR_H, .24), darkWoodMat);
+      barrier.position.set(0, DOOR_H / 2, .22);
+      barrier.visible = false;
+      cg.add(barrier);
+
       root.add(cg);
       corridorPortals.push({
         targetId: ent.id,
@@ -503,6 +512,9 @@
         entryZ: (side === "N" || side === "S") ? wallPos : off,
         dirX: dirX,
         dirZ: dirZ,
+        length: CORR_LEN,
+        width: DOOR_W,
+        barrier: barrier,
         hitMeshes: [hitPlane, portalGlow]
       });
     }
@@ -647,6 +659,7 @@
     // =========================================================================
     function addTable(x, z, tw, td) {
       const tg = new THREE.Group(); tg.position.set(x, 0, z);
+      tg.userData.walkObstacle = true;
       const top = new THREE.Mesh(new THREE.BoxGeometry(tw, 0.11, td), woodMat); top.position.y = 0.88; tg.add(top);
       const apron = new THREE.Mesh(new THREE.BoxGeometry(tw - 0.18, 0.14, td - 0.18), darkWoodMat); apron.position.y = 0.78; tg.add(apron);
       [[-tw / 2 + 0.14, -td / 2 + 0.14], [tw / 2 - 0.14, -td / 2 + 0.14], [-tw / 2 + 0.14, td / 2 - 0.14], [tw / 2 - 0.14, td / 2 - 0.14]].forEach(function (lp) {
@@ -673,6 +686,7 @@
 
     function addBookshelf(x, z, rotY) {
       const sg = new THREE.Group(); sg.position.set(x, 0, z); sg.rotation.y = rotY || 0;
+      sg.userData.walkObstacle = true;
       const frame = new THREE.Mesh(new THREE.BoxGeometry(2.3, 3.0, 0.62), darkWoodMat); frame.position.y = 1.5; sg.add(frame);
       const crown = new THREE.Mesh(new THREE.BoxGeometry(2.44, 0.16, 0.7), woodMat); crown.position.y = 3.04; sg.add(crown);
       const cols = [0x8c2424, 0x244675, 0x2f6142, 0x7a5724, 0x5c2d5e, 0x9c6d2c];

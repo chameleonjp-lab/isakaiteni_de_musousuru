@@ -1,285 +1,267 @@
 "use strict";
 
-const themes = {
-  C: [0x938679, 0x782a37, 0xffc590], W: [0x776e62, 0x456e69, 0xffcc98],
-  E: [0x7e7063, 0x7a4a38, 0xffc486], N: [0x7e8490, 0x455d86, 0xb8d8ff],
-  S: [0x8d755f, 0x7a583b, 0xffa966], G: [0x536550, 0x9dba7b, 0xe1e8ab],
-  B: [0x625d61, 0x6f576a, 0xffb181], Q: [0x919f9a, 0x446866, 0xc7e5d5]
-};
-const shader = n => new THREE.MeshStandardMaterial({ color: n, roughness: .76 });
-
-function startCastleView({ renderer, camera, scene, hero, king, princess, torchFlames, createStoneTexture, canvas, frame }) {
-  const roomScene = new THREE.Scene();
-  const decoration = new THREE.Group();
-  const shadow = new THREE.HemisphereLight(0xffecd4, 0x3b4246, 1.7);
-  const daylight = new THREE.DirectionalLight(0xfbf0d6, 1.6);
-  daylight.position.set(-4, 7, 5);
-  roomScene.add(decoration, shadow, daylight);
-  const box = new THREE.BoxGeometry(1, 1, 1);
-  const pole = new THREE.CylinderGeometry(.5, .5, 1, 10);
-  const orb = new THREE.SphereGeometry(.5, 14, 10);
-  const taper = new THREE.ConeGeometry(.5, 1, 11);
-  const round = new THREE.TorusGeometry(.48, .065, 8, 24);
-  const brass = shader(0xb99552);
-  const wood = shader(0x3e2e24);
-  const white = shader(0xe0d9b6);
-  const colored = new Map();
-  const prop = new THREE.Group();
-  const stoneTexture = createStoneTexture("#aca9a1", "#7e7771", 9, 5);
-  const flame = new THREE.MeshBasicMaterial({ color: 0xffb967 });
-  const lumen = new THREE.MeshBasicMaterial({ color: 0xffe7a6 });
-  const materials = new Map();
-  let current = "";
-  let mark = "";
-  let yaw = 0;
-  let stamp = 0;
-  let angle = 0;
-  let origin = 0;
-  let pointer = null;
-  let state;
-  let contextLost = false;
-  const move = (shape, material, X, Y, Z, width, height, depth, parent = decoration) => {
-    const part = new THREE.Mesh(shape, material);
-    part.position.set(X, Y, Z);
-    part.scale.set(width, height, depth);
-    parent.add(part);
-    return part;
-  };
-  const solid = (m,x,y,z,w,h,d,p) => move(box,m,x,y,z,w,h,d,p);
-  function color(hex) {
-    if (!colored.has(hex)) colored.set(hex, shader(hex));
-    return colored.get(hex);
-  }
-  function arch(x, z, wall, trim, turn = 0) {
-    const group = new THREE.Group();
-    group.position.set(x, 0, z);
-    group.rotation.y = turn;
-    decoration.add(group);
-    for (const sign of [-1, 1]) solid(trim, sign * 1.09, 1.63, .12, .29, 3.26, .55, group);
-    for (let index = 0; index < 9; index++) {
-      const a = index * Math.PI / 8;
-      solid(trim, Math.cos(a)*1.09, 3.25+Math.sin(a)*1.04, .1, .36, .37, .55, group).rotation.z = a;
-    }
-    solid(wall, 0, 1.55, -.13, 1.89, 3.1, .25, group);
-    solid(wood, 0, 1.51, .05, 1.9, 3.02, .2, group);
-    for (let i=-2; i<=2; i++) solid(trim, i*.34, 1.49, .17, .022, 2.9, .015, group);
-    solid(brass, .63, 1.41, .25, .16, .11, .11, group);
-  }
-  function shelves(mat, shade, seed) {
-    for (let row=0; row<3; row++) {
-      const y = .28 + row*.62;
-      solid(wood,0,y,0,2.7,.11,.66,prop);
-      for (let i=0;i<9;i++) {
-        const h = .29+((seed+i*13+row*7)%7)*.033;
-        solid(i%3===0 ? shade : mat,-1.05+i*.26,y+.08+h/2,.03,.16,h,.43,prop);
-      }
-    }
-  }
-  function displayProp(id, main, floor, seed) {
-    const table = () => {
-      solid(wood,0,.74,0,2.54,.16,1.18,prop);
-      for (const x of [-1,1]) for (const z of [-.43,.43]) solid(wood,x,.38,z,.19,.76,.19,prop);
-    };
-    const sphere = (m,x,y,z,w,h,d) => move(orb,m,x,y,z,w,h,d,prop);
-    if (id === "G01") {
-      move(pole,floor,0,.14,0,1.9,.28,1.9,prop);
-      sphere(brass,0,1.31,0,.63,.54,1.2);
-      move(pole,brass,.19,.7,.1,.10,1.19,.10,prop);
-      move(pole,brass,-.22,.75,.1,.10,1.12,.10,prop).rotation.z=-.16;
-      move(pole,brass,0,1.76,.42,.19,.81,.19,prop).rotation.x=.31;
-      sphere(brass,0,2.16,.59,.30,.30,.30);
-      move(taper,brass,0,2.15,.86,.20,.50,.20,prop).rotation.x=Math.PI/2;
-      solid(white,-.24,.72,.23,.19,.14,.045,prop);
-      return;
-    }
-    if (id === "N03" || id === "N06" || id === "G04") {
-      move(pole,wood,0,.62,0,.49,1.25,.49,prop);
-      for (let i=0;i<3;i++) {
-        const disc=move(round,i===1 ? main : brass,0,1.67,0,2.15-i*.44,2.15-i*.44,2.15-i*.44,prop);
-        disc.rotation.set(i*.98,.15+i*.8,.22);
-      }
-      sphere(lumen,0,1.66,0,.24,.24,.24);
-      return;
-    }
-    if (id === "Q03") {
-      for (const x of [-1.43,0,1.43]) {
-        solid(floor,x,.23,0,.86,.46,.77,prop);
-        move(taper,floor,x,1.11,0,.73,1.32,.59,prop);
-        sphere(white,x,1.89,0,.43,.47,.43);
-        if (x) move(taper,brass,x,2.2,0,.47,.35,.47,prop);
-      }
-      return;
-    }
-    if (id === "W03" || id === "W08") {
-      solid(wood,0,1.48,0,1.51,1.83,.14,prop);
-      solid(brass,0,1.48,.10,1.36,1.68,.19,prop);
-      solid(main,0,1.48,.22,1.20,1.52,.08,prop);
-      sphere(white,0,1.80,.33,.43,.6,.19);
-      move(taper,wood,0,1.22,.35,.85,.7,.16,prop);
-      solid(wood,0,.41,.25,1.55,.11,.33,prop);
-      return;
-    }
-    if (id === "E02" || id === "S01" || id === "B06" || id === "B02") {
-      solid(wood,0,.51,0,1.72,1.02,1.1,prop);
-      solid(main,0,1.05,0,1.85,.20,1.21,prop);
-      for (const x of [-.55,.55]) solid(brass,x,.6,.563,.10,.98,.05,prop);
-      solid(brass,0,.72,.62,.32,.23,.1,prop);
-      sphere(lumen,0,.72,.665,.07,.08,.03);
-      return;
-    }
-    if (id === "W01" || id === "W06" || id === "N02" || id === "E03") {
-      shelves(main,white,seed);
-      return;
-    }
-    if (id === "Q01" || id === "Q02" || id === "Q04") {
-      for (const x of [-.74,0,.74]) {
-        move(pole,brass,x,.55,0,.15,1.1,.15,prop);
-        move(pole,white,x,1.14,0,.12,.29,.12,prop);
-        move(taper,flame,x,1.35,0,.11,.26,.11,prop);
-      }
-      if (id === "Q02") {
-        for(let i=0;i<7;i++) {
-          for(let j=0;j<4;j++) {
-            const flower=sphere(white,-2.55+Math.cos(j*Math.PI/2)*.075,.028,2.35-i*1.12+Math.sin(j*Math.PI/2)*.075,.11,.045,.11);
-            flower.rotation.y=.4;
-          }
-        }
-      }
-      return;
-    }
-    if (id.startsWith("G") || id === "Q05") {
-      for (let i=0;i<9;i++) {
-        const x=-4.05+(i%5)*2.02;
-        const z=1.5-Math.floor(i/5)*4.7-(i%2)*1.2;
-        move(pole,wood,x,.78,z,.17,1.55,.17,prop);
-        move(orb,main,x,1.8,z,.93,1.5,.96,prop);
-      }
-      if (id === "Q05") {
-        solid(white,0,.14,-.9,5.8,.28,.51,prop);
-        solid(wood,-.03,.30,-.90,1.45,.06,.43,prop);
-      } else {
-        move(pole,floor,0,.19,0,2.31,.38,2.31,prop);
-        move(pole,color(0x547b81),0,.385,0,1.96,.038,1.96,prop);
-      }
-      return;
-    }
-    table();
-    for(let i=0;i<5;i++) {
-      const x=-.87+i*.43;
-      const h=.19+((seed+i*9)%6)*.063;
-      if (id.startsWith("E") || id === "W02") solid(i%2 ? main : white,x,.84+h/2,-.04,.36,h,.63,prop);
-      else {
-        move(pole,i%2 ? main : white,x,.84+h/2,-.05,.28,h,.28,prop);
-        move(pole,brass,x,.84+h,-.05,.33,.056,.33,prop);
-      }
-    }
-  }
-  function rebuild(id) {
-    decoration.clear();
-    prop.clear();
-    prop.position.set(0,0,-2.48);
-    decoration.add(prop);
-    const [wall,tint,light] = themes[id[0]];
-    if (!materials.has(id[0])) materials.set(id[0], new THREE.MeshStandardMaterial({map: stoneTexture,color:wall,roughness:.86}));
-    const masonry=materials.get(id[0]);
-    const main=color(tint);
-    const outside = id[0] === "G" || id === "Q05";
-    roomScene.background = new THREE.Color(outside ? 0x405761 : 0x181d20);
-    roomScene.fog = new THREE.FogExp2(outside ? 0x405761 : 0x181d20, outside ? .035 : .019);
-    daylight.color.setHex(light);
-    solid(masonry,0,-.17,-1,11.5,.32,12.8);
-    const entryFloor = id === "Q02" ? white : main;
-    solid(entryFloor,0,.013,-.6,2.3,.018,9.7);
-    if (!outside) {
-      solid(masonry,0,3.35,-5.95,11.5,6.7,.55);
-      for (const x of [-5.5,5.5]) solid(masonry,x,3.35,-1.0,.55,6.7,10.5);
-    }
-    arch(0,-5.6,masonry,main);
-    if (!outside) { arch(-5.1,-3.1,masonry,main,Math.PI/2); arch(5.1,-3.1,masonry,main,-Math.PI/2); }
-    for (const x of [-3.5,3.5]) {
-      solid(main,x,3.99,-5.61,.95,2.11,.06);
-      solid(brass,x,5.08,-5.54,1.15,.06,.10);
-      move(pole,brass,x,2.55,-5.23,.1,.44,.12);
-      move(taper,flame,x,2.91,-5.23,.20,.51,.22);
-    }
-    const furniture = parseInt(id.slice(1),10);
-    displayProp(id, main, masonry, furniture);
-    if (id === "G01" || id === "Q05") prop.position.z = -2.0;
-    if (id === "Q02") prop.position.z = 0;
-  }
-  function kneel(weight) {
-    hero.group.position.set(0,-.31*weight,-.45);
-    hero.group.rotation.y = Math.PI;
-    hero.upperBody.rotation.x=.35*weight;
-    hero.headPivot.rotation.x=.4*weight;
-    hero.leftLeg.hip.rotation.x=-1.22*weight;
-    hero.leftLeg.knee.rotation.x=1.30*weight;
-    hero.rightLeg.hip.rotation.x=.27*weight;
-    hero.rightLeg.knee.rotation.x=1.31*weight;
-    hero.rightArm.shoulder.rotation.x=-.49*weight;
-    hero.leftArm.shoulder.rotation.x=-.27*weight;
-  }
+function createCastleView(canvas, frame, actions) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "low-power" });
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  const camera = new THREE.PerspectiveCamera(48, 1, .05, 150);
   const stage3D = createCastleStage();
+  const environmentApi = window.CastleEscapeEnvironments;
+  const boundary = window.CastleEscapeStage2.STAGE2_CONFIG.Q05;
+  const models = window.CastleEscapeModels;
+  const player = models.createCharacter("P00", {});
+  if (player.mainProp) player.mainProp.visible = false;
+  stage3D.scene.add(player.group);
+
+  const stick = frame.querySelector("#walk-stick");
+  const passage = frame.querySelector("#walk-passage");
   const closeView = frame.querySelector("#stage-close");
   const doorView = frame.querySelector("#stage-door");
+  const input = createCastleWalk(stick);
+  const lookTarget = new THREE.Vector3();
+  const position = { x: 0, z: 0, facing: Math.PI, yaw: 0, pitch: .36 };
+  let area;
+  let plainArea;
   let controller;
   let snapshotKey;
+  let current;
+  let run;
   let cameraMode = "wide";
-  const setCameraMode = mode => {
-    cameraMode = mode;
-    closeView.setAttribute("aria-pressed", String(mode === "closeup"));
-    doorView.setAttribute("aria-pressed", String(mode === "doorClose"));
-  };
-  closeView.addEventListener("click", () => setCameraMode(cameraMode === "closeup" ? "wide" : "closeup"));
-  doorView.addEventListener("click", () => setCameraMode(cameraMode === "doorClose" ? "wide" : "doorClose"));
+  let contextLost = false;
+  let playing = false;
+  let dragging = null;
+  let dragX, dragY;
+  let orbitYaw = 0;
+  let crossed = false;
+  let lastSaved = 0;
+  let positionDirty = false;
+  let walked = false;
+  let walkCycle = 0;
+  let savedPosition = actions.initialPosition;
 
-  function setRoom(room, run) {
-    state = run;
+  const available = () => !contextLost;
+  const walking = () => available() && run?.world.main.includes("M02") && !run.world.escaped && !run.failure;
+  const freeCamera = () => walking() && cameraMode === "wide" && !playing;
+
+  function stopInput() {
+    input.reset();
+    const pointer = dragging;
+    dragging = null;
+    if (pointer !== null && canvas.hasPointerCapture(pointer)) canvas.releasePointerCapture(pointer);
+  }
+
+  function updateControls() {
+    const exploring = walking();
+    frame.dataset.explore = String(exploring);
+    closeView.hidden = !controller;
+    doorView.hidden = current !== "Q01";
+    closeView.setAttribute("aria-pressed", String(cameraMode === "closeup"));
+    doorView.setAttribute("aria-pressed", String(cameraMode === "doorClose"));
+    stick.hidden = !exploring;
+    stick.disabled = playing;
+    if (!freeCamera()) passage.hidden = true;
+    if (controller?._inspect?.hero) controller._inspect.hero.rig.visible = !freeCamera();
+    player.group.visible = Boolean(freeCamera());
+  }
+
+  function selectCamera(mode) {
+    cameraMode = cameraMode === mode ? "wide" : mode;
+    orbitYaw = 0;
+    stopInput();
+    updateControls();
+  }
+
+  closeView.addEventListener("click", () => selectCamera("closeup"));
+  doorView.addEventListener("click", () => selectCamera("doorClose"));
+
+  function spawn(from, restore) {
+    const entry = area.corridorPortals.find(portal => portal.targetId === from);
+    const defaults = { x: 0, z: current === "C01" ? 2.8 : ["Q02", "Q05"].includes(current) ? 6 : 0, yaw: 0 };
+    if (entry) {
+      defaults.x = entry.entryX - entry.dirX * 1.05;
+      defaults.z = entry.entryZ - entry.dirZ * 1.05;
+      defaults.yaw = Math.atan2(entry.dirX, entry.dirZ);
+    }
+    const safeRestore = restore?.room === current && [restore.x, restore.z, restore.yaw].every(Number.isFinite) &&
+      castleWalkable(area, restore.x, restore.z) && (current !== "Q05" || restore.z > 0);
+    const next = safeRestore ? restore : defaults;
+    const safeDefault = castleWalkable(area, next.x, next.z);
+    position.x = safeDefault ? next.x : 0;
+    position.z = safeDefault ? next.z : Math.min(3.1, area.spec.dLen / 2 - .5);
+    position.yaw = next.yaw;
+    position.facing = next.yaw + Math.PI;
+    position.pitch = .36;
+    crossed = false;
+    positionDirty = false;
+    walked = false;
+    walkCycle = 0;
+  }
+
+  function setRoom(room, nextRun, { from, reset = false } = {}) {
+    const previousRun = run;
+    run = nextRun;
     const snapshot = castleStageState(story, run);
-    const nextKey = JSON.stringify([snapshot, run.failure?.event, !!run.failure, run.fails]);
-    if (nextKey !== snapshotKey) {
+    const nextKey = JSON.stringify([snapshot, run.failure?.event, run.fails]);
+    const changed = room.id !== current;
+    if (nextKey !== snapshotKey || run !== previousRun || reset) {
+      playing = false;
       controller = stage3D.setRoom(room.id, snapshot);
       snapshotKey = nextKey;
     }
-    if (current !== room.id) {
-      yaw = 0;
-      angle = 0;
-      origin = performance.now();
+    if (changed) {
+      if (plainArea) disposeCastleStage({ root: plainArea.group });
+      plainArea = controller ? null : environmentApi.createEnvironment(room.id);
+      if (plainArea) stage3D.scene.add(plainArea.group);
+      area = controller?.env || plainArea;
       current = room.id;
-      closeView.hidden = !controller;
-      doorView.hidden = current !== "Q01";
-      setCameraMode("wide");
-      if (!controller && current !== "C01") rebuild(current);
-      if (current === "Q04" && !run.failure && !run.world.escaped) stage3D.play("passToQ05");
+      area.group.updateMatrixWorld(true);
+      area.obstacles = [];
+      area.group.traverse(node => {
+        if (node.userData.walkObstacle) area.obstacles.push(new THREE.Box3().setFromObject(node));
+      });
+      stage3D.scene.background.setHex(area.theme.bg);
+      stage3D.scene.fog = new THREE.FogExp2(area.theme.fog, area.theme.fogDensity);
     }
-    const mood = run.world.escaped ? "clear" : run.failure ? "failed" : "normal";
-    if (mark !== mood) { origin = performance.now(); mark = mood; }
+    for (const portal of area.corridorPortals) {
+      const open = story.canMove(run.world, portal.targetId);
+      portal.barrier.visible = !open;
+      portal.hitMeshes[1].visible = false;
+    }
+    if (changed || reset || run !== previousRun) {
+      if (!from) stopInput();
+      spawn(from, !reset && savedPosition);
+      savedPosition = null;
+      cameraMode = "wide";
+      orbitYaw = 0;
+    }
+    if (player.collarMesh) player.collarMesh.visible = !snapshot.collarRemoved;
+    updateControls();
   }
+
+  function walkingPosition(room) {
+    if (room !== current || !walking() || (room === "Q05" && position.z <= 0)) return null;
+    return { room, x: position.x, z: position.z, yaw: position.yaw };
+  }
+
   const size = new ResizeObserver(() => {
     camera.aspect = Math.max(1, frame.clientWidth) / Math.max(1, frame.clientHeight);
-    camera.fov = camera.aspect < 1.25 ? 48 : 42;
+    camera.fov = camera.aspect < 1.25 ? 54 : 48;
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.35));
-    renderer.setSize(frame.clientWidth,frame.clientHeight,false);
+    renderer.setSize(frame.clientWidth, frame.clientHeight, false);
     camera.updateProjectionMatrix();
   });
   size.observe(frame);
+
   canvas.addEventListener("pointerdown", event => {
-    if (event.button !== 0) return;
-    pointer = event.pointerId;
-    stamp = event.clientX;
-    canvas.setPointerCapture(pointer);
+    if (dragging !== null || event.button !== 0 || actions.isBlocked()) return;
+    canvas.setPointerCapture(event.pointerId);
+    dragging = event.pointerId;
+    dragX = event.clientX;
+    dragY = event.clientY;
   });
   canvas.addEventListener("pointermove", event => {
-    if (event.pointerId !== pointer) return;
-    yaw = Math.max(-.45,Math.min(.45,yaw+(event.clientX-stamp)*.0032));
-    stamp = event.clientX;
+    if (event.pointerId !== dragging) return;
+    const yawDelta = (event.clientX - dragX) * .007;
+    if (freeCamera()) {
+      position.yaw -= yawDelta;
+      position.pitch = Math.max(.13, Math.min(.79, position.pitch + (event.clientY - dragY) * .005));
+      positionDirty = true;
+    } else orbitYaw = Math.max(-.45, Math.min(.45, orbitYaw - yawDelta));
+    dragX = event.clientX;
+    dragY = event.clientY;
   });
-  for (const type of ["pointerup","pointercancel","lostpointercapture"]) canvas.addEventListener(type, () => { pointer = null; });
+  for (const name of ["pointerup", "pointercancel", "lostpointercapture"]) {
+    canvas.addEventListener(name, event => {
+      if (event.pointerId === dragging) {
+        dragging = null;
+        flushPosition();
+      }
+    });
+  }
   canvas.addEventListener("webglcontextlost", event => {
-    event.preventDefault(); contextLost = true; frame.classList.add("unavailable");
+    event.preventDefault();
+    contextLost = true;
+    stopInput();
+    playing = false;
     stage3D.cancel();
+    frame.classList.add("unavailable");
+    actions.modeChanged();
   });
-  canvas.addEventListener("webglcontextrestored", () => { contextLost = false; frame.classList.remove("unavailable"); });
+  canvas.addEventListener("webglcontextrestored", () => {
+    contextLost = false;
+    frame.classList.remove("unavailable");
+    actions.modeChanged();
+  });
+
+  function flushPosition() {
+    if (!positionDirty) return;
+    positionDirty = false;
+    actions.savePosition();
+  }
+
+  function updateWalk(dt, now, [x, z]) {
+    const sin = Math.sin(position.yaw), cos = Math.cos(position.yaw);
+    const dx = x * cos + z * sin;
+    const dz = z * cos - x * sin;
+    const length = Math.hypot(dx, dz);
+    const prevX = position.x, prevZ = position.z;
+    const speed = 4.6;
+    if (length > .055) {
+      const nextX = prevX + dx * speed * dt;
+      const nextZ = prevZ + dz * speed * dt;
+      if (castleWalkable(area, nextX, prevZ)) position.x = nextX;
+      if (castleWalkable(area, position.x, nextZ)) position.z = nextZ;
+      const target = Math.atan2(dx, dz);
+      const diff = target - position.facing;
+      position.facing += Math.atan2(Math.sin(diff), Math.cos(diff)) * Math.min(1, dt * 12);
+    }
+
+    const moved = position.x !== prevX || position.z !== prevZ;
+    if (moved) {
+      positionDirty = true;
+      walkCycle += dt * Math.max(.35, length) * 2.45;
+      if (current === "Q05") {
+        if (position.z > boundary.boundaryZ) crossed = false;
+        else if (prevZ > boundary.boundaryZ) crossed = true;
+        if (crossed && position.z <= boundary.grassConfirmZ && actions.escape()) return;
+      }
+      if (current === "Q02" && Math.abs(position.x) < 1.9 && position.z < 4 && position.z > -5.5 &&
+        actions.exposed()) return;
+    }
+
+    let near;
+    for (const portal of area.corridorPortals) {
+      const { depth, across } = castlePassage(portal, position.x, position.z);
+      if (depth < -1.3 || Math.abs(across) > portal.width / 2) continue;
+      near = portal;
+      if (moved && !portal.barrier.visible && depth >= portal.length - .48 && actions.move(portal.targetId)) return;
+    }
+    const label = near ? (near.barrier.visible ? "閉鎖　" : "") + near.targetName : "";
+    if (passage.textContent !== label) passage.textContent = label;
+    passage.hidden = !label;
+    if ((moved && now - lastSaved > 750) || (!moved && walked)) {
+      lastSaved = now;
+      flushPosition();
+    }
+    walked = moved;
+  }
+
+  function drawWalk() {
+    const floor = controller?._inspect?.getSurfaceY?.(position.x, position.z) ??
+      controller?._inspect?.getStairSurfaceY?.(position.x, position.z) ?? 0;
+    models.applyPose(player, walked ? "walk" : "stand", walkCycle);
+    player.group.position.set(position.x, floor, position.z);
+    player.group.rotation.y = position.facing;
+
+    const fX = Math.sin(position.yaw), fZ = Math.cos(position.yaw);
+    let distance = 2.55 * Math.cos(position.pitch);
+    while (distance > .35 && !castleWalkable(area, position.x + fX * distance, position.z + fZ * distance)) {
+      distance -= .26;
+    }
+    camera.position.set(position.x + fX * distance, floor + 1.62 + Math.sin(position.pitch) * 2.4,
+      position.z + fZ * distance);
+    lookTarget.set(position.x - fX * .9, floor + 1.28, position.z - fZ * .9);
+    camera.lookAt(lookTarget);
+  }
 
   let last = 0;
   let animation;
@@ -287,42 +269,54 @@ function startCastleView({ renderer, camera, scene, hero, king, princess, torchF
     animation = 0;
     if (document.hidden) return;
     animation = requestAnimationFrame(draw);
-    if (!state || contextLost || now-last < 33) return;
-    const dt = Math.min(0.08, (now-last) / 1000);
+    if (!run || contextLost || now - last < 30) return;
+    const dt = Math.min(.09, (now - last) / 1000);
     last = now;
-    const seconds = now / 1000;
-    const progress = Math.max(0,1-(now-origin)/730);
-    angle += (yaw-angle)*.2;
-    if (controller) {
-      const completed = stage3D.update(dt, seconds);
+    if (walking() && !playing) {
+      const drive = actions.isBlocked() ? [0, 0] : input.vector();
+      if (cameraMode !== "wide" && Math.hypot(...drive) > .055) {
+        cameraMode = "wide";
+        updateControls();
+      }
+      if (freeCamera()) updateWalk(dt, now, drive);
+    }
+    if (freeCamera()) drawWalk();
+    else if (controller) {
       const preset = controller.getCameraPreset(cameraMode);
-      const zoom = cameraMode === "wide" && camera.aspect < 1.25 ? 1.15 : 1;
-      placeCastleStageCamera(camera, preset, angle, zoom);
-      renderer.render(stage3D.scene, camera);
-      completed?.();
-      return;
-    }
-    if (current === "C01") {
-      kneel(state.world.main.includes("M02") ? 0 : state.world.main.includes("M01") ? .71 : 1);
-      king.rightArm.rotation.x = -.81+Math.sin(seconds*2.25)*.075;
-      princess.rotation.z = Math.sin(seconds*.45)*.009;
-      for(const fire of torchFlames) fire.mesh.scale.y=.96+Math.sin(seconds*9+fire.phase)*.1;
-      camera.position.set(angle*6,2.2,4.32+progress);
-      camera.lookAt(angle*.62,2.04,-5.8);
-      renderer.render(scene,camera);
+      placeCastleStageCamera(camera, preset, orbitYaw);
     } else {
-      const clear=state.world.escaped;
-      const roomAngle=clear ? angle*.5 : angle;
-      camera.position.set(Math.sin(roomAngle)*7.4,clear ? 2.9 : 2.58,6.2+progress);
-      camera.lookAt(roomAngle*1.5,clear ? 1.62 : 1.78,-1.72);
-      renderer.render(roomScene,camera);
+      camera.position.set(3, 3, 4);
+      camera.lookAt(0, 1, 0);
     }
+    if (plainArea) plainArea.update(now / 1000);
+    const completed = stage3D.update(dt, now / 1000);
+    renderer.render(stage3D.scene, camera);
+    completed?.();
   }
+
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) { cancelAnimationFrame(animation); animation=0; }
-    else if (!animation) animation=requestAnimationFrame(draw);
+    if (document.hidden) {
+      flushPosition();
+      stopInput();
+      cancelAnimationFrame(animation);
+      animation = 0;
+    } else if (!animation) animation = requestAnimationFrame(draw);
   });
+  window.addEventListener("pagehide", flushPosition);
   animation = requestAnimationFrame(draw);
-  const play = (variant, done) => !contextLost && stage3D.play(variant, done);
-  return { setRoom, play };
+
+  function play(variant, done) {
+    if (contextLost || !stage3D.play(variant, complete => {
+      playing = false;
+      updateControls();
+      done?.(complete);
+    })) return false;
+    stopInput();
+    playing = true;
+    orbitYaw = 0;
+    updateControls();
+    return true;
+  }
+
+  return { setRoom, play, available, stopInput, walkingPosition };
 }

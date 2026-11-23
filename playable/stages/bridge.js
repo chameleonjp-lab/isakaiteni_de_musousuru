@@ -58,7 +58,7 @@ function disposeCastleStage(ctrl) {
     }
   });
   ctrl.root.parent?.remove(ctrl.root);
-  ctrl.dispose();
+  ctrl.dispose?.();
   for (const resource of resources) resource.dispose();
 }
 
