@@ -124,7 +124,16 @@ h1 { margin: 0 0 .32rem; font: 700 clamp(26px,5.4vw,49px)/1.21 var(--serif); let
 .action span { display: block; color: #bdc3b9; font-size: .72rem; font-weight: 400; margin-top: .13rem; }
 .action.primary span { color: #4e4837; }
 .action.selected { border-color: #a7b697; }
-.emblem::before { content: "◇ "; color: #edc780; }
+.emblem::before {
+  content: "";
+  display: inline-block;
+  width: .42em;
+  height: .42em;
+  margin-inline: .1em .55em;
+  border: 1px solid currentColor;
+  color: #edc780;
+  transform: translateY(-.11em) rotate(45deg);
+}
 .emblem.primary::before { color: #51442a; }
 .record { padding: .5rem .64rem; border-left: 2px solid #8d825c; background: #242e32; }
 .record strong { font-size: .87rem; }
