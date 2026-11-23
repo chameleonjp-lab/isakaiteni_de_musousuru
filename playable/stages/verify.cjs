@@ -144,7 +144,7 @@ const result = vm.runInContext(`
   requireThat(foundResidents.size === 36,"36人全員に配置場所がある");
 
   const named = window.CastleEscapeModels.createCharacter("P02",{});
-  const nameplate = createCastleNameplate(named,story.cast.get("P02").name);
+  const nameplate = createCastleNameplate(named,story.cast.get("P02").name,true);
   const sprite = named.headPivot.children.find(node => node.isSprite);
   const camera = new THREE.PerspectiveCamera(54,402/652,.05,150);
   camera.position.set(0,1.8,5);
@@ -153,10 +153,10 @@ const result = vm.runInContext(`
   nameplate.resize(2/(652*camera.projectionMatrix.elements[5]));
   requireThat(sprite.name === "王女リゼ" && sprite.material.depthTest && !sprite.material.sizeAttenuation,
     "名前を頭に固定し、手前の物に隠れ、遠くからも読める大きさで表示する");
-  const placeHead = x => {
+  const placeHead = (x,y = 0) => {
     const head = sprite.getWorldPosition(new THREE.Vector3());
-    named.group.position.add(new THREE.Vector3(x,0,0).unproject(camera).sub(head));
-    nameplate.update(camera,402);
+    named.group.position.add(new THREE.Vector3(x,y,0).unproject(camera).sub(head));
+    nameplate.update(camera,402,652);
   };
   placeHead(.97);
   requireThat(sprite.visible && sprite.center.x > .5,"画面右端の名前を画面内へ寄せる");
@@ -164,6 +164,8 @@ const result = vm.runInContext(`
   requireThat(sprite.visible && sprite.center.x < .5,"画面左端の名前を画面内へ寄せる");
   placeHead(1.12);
   requireThat(!sprite.visible,"画面外の人物の名前は表示しない");
+  placeHead(0,.99);
+  requireThat(sprite.visible && sprite.center.y > 0,"会話相手の名札は上端で切れない");
   const patrol = stage.setRoom("Q02");
   createCastleRoomNameplates(story,[],patrol);
   requireThat(patrol._inspect.westGuard.charObj.headPivot.children.some(node => node.isSprite && node.name === "西番"),

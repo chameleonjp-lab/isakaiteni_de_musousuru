@@ -1,6 +1,6 @@
 "use strict";
 
-function createCastleNameplate(character, name) {
+function createCastleNameplate(character, name, keepTopVisible = false) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   const font = '600 13px "Hiragino Sans", "Yu Gothic", "Noto Sans CJK JP", sans-serif';
@@ -30,6 +30,7 @@ function createCastleNameplate(character, name) {
   const sprite = new THREE.Sprite(material);
   sprite.name = name;
   sprite.center.set(.5,0);
+  if (keepTopVisible) sprite.frustumCulled = false;
 
   const head = character.headPivot;
   const bounds = new THREE.Box3();
@@ -49,13 +50,17 @@ function createCastleNameplate(character, name) {
     resize(unitsPerPixel) {
       sprite.scale.set(width * unitsPerPixel,height * unitsPerPixel,1);
     },
-    update(camera, viewportWidth) {
+    update(camera, viewportWidth, viewportHeight) {
       sprite.getWorldPosition(point).project(camera);
       sprite.visible = Math.abs(point.x) <= 1 && Math.abs(point.z) <= 1;
       if (!sprite.visible) return;
       const anchorX = (point.x + 1) * viewportWidth / 2;
       const left = THREE.MathUtils.clamp(anchorX - width / 2,4,Math.max(4,viewportWidth - width - 4));
       sprite.center.x = (anchorX - left) / width;
+      if (keepTopVisible) {
+        const anchorY = (1 - point.y) * viewportHeight / 2;
+        sprite.center.y = Math.max(0,(height + 4 - anchorY) / height);
+      }
     }
   };
 }

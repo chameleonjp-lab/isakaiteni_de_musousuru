@@ -40,6 +40,7 @@ function createCastleView(canvas, frame, actions) {
   let residents = [];
   let nameplates = [];
   let nameplateViewportWidth = 1;
+  let nameplateViewportHeight = 1;
   let controller;
   let snapshotKey;
   let current;
@@ -172,7 +173,7 @@ function createCastleView(canvas, frame, actions) {
     portrait.background = new THREE.Color(area.theme.bg).lerp(new THREE.Color(0x222b39),.35);
     portrait.add(speaker.group);
     models.applyPose(speaker,"idle",0);
-    speakerNameplate = createCastleNameplate(speaker,story.cast.get(id).name);
+    speakerNameplate = createCastleNameplate(speaker,story.cast.get(id).name,true);
     resizeNameplates();
   }
 
@@ -183,7 +184,7 @@ function createCastleView(canvas, frame, actions) {
     portraitCamera.position.set(0,aim + .14,2.38);
     portraitCamera.lookAt(0,aim,0);
     portraitCamera.updateMatrixWorld();
-    speakerNameplate.update(portraitCamera,nameplateViewportWidth);
+    speakerNameplate.update(portraitCamera,nameplateViewportWidth,nameplateViewportHeight);
     renderer.render(portrait,portraitCamera);
   }
 
@@ -193,11 +194,12 @@ function createCastleView(canvas, frame, actions) {
   }
 
   function resizeNameplates() {
-    nameplateViewportWidth = frame.clientWidth;
-    const unitsPerPixel = 2 / (Math.max(1,frame.clientHeight) * camera.projectionMatrix.elements[5]);
+    nameplateViewportWidth = Math.max(1,frame.clientWidth);
+    nameplateViewportHeight = Math.max(1,frame.clientHeight);
+    const unitsPerPixel = 2 / (nameplateViewportHeight * camera.projectionMatrix.elements[5]);
     playerNameplate.resize(unitsPerPixel);
     for (const plate of nameplates) plate.resize(unitsPerPixel);
-    speakerNameplate?.resize(2 / (Math.max(1,frame.clientHeight) * portraitCamera.projectionMatrix.elements[5]));
+    speakerNameplate?.resize(2 / (nameplateViewportHeight * portraitCamera.projectionMatrix.elements[5]));
   }
 
   const size = new ResizeObserver(() => {
