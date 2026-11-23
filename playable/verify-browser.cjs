@@ -105,6 +105,8 @@ async function startAndRotate(page, viewport) {
   await button(page,"第一の声").tap();
   await page.locator("#dialog-next").waitFor({state:"visible"});
   assert.equal(await page.locator("#dialog-kicker").textContent(),"国王");
+  assert.equal(await page.locator("#audience-call").isVisible(),false);
+  assert.equal(await page.locator("[data-tab=scene]").isVisible(),false);
   assert.equal(await page.locator("#dialog-actions").isVisible(),false);
   if (viewport.width === 402) {
     const next = page.locator("#dialog-next");

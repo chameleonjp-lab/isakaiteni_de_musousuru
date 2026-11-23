@@ -208,6 +208,9 @@ dialog[data-layout="story"][open] {
   grid-template-rows: minmax(0, auto) auto minmax(108px, auto);
 }
 dialog[data-layout="story"]::backdrop { background: #090d1624; }
+.game-page:has(dialog[data-layout="story"][open]) :is(.stage-bottom, #walk-stick, #walk-passage, #audience-call) {
+  visibility: hidden;
+}
 dialog[data-layout="story"] .dialog-header {
   grid-row: 2;
   z-index: 1;
@@ -322,6 +325,9 @@ dialog[data-layout="story"] .dialog-actions button:is(:hover,:focus-visible,:act
   dialog[data-layout="story"] {
     inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
     width: auto;
+  }
+  .game-page:has(dialog[data-layout="story"][open]) .tabs button[data-tab="scene"] {
+    visibility: hidden;
   }
 }
 progress { width: 100%; accent-color: #edc780; height: .8rem; }
