@@ -1,0 +1,21 @@
+{
+  "start_room": "C01",
+  "collar_removed": "M17",
+  "unseen_crossing": "M18",
+  "royal_entrance": "M19",
+  "finish": "M20",
+  "boundary_room": "Q05",
+  "boundary_event": "境石を内から外へ横切る",
+  "gates": [
+    {"rooms": ["C01", "C02"], "opens": "M02"},
+    {"rooms": ["W04", "Q01"], "opens": "M16"},
+    {"rooms": ["Q01", "Q02"], "opens": "M17"},
+    {"rooms": ["Q02", "Q03"], "opens": "M18"},
+    {"rooms": ["Q03", "Q04"], "opens": "M19"}
+  ],
+  "can_rehearse_both": ["E005", "E054", "E152"],
+  "minutes_per_new_action": 4,
+  "minutes_per_room_change": 1,
+  "max_wait_for_patrol": 12,
+  "minutes_until_obedience": 1440
+}
