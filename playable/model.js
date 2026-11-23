@@ -64,7 +64,7 @@ function createStory(data) {
     run.fails += 1;
     return false;
   }
-  function choose(run, key, person) {
+  function choose(run, key, person, repeatedDeath) {
     if (run.failure || run.world.escaped) return false;
     if (!Array.isArray(run.warnings)) run.warnings = [];
     const used = run.warnings.indexOf(key);
@@ -73,6 +73,10 @@ function createStory(data) {
       return true;
     }
     run.warnings.splice(used,1);
+    if (repeatedDeath) {
+      const {heading,body} = repeatedDeath();
+      return fail(run,null,heading,body,run.world,collarOff(run.world));
+    }
     const reason = person ? `${person}は「しつこい。何か探っているな」と声を上げた。` :
       "同じ場所で繰り返される物音を不審に思い、見回りの兵が立ち止まった。";
     return fail(run,null,"同じ行動を怪しまれた",reason+"駆けつけた衛兵に処刑された。",run.world,collarOff(run.world));

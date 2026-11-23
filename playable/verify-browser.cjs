@@ -105,6 +105,7 @@ async function startAndRotate(page, viewport) {
   await button(page,"第一の声").tap();
   await page.locator("#dialog-next").waitFor({state:"visible"});
   assert.equal(await page.locator("#dialog-kicker").textContent(),"国王");
+  assert.equal(await page.locator("#stage").getAttribute("data-speaking"),"true");
   assert.equal(await page.locator("#audience-call").isVisible(),false);
   assert.equal(await page.locator("[data-tab=scene]").isVisible(),false);
   assert.equal(await page.locator("#dialog-actions").isVisible(),false);
@@ -129,6 +130,10 @@ async function startAndRotate(page, viewport) {
   await checkLayout(page,["#dialog-actions",".dialog-content"]);
   const options = await page.locator("#dialog-actions").boundingBox();
   assert.ok(options.y + options.height <= text.y && options.x >= text.x);
+  const width = await page.evaluate(() => innerWidth);
+  assert.ok(Math.abs(options.x + options.width / 2 - width / 2) < 5,"Choices are centered in the conversation");
+  assert.ok(await page.locator("#dialog-actions").evaluate(menu => menu.scrollHeight <= menu.clientHeight + 1),
+    "All conversation choices fit without scrolling at the checked sizes");
   assert.equal(await page.locator("#dialog-actions button:visible").count(),4);
   await button(page,"伏せたまま待つ").tap();
   await choose(page,"続ける");
@@ -241,6 +246,7 @@ async function verifyDialogueAndFinish(page) {
   assert.equal(await dialogue.count(),4);
   await button(page,"すぐに顔を上げる").click();
   assert.equal((await readSave(page)).run.failure.event,"E002");
+  assert.match((await readSave(page)).run.failure.body,/ルオの指がまだ床/);
   await button(page,"安全だった直前に戻る").click();
   await button(page,"第一の声").click();
   await choose(page,"伏せたまま待つ","click");
@@ -255,6 +261,7 @@ async function verifyDialogueAndFinish(page) {
   await button(page,"第二の声").click();
   await choose(page,"伏せたまま様子をうかがう","click");
   assert.equal((await readSave(page)).run.failure.heading,"同じ行動を怪しまれた");
+  assert.match((await readSave(page)).run.failure.body,/国王にもう一度「伏せたまま様子をうかがう」/);
   await button(page,"安全だった直前に戻る").click();
 
   const missions=await page.evaluate(()=>[...story.main.values()].slice(1).map(m=>[m.id,m.room,puzzles[m.id][3]]));
@@ -284,7 +291,10 @@ async function verifyDialogueAndFinish(page) {
       await page.locator("#dialog-actions").getByRole("button",{name:"閉じる",exact:true}).click();
       await button(page,"佩剣に手をかける").click();
       assert.equal(await dialogue.count(),4);
-      await page.locator("#dialog-close").click();
+      await choose(page,"衛兵の槍を奪う","click");
+      assert.equal((await readSave(page)).run.failure.heading,"奪おうとした槍");
+      assert.match((await readSave(page)).run.failure.body,/キリの槍/);
+      await button(page,"安全だった直前に戻る").click();
     }
   }
   assert.ok((await readSave(page)).run.world.escaped);

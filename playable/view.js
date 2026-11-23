@@ -18,6 +18,16 @@ function createCastleView(canvas, frame, actions) {
   stage3D.scene.add(player.group);
   const playerNameplate = createCastleNameplate(player,"主人公");
 
+  const portrait = new THREE.Scene();
+  portrait.add(new THREE.HemisphereLight(0xeef2ff,0x685547,1.2));
+  const portraitLight = new THREE.DirectionalLight(0xffe9c8,1.4);
+  portraitLight.position.set(-2,4,4);
+  portrait.add(portraitLight);
+  const portraitCamera = new THREE.PerspectiveCamera(37,1,.05,30);
+  const landscapeTalk = window.matchMedia("(max-height: 460px) and (min-width: 560px)");
+  let speaker;
+  let speakerNameplate;
+
   const stick = frame.querySelector("#walk-stick");
   const passage = frame.querySelector("#walk-passage");
   const closeView = frame.querySelector("#stage-close");
@@ -152,6 +162,31 @@ function createCastleView(canvas, frame, actions) {
     updateControls();
   }
 
+  function setSpeaker(id) {
+    if (speaker?.id === id) return;
+    if (speaker) disposeCastleStage({root:speaker.group});
+    speaker = id ? models.createCharacter(id,{}) : null;
+    speakerNameplate = null;
+    frame.dataset.speaking = String(Boolean(speaker));
+    if (!speaker) return;
+    portrait.background = new THREE.Color(area.theme.bg).lerp(new THREE.Color(0x222b39),.35);
+    portrait.add(speaker.group);
+    models.applyPose(speaker,"idle",0);
+    speakerNameplate = createCastleNameplate(speaker,story.cast.get(id).name);
+    resizeNameplates();
+  }
+
+  function drawSpeaker(time) {
+    models.applyPose(speaker,"idle",time);
+    const face = speaker.headPivot.getWorldPosition(lookTarget).y + .19 * speaker.scale;
+    const aim = face - .34;
+    portraitCamera.position.set(0,aim + .14,1.92);
+    portraitCamera.lookAt(0,aim,0);
+    portraitCamera.updateMatrixWorld();
+    speakerNameplate.update(portraitCamera,nameplateViewportWidth);
+    renderer.render(portrait,portraitCamera);
+  }
+
   function walkingPosition(room) {
     if (room !== current || !walking() || (room === "Q05" && position.z <= 0)) return null;
     return { room, x: position.x, z: position.z, yaw: position.yaw };
@@ -162,10 +197,14 @@ function createCastleView(canvas, frame, actions) {
     const unitsPerPixel = 2 / (Math.max(1,frame.clientHeight) * camera.projectionMatrix.elements[5]);
     playerNameplate.resize(unitsPerPixel);
     for (const plate of nameplates) plate.resize(unitsPerPixel);
+    speakerNameplate?.resize(2 / (Math.max(1,frame.clientHeight) * portraitCamera.projectionMatrix.elements[5]));
   }
 
   const size = new ResizeObserver(() => {
     camera.aspect = Math.max(1, frame.clientWidth) / Math.max(1, frame.clientHeight);
+    const width = Math.max(1,frame.clientWidth);
+    const height = Math.max(1,frame.clientHeight);
+    portraitCamera.setViewOffset(width,height,landscapeTalk.matches ? -width * .33 : 0,0,width,height);
     camera.fov = camera.aspect < 1.25 ? 54 : 48;
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.35));
     renderer.setSize(frame.clientWidth, frame.clientHeight, false);
@@ -295,6 +334,10 @@ function createCastleView(canvas, frame, actions) {
     if (!run || contextLost || now - last < 30) return;
     const dt = Math.min(.09, (now - last) / 1000);
     last = now;
+    if (speaker) {
+      drawSpeaker(now / 1000);
+      return;
+    }
     if (walking() && !playing) {
       const drive = actions.isBlocked() ? [0, 0] : input.vector();
       if (cameraMode !== "wide" && Math.hypot(...drive) > .055) {
@@ -349,5 +392,5 @@ function createCastleView(canvas, frame, actions) {
     return true;
   }
 
-  return { setRoom, play, available, stopInput, walkingPosition };
+  return { setRoom, setSpeaker, play, available, stopInput, walkingPosition };
 }
