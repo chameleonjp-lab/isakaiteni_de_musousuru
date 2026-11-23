@@ -41,6 +41,6 @@ GitHub Actionsの「Castle release」は、プレイ用HTMLを作り、シナリ
 
 初回公開前は、iPhone 17 Pro Safariの縦・横でボタン切れ、視点切り替え、セーブの再開を確認する。公開する版の進行不能、誤クリア、セーブ破損、必須ボタンの操作不能を解消してから次に進む。
 
-GitHubのリポジトリ設定で Pages の公開元を **GitHub Actions** にする。Actionsで **Castle release** を開き、`main` を選んで実行する。`publish` をオンにした手動実行が検証を通過すると、プレイ版の `index.html` が公開される。レビュー用のプルリクエストと通常のマージでは検証を実行する。`publish` をオフにした手動実行でも、公開前の検証とHTML取得ができる。
+GitHub Pages の公開元は **GitHub Actions**。プルリクエストを `main` にマージすると **Castle release** が実行され、検証に合格した最新の `index.html` が自動で公開される。マージ前のプルリクエストは検証とHTMLの生成までを実行する。手動で再公開する場合は、同じワークフローから `main` と `publish` を選んで実行する。
 
 初回公開後は実行結果の公開URLをiPhoneのSafariで開き、新規開始と同じURLでの再開を確認する。公開されたHTMLの `castle-revision` に入っているコミット番号と公開実行時のコミット番号を照合できる。ファイルで遊んだ試遊版と公開URLは保存先が別になる場合がある。公開URLを維持した更新では、同じ保存キーを使う。
