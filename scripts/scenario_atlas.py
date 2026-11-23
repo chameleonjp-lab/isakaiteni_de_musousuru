@@ -15,9 +15,10 @@ def read(name):
 main = read('main.json')
 rooms = read('rooms.json')
 people = read('people.json')
+items = read('items.json')
 threads = [json.loads(p.read_text(encoding='utf-8')) for p in sorted((DATA/'threads').glob('*.json'))]
 events = [e for t in threads for e in t['events']]
-nodes = {x['id']: x for x in [*main, *events, *rooms, *people]}
+nodes = {x['id']: x for x in [*main, *events, *rooms, *people, *items]}
 locations = {}
 titles = {}
 incoming = defaultdict(list)
@@ -33,6 +34,9 @@ for room in rooms:
 for p in people:
     k = p['id']
     locations[k], titles[k] = 'cast.md', p['name']
+for item in items:
+    k = item['id']
+    locations[k], titles[k] = 'items.md', item['name']
 for m in main:
     k = m['id']
     locations[k], titles[k] = 'main-route.md', m['action']
@@ -49,6 +53,14 @@ for t in threads:
         uses[e['room']].append(k)
         if e['person']:
             occupants[e['person']].append(k)
+        for person in e.get('also_people', []):
+            occupants[person].append(k)
+        for branch in e.get('branches', []):
+            key = branch['id']
+            locations[key], titles[key] = locations[k], branch['choice']
+        for payoff in e.get('payoff', []):
+            if payoff != k:
+                incoming[payoff].append(('選択結果の反映元', k))
         for clause in e['when']:
             for pre in clause:
                 incoming[pre].append(('成立条件', k))
@@ -61,7 +73,7 @@ def link(src, key, full=False):
     dest = locations[key]
     path = '' if src == dest else posixpath.relpath(dest, posixpath.dirname(src) or '.')
     label = key + (' ' + titles[key] if full else '')
-    return f'[{label}]({path}#{key.lower()})'
+    return f'[{label}]({path}#{key.lower().replace(chr(46), chr(45))})'
 
 def heading(key, title):
     return f'<a id="{key.lower()}"></a>\n\n### {key}　{title}\n'
@@ -74,7 +86,7 @@ def back(src, key):
 
 def menu(src):
     base = '../' if src.startswith('threads/') else ''
-    return f'[資料の目次]({base}README.md) ・ [最短行程]({base}main-route.md) ・ [城内地図]({base}castle.md) ・ [人物]({base}cast.md)\n'
+    return f'[資料の目次]({base}README.md) ・ [最短行程]({base}main-route.md) ・ [城内地図]({base}castle.md) ・ [人物]({base}cast.md) ・ [重要品]({base}items.md)\n'
 
 def when(src, clauses):
     return ' または '.join(' ＋ '.join(link(src,k) for k in c) for c in clauses) or '召喚直後'
@@ -91,6 +103,9 @@ def build():
         k = m['id']
         text += [heading(k,m['action']), '**場所**　'+link(src,m['room'],True)+'　 **相手・対象**　'+m['actor']+'　 **成立に必要**　'+when(src,[m['requires']] if m['requires'] else [])+'\n',
                  m['scene']+'\n', '**変化**　'+m['effect']+'\n', back(src,k)]
+        related = [link(src,i['id'],True) for i in items if k == i['found'] or k in i['uses']]
+        if related:
+            text.append('**この行程の重要品**　'+' ／ '.join(related)+'\n')
     out[src]='\n'.join(text)
     for t in threads:
         src = 'threads/' + t['id'] + '.md'
@@ -99,10 +114,21 @@ def build():
         for e in t['events']:
             k=e['id']
             actor = link(src,e['person'],True) if e['person'] else '主人公のみ・場所の反応'
+            actor += ''.join('・'+link(src,i,True) for i in e.get('also_people', []))
             text.extend([heading(k,e['title']), f'**{e["kind"]}**　'+link(src,e['room'],True)+'　'+actor+'\n',
-                         '**成立に必要**　'+when(src,e['when'])+'　 **時期**　'+phase(e)+'\n',
+                         '**成立に必要**　'+when(src,e['when'])+'　 **時期**　'+e['phase']+'　 **保存先**　'+e['record']+'\n',
                          '**行動**　'+e['action']+'\n', e['scene']+'\n', '**結果**　'+e['effect']+'\n',
                          '**他の場面との関係**　'+' ／ '.join(edge['type']+' → '+link(src,edge['target'],True) for edge in e['links'])+'\n', back(src,k)])
+            if e.get('branches'):
+                text.append('**選んだ結果**\n')
+                for b in e['branches']:
+                    anchor = b['id'].lower().replace('.', '-')
+                    text.append(f'<a id="{anchor}"></a>\n\n- **{b["id"]}　{b["choice"]}**　{b["effect"]}\n')
+                    if incoming[b['id']]:
+                        text.append(back(src,b['id']))
+                text.append('**選択を反映する場面**　'+' ・ '.join(link(src,ref) for ref in e['payoff'])+'\n')
+            if e.get('actor_note'):
+                text.append(e['actor_note']+'\n')
         out[src]='\n'.join(text)
     src='castle.md'
     text=['# 城内地図　'+str(len(rooms))+'地点\n', menu(src),
@@ -123,17 +149,42 @@ def build():
     for p in people:
         k=p['id']
         text += [heading(k,p['name']),'**主な居場所**　'+link(src,p['room'],True)+'\n',p['goal']+'\n',
+                 '「'+p['line']+'」\n','**つながる人物**　'+link(src,p['relative'],True)+'。'+p['relation']+'\n',
                  '**知っている範囲**　'+p['knows']+'\n','**登場**　'+' ・ '.join(link(src,n) for n in occupants[k])+'\n']
+    out[src]='\n'.join(text)
+    src='items.md'
+    text=['# 重要な道具と情報の行き先\n', menu(src),
+          '見当をつける場所、現物を取り出す場所、実際に使う場所をたどれる。番号を押すと、その場面の行動・前提・結果に移動する。任意の宝箱20個は下段にまとめた。\n']
+    for i in items:
+        text += [heading(i['id'],i['name']), '**入手**　'+link(src,i['found'],True)+'\n',
+                 '**隠し場所**　'+i['hidden']+'\n', '**入手の条件**　'+i['gate']+'\n',
+                 '**使う場面**　'+' ／ '.join(link(src,n,True) for n in i['uses'])+'\n',i['after']+'\n']
+    text.append('## 任意の宝箱と中身\n')
+    for e in events:
+        if e['kind']=='宝箱':
+            text.append('**'+link(src,e['id'],True)+'**　'+link(src,e['room'],True)+'。'+e['effect']+'\n')
+    out[src]='\n'.join(text)
+    src='by-role.md'
+    purposes={'手掛かり':'現物や記録から判断の根拠を得る。','誤誘導':'怪しい説を自分で試し、別の証拠で訂正できる。',
+              '選択':'どこに出すか、誰に渡すかを選び、A・Bの結果を持ち越す。','助け':'練習や別の見方を自分で使えるようにする。',
+              'ヒント':'見る場所、方向、違いをひとつ絞る。','寄り道':'別の人の仕事や私事に関わる。','宝箱':'条件を満たして容器を開き、中身の使い道が生まれる。',
+              '演出':'前の行動や場所の状態に応じて、新しい景色や返事を受け取る。','死因':'危険を選んだ結果を記憶して、安全な位置へ戻る。',
+              '発見':'解除後、姿を認められた時点でその逃走が終わる。','期限切れ':'翌日の召喚刻に命令が身体を奪う。'}
+    text=['# 任意300場面を種類から探す\n',menu(src),
+          '各場面を主な役割で一回だけ数えた。選択によって変わる演出や手掛かりなど、複数の働きは各場面の「他の場面との関係」でたどれる。\n']
+    for kind,description in purposes.items():
+        matches=[e for e in events if e['kind']==kind]
+        text.append(f'## {kind}　{len(matches)}件\n')
+        text.append(description+'\n')
+        for e in matches:
+            label=link(src,e['id'],True)+'　'+link(src,e['room'],True)
+            if kind in {'死因','発見','期限切れ'}:
+                label+='。'+e['effect']
+            text.append('- '+label)
+        text.append('')
     out[src]='\n'.join(text)
     return out
 
-def phase(e):
-    n=int(e['id'][1:])
-    if n in (1,2): return '謁見の一声目'
-    if n in AFTER: return '解除後、境石を越えるまで'
-    return '謁見後、解除前'
-
-AFTER = set(range(273, 301))
 if __name__=='__main__':
     arg=argparse.ArgumentParser()
     arg.add_argument('--check', action='store_true')

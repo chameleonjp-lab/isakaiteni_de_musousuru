@@ -1,6 +1,6 @@
 # 城内地図　59地点
 
-[資料の目次](README.md) ・ [最短行程](main-route.md) ・ [城内地図](castle.md) ・ [人物](cast.md)
+[資料の目次](README.md) ・ [最短行程](main-route.md) ・ [城内地図](castle.md) ・ [人物](cast.md) ・ [重要品](items.md)
 
 各部屋の「徒歩で隣接」をたどると、次にどこへ行けるか分かる。移動は双方向。敷地外の草地を含む境界地点はQ05だけで、南門検札所も馬車溜も敷地内にある。
 
@@ -341,7 +341,7 @@ flowchart TD
 
 **徒歩で隣接**　[G07 回転温棚](#g07) ／ [N02 施療院](#n02) ／ [N04 薬草乾燥室](#n04)
 
-**ここで起こる場面**　[E068](threads/T05.md#e068) ・ [E074](threads/T05.md#e074) ・ [E075](threads/T05.md#e075) ・ [E241](threads/T17.md#e241) ・ [E246](threads/T17.md#e246) ・ [E251](threads/T17.md#e251) ・ [E252](threads/T17.md#e252) ・ [E254](threads/T17.md#e254) ・ [E255](threads/T17.md#e255)
+**ここで起こる場面**　[E068](threads/T05.md#e068) ・ [E074](threads/T05.md#e074) ・ [E075](threads/T05.md#e075) ・ [E192](threads/T13.md#e192) ・ [E241](threads/T17.md#e241) ・ [E246](threads/T17.md#e246) ・ [E251](threads/T17.md#e251) ・ [E252](threads/T17.md#e252) ・ [E254](threads/T17.md#e254) ・ [E255](threads/T17.md#e255)
 
 <a id="n08"></a>
 
@@ -475,7 +475,7 @@ flowchart TD
 
 **徒歩で隣接**　[G02 中庭噴泉](#g02) ／ [G06 舟遊び池](#g06) ／ [N06 天文露台](#n06)
 
-**ここで起こる場面**　[E109](threads/T08.md#e109) ・ [E116](threads/T08.md#e116) ・ [E189](threads/T13.md#e189) ・ [E194](threads/T13.md#e194) ・ [E199](threads/T14.md#e199) ・ [E207](threads/T14.md#e207)
+**ここで起こる場面**　[E109](threads/T08.md#e109) ・ [E116](threads/T08.md#e116) ・ [E189](threads/T13.md#e189) ・ [E199](threads/T14.md#e199) ・ [E207](threads/T14.md#e207)
 
 <a id="g05"></a>
 
@@ -547,7 +547,7 @@ flowchart TD
 
 **徒歩で隣接**　[B02 貯氷室](#b02) ／ [B07 地下配膳廊](#b07) ／ [S07 パン窯室](#s07)
 
-**ここで起こる場面**　[E169](threads/T12.md#e169) ・ [E174](threads/T12.md#e174) ・ [E180](threads/T12.md#e180) ・ [E185](threads/T13.md#e185) ・ [E191](threads/T13.md#e191) ・ [E195](threads/T13.md#e195)
+**ここで起こる場面**　[E169](threads/T12.md#e169) ・ [E174](threads/T12.md#e174) ・ [E180](threads/T12.md#e180) ・ [E185](threads/T13.md#e185) ・ [E191](threads/T13.md#e191) ・ [E194](threads/T13.md#e194) ・ [E195](threads/T13.md#e195)
 
 <a id="b05"></a>
 
@@ -577,7 +577,7 @@ flowchart TD
 
 **徒歩で隣接**　[B02 貯氷室](#b02) ／ [B04 古い給茶室](#b04) ／ [B05 舞台奈落](#b05) ／ [B06 帳票庫](#b06) ／ [S06 宴会厨房](#s06) ／ [S08 食器棚室](#s08)
 
-**ここで起こる場面**　[E172](threads/T12.md#e172) ・ [E192](threads/T13.md#e192)
+**ここで起こる場面**　[E172](threads/T12.md#e172)
 
 ## 王家の礼拝区と境界
 
