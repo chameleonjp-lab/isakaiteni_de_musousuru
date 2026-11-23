@@ -219,14 +219,38 @@ function startCastleView({ renderer, camera, scene, hero, king, princess, torchF
     hero.rightArm.shoulder.rotation.x=-.49*weight;
     hero.leftArm.shoulder.rotation.x=-.27*weight;
   }
+  const stage3D = createCastleStage();
+  const closeView = frame.querySelector("#stage-close");
+  const doorView = frame.querySelector("#stage-door");
+  let controller;
+  let snapshotKey;
+  let cameraMode = "wide";
+  const setCameraMode = mode => {
+    cameraMode = mode;
+    closeView.setAttribute("aria-pressed", String(mode === "closeup"));
+    doorView.setAttribute("aria-pressed", String(mode === "doorClose"));
+  };
+  closeView.addEventListener("click", () => setCameraMode(cameraMode === "closeup" ? "wide" : "closeup"));
+  doorView.addEventListener("click", () => setCameraMode(cameraMode === "doorClose" ? "wide" : "doorClose"));
+
   function setRoom(room, run) {
     state = run;
+    const snapshot = castleStageState(story, run);
+    const nextKey = JSON.stringify([snapshot, run.failure?.event, !!run.failure, run.fails]);
+    if (nextKey !== snapshotKey) {
+      controller = stage3D.setRoom(room.id, snapshot);
+      snapshotKey = nextKey;
+    }
     if (current !== room.id) {
       yaw = 0;
       angle = 0;
       origin = performance.now();
       current = room.id;
-      if (current !== "C01") rebuild(current);
+      closeView.hidden = !controller;
+      doorView.hidden = current !== "Q01";
+      setCameraMode("wide");
+      if (!controller && current !== "C01") rebuild(current);
+      if (current === "Q04" && !run.failure && !run.world.escaped) stage3D.play("passToQ05");
     }
     const mood = run.world.escaped ? "clear" : run.failure ? "failed" : "normal";
     if (mark !== mood) { origin = performance.now(); mark = mood; }
@@ -253,6 +277,7 @@ function startCastleView({ renderer, camera, scene, hero, king, princess, torchF
   for (const type of ["pointerup","pointercancel","lostpointercapture"]) canvas.addEventListener(type, () => { pointer = null; });
   canvas.addEventListener("webglcontextlost", event => {
     event.preventDefault(); contextLost = true; frame.classList.add("unavailable");
+    stage3D.cancel();
   });
   canvas.addEventListener("webglcontextrestored", () => { contextLost = false; frame.classList.remove("unavailable"); });
 
@@ -263,10 +288,20 @@ function startCastleView({ renderer, camera, scene, hero, king, princess, torchF
     if (document.hidden) return;
     animation = requestAnimationFrame(draw);
     if (!state || contextLost || now-last < 33) return;
+    const dt = Math.min(0.08, (now-last) / 1000);
     last = now;
     const seconds = now / 1000;
     const progress = Math.max(0,1-(now-origin)/730);
     angle += (yaw-angle)*.2;
+    if (controller) {
+      const completed = stage3D.update(dt, seconds);
+      const preset = controller.getCameraPreset(cameraMode);
+      const zoom = cameraMode === "wide" && camera.aspect < 1.25 ? 1.15 : 1;
+      placeCastleStageCamera(camera, preset, angle, zoom);
+      renderer.render(stage3D.scene, camera);
+      completed?.();
+      return;
+    }
     if (current === "C01") {
       kneel(state.world.main.includes("M02") ? 0 : state.world.main.includes("M01") ? .71 : 1);
       king.rightArm.rotation.x = -.81+Math.sin(seconds*2.25)*.075;
@@ -288,5 +323,6 @@ function startCastleView({ renderer, camera, scene, hero, king, princess, torchF
     else if (!animation) animation=requestAnimationFrame(draw);
   });
   animation = requestAnimationFrame(draw);
-  return { setRoom };
+  const play = (variant, done) => !contextLost && stage3D.play(variant, done);
+  return { setRoom, play };
 }
