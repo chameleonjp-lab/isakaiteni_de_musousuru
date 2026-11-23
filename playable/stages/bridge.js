@@ -7,8 +7,10 @@ const CASTLE_STAGE_LIBRARIES = [
 ];
 
 const CASTLE_STAGE_EFFECTS = {
-  M01: "call1Bow", M02: "call2Raise", M06: "bothSlots", M08: "rodAndPass",
-  M12: "bothPlaced", M16: "reserveSuccess", M17: "success", M18: "emptyShift",
+  M01: "call1Bow", M02: "call2Raise", M03: "acquire", M04: "acquire", M05: "acquire",
+  M06: "bothSlots", M07: "acquire", M08: "rodAndPass", M09: "acquire", M10: "acquire",
+  M11: "acquire", M12: "bothPlaced", M13: "acquire", M14: "acquire", M15: "acquire",
+  M16: "reserveSuccess", M17: "success", M18: "emptyShift",
   M19: "success", M20: "clearSuccess", E002: "earlyRaiseWarn",
   E152: "noSaluteClosed", "E152.A": "saluteOpenGrate", "E152.B": "noSaluteClosed",
   E264: "handoff", E269: "inspectE269", E274: "listenE274", E278: "cloakCaughtE278", E280: "plainCaughtE280"

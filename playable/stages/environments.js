@@ -678,6 +678,23 @@
       addSolid(tg);
     }
 
+    function addOpenChest(x, z, width, height, depth, material) {
+      const chest = new THREE.Group();
+      chest.position.set(x, 0, z);
+      const thickness = .08;
+      function board(w, h, d, px, y, pz) {
+        const part = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), material);
+        part.position.set(px,y,pz);
+        chest.add(part);
+      }
+      board(width,.12,depth,0,.06,0);
+      for (const sign of [-1,1]) {
+        board(thickness,height,depth,sign * (width - thickness) / 2,height / 2,0);
+        board(width - 2 * thickness,height,thickness,0,height / 2,sign * (depth - thickness) / 2);
+      }
+      addSolid(chest);
+    }
+
     function addChair(x, z, rotY) {
       const cg = new THREE.Group(); cg.position.set(x, 0, z); cg.rotation.y = rotY || 0;
       const seat = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.08, 0.56), woodMat); seat.position.y = 0.5; cg.add(seat);
@@ -845,12 +862,10 @@
       carpet.rotation.x = -Math.PI / 2; carpet.position.y = 0.02; root.add(carpet);
       const dais1 = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.42, 4.4), trimMat); dais1.position.set(0, 0.21, -D / 2 + 2.8); addSolid(dais1);
       const dais2 = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.36, 3.2), trimMat); dais2.position.set(0, 0.6, -D / 2 + 2.4); addSolid(dais2);
-      // Detailed Gothic throne
-      const tBase = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.65, 1.25), darkWoodMat); tBase.position.set(0, 1.1, -D / 2 + 2.1); addSolid(tBase);
-      const tCush = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.16, 1.05), velvetMat); tCush.position.set(0, 1.48, -D / 2 + 2.14); root.add(tCush);
-      const tBack = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.35, 0.22), darkWoodMat); tBack.position.set(0, 2.42, -D / 2 + 1.56); root.add(tBack);
-      const tVel = new THREE.Mesh(new THREE.BoxGeometry(1.12, 1.9, 0.12), velvetMat); tVel.position.set(0, 2.4, -D / 2 + 1.66); root.add(tVel);
-      const tCrest = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.55, 4), goldMat); tCrest.rotation.y = Math.PI / 4; tCrest.position.set(0, 3.85, -D / 2 + 1.56); root.add(tCrest);
+      const throne = global.CastleEscapeItems.createItemOrProp("PROP_THRONE", { envMap });
+      throne.group.scale.setScalar(1.34);
+      throne.group.position.set(0, 1.7342, -D / 2 + 2.14);
+      addSolid(throne.group);
       // Twin rows of grand columns & banners
       for (let z = -D / 2 + 5.2; z <= D / 2 - 2.6; z += 3.6) {
         [-W / 2 + 2.2, W / 2 - 2.2].forEach(function (px) {
@@ -969,8 +984,7 @@
         const sheet = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 1.55), linenMat); sheet.position.set(cx, 1.95, 1.8); sheet.material = linenMat.clone(); sheet.material.side = THREE.DoubleSide; root.add(sheet);
       });
     } else if (k === "east_hall") {
-      const chest = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.9, 0.95), darkWoodMat); chest.position.set(-W / 2 + 1.0, 0.45, 0); addSolid(chest);
-      const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.2, 0), goldMat); star.position.set(-W / 2 + 1.0, 1.02, 0); root.add(star);
+      addOpenChest(-W / 2 + 1, 0, 1.5, .89, .95, darkWoodMat);
     } else if (k === "dovecote") {
       const coop = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.8, 1.3), woodMat); coop.position.set(0, 1.4, -2.5); addSolid(coop);
       for (let bx = -1.6; bx <= 1.6; bx += 0.8) {
@@ -978,6 +992,11 @@
         hole.position.set(bx, 1.95, -1.84); root.add(hole);
         const dove = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), linenMat); dove.position.set(bx, 1.78, -1.65); root.add(dove);
       }
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.34,16,1,true), brassMat.clone());
+      tube.material.side = THREE.DoubleSide;
+      tube.rotation.x = Math.PI / 2;
+      tube.position.set(1.25, 1.2, -1.69);
+      root.add(tube);
       addRealisticTree(-3.8, 2.6, 0.85, false);
     } else if (k === "sewing") {
       addTable(0, -1.2, 3.8, 1.3);
@@ -1008,6 +1027,7 @@
       const redLine = new THREE.Mesh(new THREE.PlaneGeometry(W - 1.2, 0.22), new THREE.MeshBasicMaterial({ color: 0xe24444 }));
       redLine.rotation.x = -Math.PI / 2; redLine.position.set(0, 0.025, 0.8); root.add(redLine);
       addTable(0, -1.8, 3.6, 1.2); addChair(0, -2.8, 0);
+      addTable(2.0, .74, 1.3, .49);
       const bell = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.42, 12), ironMat); bell.position.set(3.2, 2.5, -2.5); root.add(bell);
     } else if (k === "theatre") {
       const stage = new THREE.Mesh(new THREE.BoxGeometry(W - 2.4, 0.88, 5.2), darkWoodMat); stage.position.set(0, 0.44, -D / 2 + 3.0); addSolid(stage);
@@ -1027,12 +1047,14 @@
         const pil = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.16, 0.48), marbleMat); pil.position.set(bx, 0.68, -3.1); addSolid(pil);
       });
       addTable(0, 2.2, 3.4, 1.2);
-    } else if (k === "astro" || k === "observatory") {
-      const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.15, 1.35, 8), marbleMat); ped.position.y = 0.68; addSolid(ped, "round");
-      const r1 = new THREE.Mesh(new THREE.TorusGeometry(1.48, 0.06, 10, 32), goldMat); r1.position.y = 2.65; root.add(r1);
-      const r2 = new THREE.Mesh(new THREE.TorusGeometry(1.18, 0.05, 10, 28), brassMat); r2.position.y = 2.65; r2.rotation.y = Math.PI / 3; root.add(r2);
-      const sun = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), flameMat); sun.position.y = 2.65; root.add(sun);
-      animators.push(function (t) { r1.rotation.y = t * 0.45; r2.rotation.x = t * 0.62; });
+      addTable(4.38, -.55, 1.1, .66);
+    } else if (k === "observatory") {
+      const astro = global.CastleEscapeItems.createItemOrProp("PROP_ASTRO", { envMap });
+      const scale = 1.6;
+      astro.group.scale.setScalar(scale);
+      astro.group.position.y = .97 * scale;
+      addSolid(astro.group);
+      animators.push(astro.update);
     } else if (k === "herbs") {
       addTable(0, 0.8, 3.2, 1.2);
       for (let hx = -3.0; hx <= 3.0; hx += 1.2) {
@@ -1060,10 +1082,10 @@
       }
     } else if (k === "returnvault") {
       const decoy = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.85, 0.95), goldMat); decoy.position.set(-2.0, 0.42, -1.6); addSolid(decoy);
-      const realBox = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.78, 0.85), ironMat); realBox.position.set(2.0, 0.39, -1.6); addSolid(realBox);
+      addOpenChest(2, -1.6, 1.28, .78, .88, ironMat);
       addTable(0, 1.8, 2.8, 1.0);
     } else if (k === "winterroom") {
-      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.68, H, 0.68), woodMat); pillar.position.set(-2.2, H / 2, -1.5); root.add(pillar);
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.68, H, 0.68), woodMat); pillar.position.set(-2.2, H / 2, -1.5); addSolid(pillar);
       addTable(1.8, -1.4, 2.4, 1.2); addChair(1.8, -0.3, Math.PI);
     } else if (k === "bellroom") {
       const board = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.8, 0.14), darkWoodMat); board.position.set(0, 2.0, -D / 2 + 0.38); root.add(board);
@@ -1198,9 +1220,10 @@
       // Q05 境石と外の草地: 城側石畳 vs 外側の野草・花畑・本格樹木＋金王冠刻みの境石
       const innerSlab = new THREE.Mesh(new THREE.PlaneGeometry(W, D / 2), new THREE.MeshStandardMaterial({ map: getStoneTex("#c8c0ae", "rgba(35,30,22,0.28)", 6, 3), roughness: 0.9 }));
       innerSlab.rotation.x = -Math.PI / 2; innerSlab.position.set(0, 0.025, D / 4); root.add(innerSlab);
-      const stone = new THREE.Mesh(new THREE.BoxGeometry(0.95, 2.05, 0.56), trimMat); stone.position.set(0, 1.02, 0); addSolid(stone);
-      const cap = new THREE.Mesh(new THREE.ConeGeometry(0.68, 0.38, 4), trimMat); cap.rotation.y = Math.PI / 4; cap.position.set(0, 2.22, 0); root.add(cap);
-      const crownMark = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.32, 4), goldMat); crownMark.rotation.y = Math.PI / 4; crownMark.position.set(0, 1.48, 0.3); root.add(crownMark);
+      const stone = global.CastleEscapeItems.createItemOrProp("PROP_BOUNDARY", { envMap });
+      stone.group.scale.setScalar(1.4);
+      stone.group.position.y = .76 * 1.4;
+      root.add(stone.group);
       // Wildflower meadow & realistic multi-branch trees on the free outside (-Z)
       [[-5.2, -4.6], [5.2, -4.8], [-2.8, -6.2], [3.2, -6.0]].forEach(function (tp) { addRealisticTree(tp[0], tp[1], 1.12, false); });
       const flowerCols = [0xfef08a, 0xf9a8d4, 0xffffff, 0x93c5fd];

@@ -293,6 +293,7 @@
     const spec = ITEM_SPECS.find(function (x) { return x.id === id; }) || ITEM_SPECS[0];
     const envMap = options && options.envMap ? options.envMap : null;
     const g = new THREE.Group();
+    g.name = spec.id;
     const animators = [];
 
     const goldMat = new THREE.MeshStandardMaterial({ color: 0xe8b948, roughness: 0.22, metalness: 0.9, envMap: envMap });
@@ -628,6 +629,7 @@
       const innerSlab = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 0.65), stoneMat); innerSlab.position.set(0, -0.78, 0.32); g.add(innerSlab);
       const outerGrass = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 0.65), new THREE.MeshStandardMaterial({ color: 0x457d3b, roughness: 0.92 })); outerGrass.position.set(0, -0.78, -0.32); g.add(outerGrass);
       const monolith = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.48, 0.42), stoneMat); monolith.position.y = -0.02; g.add(monolith);
+      monolith.userData.walkObstacle = true;
       const cap = new THREE.Mesh(new THREE.ConeGeometry(0.48, 0.28, 4), stoneMat); cap.rotation.y = Math.PI / 4; cap.position.y = 0.86; g.add(cap);
       // Inlaid royal crown facing castle side (+Z)
       const crownBase = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.09, 0.04), goldMat); crownBase.position.set(0, 0.26, 0.22); g.add(crownBase);

@@ -75,7 +75,7 @@
     },
     W01: {
       missionId: "M03", itemId: "I01", title: "W01 西資料室／I01 綴じ穴のある備品図",
-      itemPos: [0, 1.12, -4.70], heroPos: [0, 0, -3.55], npcPos: [-1.25, 0, -4.0], npcId: "P07",
+      itemPos: [0, 1.12, -4.53], heroPos: [0, 0, -3.55], npcPos: [-1.25, 0, -4.0], npcId: "P07",
       cameras: { wide: { pos: [3.2, 2.8, -1.2], look: [0, 1.15, -4.4] }, closeup: { pos: [0.85, 1.48, -3.15], look: [0, 1.15, -4.55] } },
       variants: [{ id: "acquire", label: "M03 司書ネリ(P07)指差し→I01引き出し" }]
     },
@@ -262,9 +262,14 @@
       props.i10 = global.CastleEscapeItems.createItemOrProp("I10", { envMap: opts.envMap }); props.i10.group.scale.setScalar(0.36); props.i10.group.visible = false; root.add(props.i10.group);
     } else if (sceneId === "E02") {
       props.lid = new THREE.Group();
-      props.lid.position.set(-2.85, 0.9, 0);
-      const lidMesh = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.1, 1.48), woodMat);
-      lidMesh.position.set(0.47, 0, 0); props.lid.add(lidMesh); root.add(props.lid);
+      props.lid.position.set(-3.15, .92, 0);
+      const lidMesh = new THREE.Mesh(new THREE.BoxGeometry(1.5, .10, .95), woodMat);
+      lidMesh.position.x = .75; props.lid.add(lidMesh);
+      const star = new THREE.Mesh(new THREE.OctahedronGeometry(.2), goldMat);
+      star.position.set(.75, .085, 0);
+      star.scale.y = .22;
+      props.lid.add(star);
+      root.add(props.lid);
       // 箱内用マント（未開封時は非表示）＋主人公肩装着マント（完了時に肩へ装着表示！）
       props.item = global.CastleEscapeItems.createItemOrProp("I07", { envMap: opts.envMap });
       props.item.group.scale.setScalar(0.48); props.item.group.visible = false; root.add(props.item.group);
@@ -346,7 +351,7 @@
     root.add(dbg.group);
 
     // 4状態 (hidden / revealed / held / acquired) ＋ heroPos / heroYaw / 装置状態の完全復元！
-    function applyGameStateSnapshot(gs) {
+    function applyGameStateSnapshot(gs, elapsed = 0) {
       state.customGameState = gs;
       state.holdingSnapshot = true;
       state.playing = false;
@@ -358,20 +363,45 @@
       const ist = gs.itemState || (gs.acquired ? "acquired" : "hidden");
       state.itemState = ist;
 
-      // 未開封(hidden)・取得済(acquired)では箱/受け皿/盤の中身を確実に非表示！
-      const showAtOrigin = (ist === "revealed");
-      if (props.i04) { props.i04.group.visible = showAtOrigin; if (props.tray) props.tray.position.y = cfg.boxPos[1] + 0.32 + (showAtOrigin || ist === "acquired" ? 0.14 : 0); }
-      if (props.i06) props.i06.group.visible = showAtOrigin;
-      if (props.i10) props.i10.group.visible = showAtOrigin;
-      if (props.item) {
+      // Tools brought to the puzzle appear only during its demonstration.
+      for (const part of ["i02","i03","i04","i05","i08","i09","drop"]) {
+        if (props[part]) (props[part].group ?? props[part]).visible = false;
+      }
+      const showAtOrigin = ist === "revealed";
+      if (sceneId === "S01") {
+        props.tray.position.y = cfg.boxPos[1] + .32 + (showAtOrigin || ist === "acquired" ? .14 : 0);
+        props.tray.rotation.z = 0;
+        props.i04.group.position.set(cfg.boxPos[0], props.tray.position.y + .12, cfg.boxPos[2]);
+        props.i04.group.visible = showAtOrigin;
+      } else if (sceneId === "G01") {
+        props.upperBeak.rotation.x = Math.PI / 2 + .14;
+        props.lowerBeak.rotation.x = Math.PI / 2 + .22;
+        props.i06.group.position.set(cfg.dishPos[0], cfg.dishPos[1] + .08, cfg.dishPos[2]);
+        props.i06.group.visible = showAtOrigin;
+      } else if (sceneId === "N03") {
+        props.astro.update(gs.puzzleSolved ? 1.25 : elapsed);
+        props.i10.group.position.set(.38, 1.18, .95);
+        props.i10.group.visible = showAtOrigin;
+      } else if (props.item) {
+        const origin = cfg.itemPos ?? cfg.deskPos ?? cfg.windowPos;
+        props.item.group.position.set(...origin);
+        if (sceneId === "W03") {
+          props.item.group.rotation.x = -Math.PI / 2;
+          props.item.group.position.y += .04;
+        }
+        const outInRoom = ["W01","E01","N01","N02","S03"].includes(sceneId);
+        props.item.group.visible = showAtOrigin || (outInRoom && ist === "hidden");
         if (sceneId === "E02") {
-          props.item.group.visible = showAtOrigin;
-          if (props.lid) props.lid.rotation.z = (gs.boxOpen || showAtOrigin || ist === "acquired") ? (75 * Math.PI / 180) : 0;
-          if (props.wornCloak) props.wornCloak.group.visible = (ist === "acquired" || ist === "held");
-        } else {
-          props.item.group.visible = (ist !== "acquired" && ist !== "hidden") || (ist === "hidden" && !["S01","G01","N03","E02"].includes(sceneId));
+          props.lid.rotation.z = (gs.boxOpen || showAtOrigin || ist === "acquired") ? (75 * Math.PI / 180) : 0;
+          props.wornCloak.group.visible = (ist === "acquired" || ist === "held");
         }
       }
+      if (props.hemStars) props.hemStars.forEach((star, index) => {
+        star.visible = ist !== "acquired";
+        star.position.set(-2.8 + (index - 4.5) * .12, .35, 3.2);
+      });
+      if (actors.npc) charApi.applyPose(actors.npc.charObj, "idle", elapsed);
+      if (actors.npc2) charApi.applyPose(actors.npc2.charObj, "idle", elapsed + .7);
       if (props.innerGrate) props.innerGrate.position.y = gs.grateOpen ? 2.6 : 0;
       if (props.portraitPivot) {
         props.portraitPivot.rotation.x = gs.puzzleSolved ? (-10 * Math.PI / 180) : 0;
@@ -387,7 +417,9 @@
           charApi.applyPose(hero.charObj, "kneel", 0);
           hero.charObj.headPivot.rotation.x = 0.55;
         }
-        applyKingSeatedPose(actors.king.charObj, 0);
+        actors.luo.rig.visible = gs.audienceStep !== 2;
+        applyKingSeatedPose(actors.king.charObj, elapsed);
+        charApi.applyPose(actors.rize.charObj, "idle", elapsed);
       }
       state.statusText = "保存復元：" + sceneId + "／状態=" + ist;
     }
@@ -400,6 +432,7 @@
       if (actors.npc2) charApi.applyPose(actors.npc2.charObj, "stand", sec);
 
       if (sceneId === "C01") {
+        actors.luo.rig.visible = true;
         actors.king.rig.position.set(cfg.kingPos[0], cfg.kingPos[1] - 0.85, cfg.kingPos[2]); actors.king.rig.rotation.y = 0;
         applyKingSeatedPose(actors.king.charObj, sec);
         actors.rize.rig.position.set(cfg.rizePos[0], cfg.rizePos[1], cfg.rizePos[2]); actors.rize.rig.rotation.y = -0.35;
@@ -545,7 +578,7 @@
         const litCount = Math.max(0, 10 - Math.floor(p * 11));
         props.hemStars.forEach(function (st, idx) { st.position.z = hz + 0.15; st.visible = idx < litCount; });
         state.itemState = p >= 0.96 ? "acquired" : "revealed";
-        props.item.group.visible = (state.itemState !== "acquired");
+        props.item.group.visible = p > .76 && state.itemState !== "acquired";
         props.item.group.position.set(cfg.itemPos[0], cfg.itemPos[1], cfg.itemPos[2]);
         state.statusText = p >= 0.96 ? "W02 完了：逆光窓で読取→I08取得済" : "W02 M10：裏見台通過中（裾模様残り " + litCount + "/10）";
         return;
@@ -594,6 +627,7 @@
         }
         state.itemState = p >= 0.96 ? "acquired" : (p > 0.55 ? "revealed" : "hidden");
         props.item.group.visible = (p > 0.55);
+        props.item.group.rotation.x = -Math.PI / 2;
         props.item.group.position.set(cfg.deskPos[0], cfg.deskPos[1] + 0.04, cfg.deskPos[2]);
         state.statusText = p > 0.55 ? "W03 M14：額を10°傾け目高さ文字を確認→東机で手帳I12へ書き写し" : "W03 M14：絵師マレ(P09)案内のもと肖像額を10度傾ける";
       } else if (sceneId === "S03") {
@@ -614,7 +648,7 @@
       } else if (sceneId === "S02") {
         hero.charObj.group.position.y = -0.22 * Math.sin(p * Math.PI);
         state.itemState = p >= 0.96 ? "acquired" : "revealed";
-        props.item.group.visible = (state.itemState !== "acquired");
+        props.item.group.visible = p > .23 && state.itemState !== "acquired";
         props.item.group.position.set(cfg.itemPos[0], cfg.itemPos[1], cfg.itemPos[2] + p * 0.10);
         state.statusText = p >= 0.96 ? "S02 完了：I09取得済（柱の溝は空）" : cfg.variants[0].label;
       } else if (sceneId === "E07") {
@@ -626,7 +660,7 @@
       } else {
         state.itemState = p >= 0.95 ? "acquired" : "revealed";
         if (props.item && cfg.itemPos) {
-          props.item.group.visible = (state.itemState !== "acquired");
+          props.item.group.visible = state.itemState !== "acquired" && (sceneId !== "E03" || p > .25);
           props.item.group.position.set(cfg.itemPos[0], cfg.itemPos[1] + 0.12 * Math.sin(p * Math.PI), cfg.itemPos[2] + 0.22 * p);
           if (sceneId === "N01") props.item.group.rotation.y = p * Math.PI;
         }
@@ -651,7 +685,8 @@
       update: function (dt, elapsed) {
         env.update(elapsed);
         if (state.playing) { state.time += dt; if (state.time >= totalDuration) { state.time = totalDuration; state.playing = false; } }
-        applyTimeline(state.time);
+        if (state.holdingSnapshot) applyGameStateSnapshot(state.customGameState, elapsed);
+        else applyTimeline(state.time);
       },
       dispose: function () {}
     };

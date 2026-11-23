@@ -27,6 +27,7 @@ for (const name of ["characters","items","environments","stage1","stage2","stage
   vm.runInContext(read(name+".js"), context, { filename:name+".js" });
 }
 vm.runInContext(read("../walk.js"), context, { filename:"walk.js" });
+vm.runInContext(read("../residents.js"), context, { filename:"residents.js" });
 
 const result = vm.runInContext(`
 (() => {
@@ -104,6 +105,66 @@ const result = vm.runInContext(`
     for (let t=0; t<duration; t+=.05) stage.update(.05,t)?.();
   }
 
+  const foundResidents = new Set();
+  for (const room of story.rooms.keys()) {
+    const ctrl = stage.setRoom(room,{audienceStep:2});
+    const area = ctrl?.env ?? map.createEnvironment(room);
+    const root = ctrl?.root ?? area.group;
+    area.obstacles = castleObstacles(root);
+    const residents = placeCastleResidents(area,ctrl);
+    for (const resident of residents) {
+      const {x,y,z} = resident.root.position;
+      const person = story.cast.get(resident.model.id);
+      requireThat(person.room === room,person.name+" はシナリオの部屋にいる");
+      if (y === 0) requireThat(castleWalkable(area,x,z),person.name+" の立ち位置に家具や壁がない");
+      const height = resident.root.position.y;
+      resident.update(4.2);
+      requireThat(resident.root.position.y === height,person.name+" は動作中も正しい高さに立つ");
+    }
+    const staged = Object.values(ctrl?._inspect?.actors || {})
+      .filter(actor => actor.rig.visible && story.cast.get(actor.charObj.id)?.room === room)
+      .map(actor => actor.charObj.id);
+    const actors = [...staged, ...residents.map(resident => resident.model.id)].sort();
+    const expected = [...story.cast.values()].filter(person => person.room === room).map(person => person.id).sort();
+    requireThat(actors.join() === expected.join(),room+" の配置がゲームの人物台帳と一致");
+    for (const actor of actors) foundResidents.add(actor);
+    area.obstacles = castleObstacles(root);
+    for (const portal of area.corridorPortals) {
+      for (let depth=-1.05; depth<portal.length-.36; depth+=.08) {
+        const x=portal.entryX+portal.dirX*depth, z=portal.entryZ+portal.dirZ*depth;
+        // Q01 and W04 have additional swing doors managed by the scenario.
+        if (["Q01","W04"].includes(room)) break;
+        requireThat(castleWalkable(area,x,z),room+" → "+portal.targetId+" に人物や家具が重ならない");
+      }
+    }
+    if (!ctrl) disposeCastleStage({root});
+  }
+  requireThat(foundResidents.size === 36,"36人全員に配置場所がある");
+  for (const [room,model] of [["C01","PROP_THRONE"],["G01","PROP_HERON"],["N03","PROP_ASTRO"],
+      ["N06","PROP_ASTRO"],["Q03","PROP_STATUE"],["Q05","PROP_BOUNDARY"]]) {
+    const ctrl = stage.setRoom(room);
+    const area = ctrl?.env ?? map.createEnvironment(room);
+    const root = ctrl?.root ?? area.group;
+    let count = 0;
+    root.traverse(node => { if (node.name === model && node.visible) count++; });
+    requireThat(count === 1,room+" に "+model+" が1つ置かれる");
+    if (!ctrl) disposeCastleStage({root});
+  }
+
+  for (const item of CASTLE_DATA.items) {
+    const room = story.main.get(item.found).room;
+    const ctrl = stage.setRoom(room,{itemState:"hidden"});
+    const prop = ctrl._inspect.props.item ?? ctrl._inspect.props[item.id.toLowerCase()];
+    requireThat(prop?.id === item.id,room+" の重要品は "+item.id);
+    requireThat(ctrl.config.variants.some(variant => variant.id === CASTLE_STAGE_EFFECTS[item.found]),
+      room+" の重要品は通常プレイで演出が再生される");
+    if (["W02","S02","E03","W03"].includes(room)) {
+      requireThat(!prop.group.visible,room+" の仕掛けに隠れた品は取得前の探索で露出しない");
+    }
+    stage.restore({itemState:"acquired"});
+    requireThat(!prop.group.visible,room+" の重要品は取得後に元の場所へ残らない");
+  }
+
   let variants = 0;
   for (const [room,config] of entries) {
     const ctrl = stage.setRoom(room);
@@ -178,4 +239,4 @@ const result = vm.runInContext(`
 
 assert.deepEqual({...result}, {rooms:22,variants:47});
 console.log("全22場面・47見本、南門、未開封品、石段、境界と保存復元、50回の場面切り替えを確認。");
-console.log("全59地点の通路の接続、通行幅、閉鎖を確認。");
+console.log("全59地点の通路、36人の配置、重要品13点と主要ギミックの配置を確認。");
