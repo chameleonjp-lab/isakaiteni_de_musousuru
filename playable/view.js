@@ -10,6 +10,11 @@ function createCastleView(canvas, frame, actions) {
   const models = window.CastleEscapeModels;
   const player = models.createCharacter("P00", {});
   if (player.mainProp) player.mainProp.visible = false;
+  const cloak = window.CastleEscapeItems.createItemOrProp("I07", {}).group;
+  cloak.scale.setScalar(.84);
+  cloak.position.set(0, .22, -.02);
+  cloak.visible = false;
+  player.upperBody.add(cloak);
   stage3D.scene.add(player.group);
 
   const stick = frame.querySelector("#walk-stick");
@@ -21,6 +26,7 @@ function createCastleView(canvas, frame, actions) {
   const position = { x: 0, z: 0, facing: Math.PI, yaw: 0, pitch: .36 };
   let area;
   let plainArea;
+  let residents = [];
   let controller;
   let snapshotKey;
   let current;
@@ -114,6 +120,7 @@ function createCastleView(canvas, frame, actions) {
       plainArea = controller ? null : environmentApi.createEnvironment(room.id);
       if (plainArea) stage3D.scene.add(plainArea.group);
       area = controller?.env || plainArea;
+      residents = placeCastleResidents(area, controller);
       current = room.id;
       area.surfaceY = controller?._inspect?.getSurfaceY ?? controller?._inspect?.getStairSurfaceY;
       stage3D.scene.background.setHex(area.theme.bg);
@@ -136,6 +143,7 @@ function createCastleView(canvas, frame, actions) {
       positionDirty = true;
     }
     if (player.collarMesh) player.collarMesh.visible = !snapshot.collarRemoved;
+    cloak.visible = current === "E02" && snapshot.acquired;
     updateControls();
   }
 
@@ -291,6 +299,7 @@ function createCastleView(canvas, frame, actions) {
       camera.lookAt(0, 1, 0);
     }
     if (plainArea) plainArea.update(now / 1000);
+    for (const resident of residents) resident.update(now / 1000);
     const completed = stage3D.update(dt, now / 1000);
     renderer.render(stage3D.scene, camera);
     completed?.();
