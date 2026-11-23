@@ -2,18 +2,9 @@ name: Castle release
 
 on:
   pull_request:
-    paths:
-      - '.github/workflows/castle-release.yml'
-      - 'playable/**'
-      - 'scripts/verify_scenario.py'
-      - 'docs/scenario/data/**'
+    branches: [main]
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/castle-release.yml'
-      - 'playable/**'
-      - 'scripts/verify_scenario.py'
-      - 'docs/scenario/data/**'
   workflow_dispatch:
     inputs:
       publish:
@@ -23,10 +14,6 @@ on:
 
 permissions:
   contents: read
-
-concurrency:
-  group: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish && 'castle-github-pages' || format('castle-verify-{0}', github.run_id) }}
-  cancel-in-progress: false
 
 jobs:
   verify:
@@ -68,24 +55,40 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Prepare the Pages archive
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish))
         uses: actions/upload-pages-artifact@v4
         with:
           path: ${{ runner.temp }}/castle-site
 
   deploy:
     name: Publish the verified page
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish))
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: castle-github-pages
+      queue: max
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Check that the verified commit is still on main
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          if [[ "$main_sha" == "$GITHUB_SHA" ]]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "Skipping an older version. main is now $main_sha."
+          fi
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.current.outputs.publish == 'true'
         uses: actions/deploy-pages@v4
