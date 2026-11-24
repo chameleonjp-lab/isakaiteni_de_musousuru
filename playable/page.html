@@ -11,12 +11,12 @@
   <header class="top">
     <div class="title">王都からの脱出</div>
     <div class="top-actions">
-      <button type="button" id="audio" aria-pressed="true">音オン</button>
+      <button type="button" id="audio" aria-pressed="true">音あり</button>
       <button type="button" id="help" aria-label="遊び方">遊び方</button>
     </div>
   </header>
   <main class="play">
-    <section id="stage" class="stage" aria-label="城の様子">
+    <section id="stage" class="stage" aria-label="城内の様子">
       <canvas id="castle-canvas" aria-hidden="true"></canvas>
       <div class="drawing" aria-hidden="true"><i></i><i></i><i></i></div>
       <div class="veil"></div>
@@ -26,7 +26,7 @@
       </div>
       <div class="stage-cameras" aria-label="視点">
         <button type="button" id="stage-close" aria-pressed="false" hidden>手元</button>
-        <button type="button" id="stage-door" aria-pressed="false" hidden>扉手元</button>
+        <button type="button" id="stage-door" aria-pressed="false" hidden>扉を見る</button>
       </div>
       <div class="stage-bottom">
         <p id="district"></p>
@@ -34,7 +34,7 @@
         <p id="feature"></p>
       </div>
       <div id="toast" role="status" hidden></div>
-      <button type="button" id="walk-stick" aria-label="移動スティック。キーボードでは矢印キーで移動" hidden><span></span></button>
+      <button type="button" id="walk-stick" aria-label="移動スティック。矢印キーでも移動できます。" hidden><span></span></button>
       <p id="walk-passage" hidden></p>
     </section>
     <section class="desk" id="desk" aria-label="行動と記録" data-open="false">
@@ -65,7 +65,7 @@
     </div>
     <div id="dialog-actions" class="dialog-actions"></div>
   </dialog>
-  <noscript>JavaScriptが有効なブラウザでHTMLファイルを開いてください。</noscript>
+  <noscript>このゲームを遊ぶには、ブラウザで JavaScript を有効にしてください。</noscript>
   <script>/* CASTLE_SCRIPT */</script>
 </body>
 </html>

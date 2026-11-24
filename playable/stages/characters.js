@@ -180,7 +180,7 @@
       colors: { main: "#5c4938", sub: "#362b22", accent: "#d4a648", hair: 0xd0d4dc, skin: 0xe4b590, eye: 0x4f3e2e },
       hairStyle: "elder", prop: "hammer", grip: "tool" },
 
-    { id: "P33", name: "茶番ニナ", loc: "B04 古い給茶室", cat: "south_sub", role: "maid", gender: "f", age: "young",
+    { id: "P33", name: "給茶係ニナ", loc: "B04 古い給茶室", cat: "south_sub", role: "maid", gender: "f", age: "young",
       quote: "「昔は、この椅子にも名前があったんだよ。」",
       colors: { main: "#273142", sub: "#f4f6fa", accent: "#c8a265", hair: 0x483022, skin: 0xf5cfb4, eye: 0x3b6e58 },
       hairStyle: "bun", prop: "tray", grip: "carry" },

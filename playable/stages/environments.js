@@ -69,14 +69,14 @@
     { id: "S02", d: "S", name: "冬客間", w: 10.5, dLen: 10, h: 5.5, fl: "#6b4e38", wl: "#a69276", desc: "子供部屋から移した背くらべ柱だけ壁紙が薄い。", neighbors: ["C06", "C08", "S06"], kind: "winterroom" },
     { id: "S03", d: "S", name: "鐘番室", w: 9.5, dLen: 9.5, h: 6.2, fl: "#6b635a", wl: "#857c72", desc: "巡回環を貸し出す当番盤と時刻の刻み。", neighbors: ["S04", "S05"], kind: "bellroom" },
     { id: "S04", d: "S", name: "南門検札所", w: 12, dLen: 13, h: 7.5, fl: "#706a62", wl: "#878077", desc: "礼法が通るのは内側の検札線まで。外扉は常に閉じる。", neighbors: ["S03", "S05"], kind: "southgate" },
-    { id: "S05", d: "S", name: "城内側馬車溜", w: 15, dLen: 14, h: 4.5, fl: "#7a7368", wl: "#948b7e", desc: "外の町が見えても、検札所とすべての馬車は敷地内にある。", neighbors: ["C07", "E07", "G02", "S01", "S03", "S04", "S06"], kind: "carriageyard", outdoor: true },
+    { id: "S05", d: "S", name: "城内の馬車待ち場", w: 15, dLen: 14, h: 4.5, fl: "#7a7368", wl: "#948b7e", desc: "外の町が見えても、検札所とすべての馬車は敷地内にある。", neighbors: ["C07", "E07", "G02", "S01", "S03", "S04", "S06"], kind: "carriageyard", outdoor: true },
     { id: "S06", d: "S", name: "宴会厨房", w: 13, dLen: 11, h: 6.0, fl: "#756a60", wl: "#9c8f80", desc: "地下から配膳し、欠けた食器は別棚へ返す。", neighbors: ["B07", "S02", "S05", "S07", "S08"], kind: "kitchen" },
     { id: "S07", d: "S", name: "パン窯室", w: 10.5, dLen: 10, h: 5.6, fl: "#7d6755", wl: "#9e8670", desc: "余熱で菓子を焼く夜番の作業場。", neighbors: ["B04", "S06"], kind: "bakery" },
     { id: "S08", d: "S", name: "食器棚室", w: 9.5, dLen: 10, h: 5.6, fl: "#705d4c", wl: "#917f6e", desc: "印の違う皿と、贈り物の箱を分けて保管する。", neighbors: ["B07", "S01", "S06"], kind: "pantry" },
 
     // 中庭と庭園
     { id: "G01", d: "G", name: "雨量庭園", w: 13.5, dLen: 13.5, h: 4.5, fl: "#4c7844", wl: "#91897d", desc: "旧雨量計の鷺は左脚の水を抜くと預かり筒が開く。", neighbors: ["B01", "G02", "G05"], kind: "raingarden", outdoor: true },
-    { id: "G02", d: "G", name: "中庭噴泉", w: 15.5, dLen: 15.5, h: 4.5, fl: "#857d70", wl: "#9c9386", desc: "地上の四方を見比べられる。水の出口はすべて庭の循環池。", neighbors: ["C07", "G01", "G03", "G04", "G06", "S05"], kind: "fountain", outdoor: true },
+    { id: "G02", d: "G", name: "中庭の噴水", w: 15.5, dLen: 15.5, h: 4.5, fl: "#857d70", wl: "#9c9386", desc: "地上の四方を見比べられる。水の出口はすべて庭の循環池。", neighbors: ["C07", "G01", "G03", "G04", "G06", "S05"], kind: "fountain", outdoor: true },
     { id: "G03", d: "G", name: "果樹回廊", w: 10.5, dLen: 15.5, h: 4.5, fl: "#567d46", wl: "#8f8679", desc: "物干しの影が枝と重なる。", neighbors: ["E05", "G02", "G05", "G07", "W08"], kind: "orchard", outdoor: true },
     { id: "G04", d: "G", name: "日時計庭", w: 13.5, dLen: 13.5, h: 4.5, fl: "#8c8475", wl: "#999082", desc: "光と石の切り欠きで時刻を比べられる。", neighbors: ["G02", "G06", "N06"], kind: "sundial", outdoor: true },
     { id: "G05", d: "G", name: "庭師小屋", w: 8.8, dLen: 8.8, h: 4.8, fl: "#5c4a38", wl: "#6e553e", desc: "道具を形で返す棚と、過去の水量帳。", neighbors: ["G01", "G03", "G06"], kind: "shed" },
@@ -1119,7 +1119,7 @@
       const bk = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.44, 8), goldMat); bk.rotation.x = Math.PI / 2 + 0.18; bk.position.set(0, 2.22, 0.68); root.add(bk);
       [[-4.4, -4.2], [4.4, -4.2], [-4.4, 4.2], [4.4, 4.2]].forEach(function (tp) { addRealisticTree(tp[0], tp[1], 0.85, false); });
     } else if (k === "fountain") {
-      // G02 中庭噴泉: 八角彫刻水盤＋2段噴水塔＋アニメーション水柱＆波紋＋石ベンチ＋樹木
+      // G02 中庭の噴水: 八角彫刻水盤＋2段噴水塔＋アニメーション水柱＆波紋＋石ベンチ＋樹木
       const basin = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.5, 0.65, 8), trimMat); basin.position.y = 0.32; addSolid(basin, "round");
       const pool = new THREE.Mesh(new THREE.CircleGeometry(2.9, 24), waterMat); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.62; root.add(pool);
       const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.68, 1.5, 12), marbleMat); tier1.position.y = 1.2; root.add(tier1);
