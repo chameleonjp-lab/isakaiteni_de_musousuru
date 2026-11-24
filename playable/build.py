@@ -38,7 +38,7 @@ def build(output, local, scenes=False, revision=None):
     original = read("stages/page.html" if scenes else "page.html")
     modules = ["model.js", *("stages/" + name + ".js" for name in
                ("characters", "items", "environments", "stage1", "stage2", "stage3", "bridge"))]
-    modules += ["stages/check.js"] if scenes else ["puzzles.js", "dialogue.js", "dialogue-deaths.js", "walk.js", "residents.js", "nameplates.js", "view.js", "game.js"]
+    modules += ["stages/check.js"] if scenes else ["puzzles.js", "dialogue.js", "dialogue-warnings.js", "dialogue-deaths.js", "walk.js", "residents.js", "nameplates.js", "view.js", "game.js"]
     code = [library(local), data_pack(), *(read(file) for file in modules)]
     if any("</script" in part.lower() for part in code):
         raise RuntimeError("An unescaped inline script closer was found.")

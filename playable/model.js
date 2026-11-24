@@ -77,9 +77,9 @@ function createStory(data) {
       const {heading,body} = repeatedDeath();
       return fail(run,null,heading,body,run.world,collarOff(run.world));
     }
-    const reason = person ? `${person}は「しつこい。何か探っているな」と声を上げた。` :
-      "同じ場所で繰り返される物音を不審に思い、見回りの兵が立ち止まった。";
-    return fail(run,null,"同じ行動を怪しまれた",reason+"駆けつけた衛兵に処刑された。",run.world,collarOff(run.world));
+    const reason = person ? `${person}は「しつこいぞ。何か探っているな」と声を荒らげた。` :
+      "同じ場所で不審な物音が続き、見回りの衛兵が足を止めて駆け寄ってきた。";
+    return fail(run,null,"不審な動きを怪しまれた",reason+"駆けつけた衛兵に捕らえられ、命を落とした。",run.world,collarOff(run.world));
   }
   function advanceClock(run, minutes) {
     if (collarOff(run.world)) return true;
