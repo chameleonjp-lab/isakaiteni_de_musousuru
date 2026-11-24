@@ -296,7 +296,7 @@ function createCastleView(canvas, frame, actions) {
       near = portal;
       if (moved && !portal.barrier.visible && depth >= portal.length - .48 && actions.move(portal.targetId)) return;
     }
-    const label = near ? (near.barrier.visible ? "通れません　" : "") + near.targetName : "";
+    const label = near ? (near.barrier.visible ? `通れません：${near.targetName}` : near.targetName) : "";
     if (passage.textContent !== label) passage.textContent = label;
     passage.hidden = !label;
     if ((moved && now - lastSaved > 750) || (!moved && walked)) {

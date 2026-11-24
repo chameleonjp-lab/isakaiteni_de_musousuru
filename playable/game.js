@@ -16,26 +16,26 @@ const key = "ou-to-escape-v1";
 const zones = { C:"中央宮", W:"西の記録棟", E:"東の生活棟", N:"北の研究棟・施療院", S:"南の客舎・作業場",
   G:"中庭と庭園", B:"地下の作業場", Q:"王家の礼拝区" };
 const observations = {
-  C01: "赤い絨毯の先に玉座がある。かすかな灯が、その足元を照らしている。",
-  W01: "貸出棚の段ごとに、綴じ方の違う冊子が並んでいる。",
-  E01: "仕分けた布の向こうから、干し台の古い木の脚が見える。",
-  N01: "青灰色の焼き物が並んでいる。窯のそばでは職人が手を動かしている。",
-  S01: "豪華な櫃の隣に浅い箱がある。箱の底では、鳥の絵が左右に分かれている。",
-  N02: "棚には、召喚された客の診察記録と、魔道具についての記録がある。",
-  G01: "水音のそばで、鷺が片脚を上げたままじっとしている。",
-  E02: "廊下の窓の下に、星を焼き付けた木箱がある。",
-  W02: "祝宴を描いた大きな織物が掛かっている。裏側には細い足場が見える。",
-  S02: "貼り替えられた壁紙の下から、背丈を測ったような跡がのぞいている。",
-  N03: "石の盤に季節ごとの窓が並んでいる。何度も触れられたのか、縁がなめらかな穴もある。",
-  E03: "屋根から雨のしずくが落ちる。棚には本物の羽と、木で彫った羽が並んでいる。",
-  W03: "王女の肖像にだけ、二つの小さな光が揺れている。",
-  S03: "当番盤には、見張りの位置を示す駒が並ぶ。そばの鐘がかすかに震えている。",
-  W04: "まだ返していない香車が止まっている。奥の扉の隙間から、白い石の床が見える。",
-  Q01: "閉じた扉の向こうで、遠くの祈りが聞こえる。",
-  Q02: "見張りの灯が白い床を横切る。壁際の浮き彫りは暗がりの中まで続いている。",
-  Q03: "明かり取りの窓の下に、古い石像が並んでいる。冠が光っているのは三体だ。",
-  Q04: "声を出しても響かない。通路の奥から湿った風が届く。",
-  Q05: "白い砂の端に古い境石がある。その先の草に、夜露が光っている。"
+  C01: "赤い絨毯の先に、玉座が静かに構えている。かすかな灯りがその足元だけを照らしている。",
+  W01: "貸出棚の段ごとに、綴じ方の異なる冊子がぎっしりと並んでいる。",
+  E01: "仕分けられた布の山の向こうから、干し台の古い木脚がのぞいている。",
+  N01: "青灰色の焼き物が棚に並ぶ。窯のそばでは職人が黙々と手を動かしている。",
+  S01: "豪華な櫃の隣に、浅い箱がひっそりと置かれている。箱の底には左右に分かれた鳥の絵が見える。",
+  N02: "薬の匂いが漂う棚に、召喚客の診察記録と魔道具の控えが並んでいる。",
+  G01: "水音のそばで、青銅の鷺が片脚を上げたままじっと立っている。",
+  E02: "廊下の窓の下に、星の印を焼き付けた木箱がひっそりと置かれている。",
+  W02: "祝宴を描いた大きな織物が垂れ下がっている。その裏側に、細い足場がのぞいている。",
+  S02: "貼り替えられた壁紙の下から、背丈を刻んだような古い跡がうっすらとのぞいている。",
+  N03: "石の盤に季節ごとの窓が刻まれている。何度も指で触れられたのか、縁がなめらかに減った穴もあった。",
+  E03: "屋根の縁から雨のしずくが落ちる。棚には本物の羽と、木で彫られた羽が並んでいた。",
+  W03: "数ある絵の中で、王女の肖像にだけ二つの小さな光が揺れている。",
+  S03: "当番盤に、見張りの持ち場を示す駒が並ぶ。そばの鐘が微かに震え、余韻を残していた。",
+  W04: "返却前の香車が静かに止まっている。奥の扉の隙間から、白い石床がわずかに見えた。",
+  Q01: "閉ざされた扉の向こうから、遠くの祈りの気配だけが微かに伝わってくる。",
+  Q02: "見張りの灯りが白い床をゆっくりと横切る。壁際の浮き彫りは、その先の暗がりまで続いている。",
+  Q03: "明かり取りの窓の下に、古い石像が静かに並ぶ。冠が鈍く光っているのは三体だけだ。",
+  Q04: "声を立ててもまるで響かない。通路の奥から、外の匂いを含んだ湿った風が流れてくる。",
+  Q05: "白い砂の端に、古びた境石が据えられている。その先の草むらで、夜露が静かに光っていた。"
 };
 const unlockedPast = new Set(["発見","死因","期限切れ"]);
 const payoff = new Map();
@@ -141,12 +141,12 @@ function updateStatus(walk) {
   const w = run.world;
   const room = story.rooms.get(w.room);
   const remaining = Math.max(0,CASTLE_DATA.escape.minutes_until_obedience-w.minutes);
-  $("clock").textContent = w.escaped ? "敷地外" : story.collarOff(w) ? "見つからずに進む" :
+  $("clock").textContent = w.escaped ? "敷地外" : story.collarOff(w) ? "見つからずに進め" :
     "残り "+Math.floor(remaining/60)+"時間 "+String(remaining%60).padStart(2,"0")+"分";
   $("collar").textContent = story.collarOff(w) ? "首輪を外した" : "翻訳の首輪";
   $("district").textContent = w.escaped ? "夜明け前" : zones[room.id[0]];
   $("room").textContent = w.escaped ? "城の外" : room.name;
-  $("feature").textContent = w.escaped ? "冠の刻まれた境石は、もう背後にある。" : observations[room.id] || room.feature;
+  $("feature").textContent = w.escaped ? "冠を刻んだ境石は、もう背後に遠ざかった。" : observations[room.id] || room.feature;
   $("audio").textContent = audioEnabled ? "音あり" : "音なし";
   $("audio").setAttribute("aria-pressed",String(audioEnabled));
   stage.dataset.mood = run.failure ? "danger" : w.escaped ? "clear" : "normal";
@@ -214,7 +214,7 @@ function showDialogueLine() {
     cancelAnimationFrame(dialogueFrame);
     dialogueFrame = 0;
     finishLine = null;
-    hint.textContent = dialogueLines.length ? "次へ" : "選択肢を表示";
+    hint.textContent = dialogueLines.length ? "次へ" : "行動を選ぶ";
     dialogNext.setAttribute("aria-label",hint.textContent);
     text.textContent = line;
   };
@@ -224,7 +224,7 @@ function showDialogueLine() {
   const started = performance.now();
   finishLine = showFullLine;
   hint.textContent = "";
-  dialogNext.setAttribute("aria-label","セリフを最後まで表示");
+  dialogNext.setAttribute("aria-label","全文を表示");
   const type = now => {
     const count = Math.max(1, Math.floor((now - started) * .028));
     if (count >= characters.length) return showFullLine();
@@ -294,8 +294,7 @@ function tracked(key, respond, person = null, repeatedDeath) {
 function previousChoices(id) {
   return (payoff.get(id) || []).flatMap(from => {
     const earlier = story.side.get(from).branches.filter(b=>story.has(run,b.id));
-    return earlier.map(b=>`以前の選択「${b.choice}」
-${b.effect}`);
+    return earlier.map(b=>`以前の選択「${b.choice}」── ${b.effect}`);
   });
 }
 function fatalReply(person, choice) {
@@ -314,7 +313,7 @@ function openConversation({person, key, title, lines, correct, onCorrect, replie
         if (onFatal?.(choice)) return;
         return fatalReply(person,choice);
       }
-      openDialog(person.name,"会話を終えた",["相手は会話を切り上げ、元の作業に戻った。"],[action("もう一度話す",reopen),action("閉じる",closeDialog)],{speaker:person});
+      openDialog(person.name,"会話を終えた",["相手は話を切り上げ、元の仕事に戻った。"],[action("もう一度話す",reopen),action("閉じる",closeDialog)],{speaker:person});
     };
     return action(choice.label,tracked(conversationWarningKey(person,choice),respond,person.name,
       () => conversationDeath(person,choice,true)));
@@ -327,16 +326,16 @@ function presentFailure() {
   const { heading, body, event } = run.failure;
   if (CASTLE_STAGE_EFFECTS[event]) view?.play(CASTLE_STAGE_EFFECTS[event]);
   const kind = story.side.get(event)?.kind;
-  const label = kind === "発見" ? "発見された" : kind === "期限切れ" ? "時間切れ" : "死に戻り";
+  const label = kind === "発見" ? "発見された" : kind === "期限切れ" ? "時間切れ" : "命を落とした";
   tone([182,119,65],"sine");
   const doRewind = (earlier = false) => {
     if (!story.rewind(run,earlier)) return;
     closeDialog();
     refresh("scene",{reset:true});
     save();
-    hintToast("直前の安全な場面に戻った。手帳の記録は残っている。");
+    hintToast("直前の安全な場面へ戻った。手帳の記録はそのまま残っている。");
   };
-  const controls = [action("直前の安全な場面に戻る",() => doRewind(),{className:"primary"})];
+  const controls = [action("安全な場面に戻る",() => doRewind(),{className:"primary"})];
   if (run.beforeRemoval && story.collarOff(run.world)) {
     controls.push(action("首輪を外す前に戻る",() => doRewind(true)));
   }
@@ -345,17 +344,17 @@ function presentFailure() {
 function presentClear() {
   refresh("scene");
   tone([261.63,329.63,392,523.25]);
-  openDialog("脱出成功","城の外へ",[
+  openDialog("脱出成功","王都の城を抜け出した",[
     story.main.get("M20").scene,
     ...previousChoices("M20"),
-    "脱出までの進み具合 "+run.world.main.length+"／20　見つけた寄り道の場面 "+new Set([...run.world.side,...run.memory]).size+"／300",
+    `本筋の進行 ${run.world.main.length}／20　寄り道の発見 ${new Set([...run.world.side,...run.memory]).size}／300`,
     "訪れた場所 "+run.visited.length+"／59　死に戻り "+run.fails+"回"
   ],[action("手帳を開く",() => { closeDialog(); openDesk("notes"); },{className:"primary"}),action("閉じる",closeDialog)],{mode:"panel"});
 }
 function confirmReset() {
-  openDialog("はじめから","最初の謁見からやり直す",["今の進み具合と手帳の記録を消して、最初からやり直します。"],[
-    action("やり直す",() => { run=story.fresh(); closeDialog(); refresh("scene",{reset:true}); save(); },{className:"danger"}),
-    action("戻る",closeDialog)
+  openDialog("はじめから","最初の謁見からやり直す",["現在の進行状況と手帳の記録をすべて消し、最初の謁見からやり直します。"],[
+    action("最初からやり直す",() => { run=story.fresh(); closeDialog(); refresh("scene",{reset:true}); save(); },{className:"danger"}),
+    action("やめる",closeDialog)
   ],{mode:"panel"});
 }
 function postMain(id, proof, speaker = null) {
@@ -368,10 +367,10 @@ function postMain(id, proof, speaker = null) {
   const scene = story.main.get(id);
   refresh();
   const reward = CASTLE_DATA.items.find(item=>item.found===id);
-  openDialog(reward ? reward.name+"を手に入れた" : (id==="M17" ? "首輪の翻訳が止まった" : "その後"),
+  openDialog(reward ? `「${reward.name}」を手に入れた` : (id==="M17" ? "首輪の翻訳が途絶えた" : "その後"),
     id==="M17" ? "首輪が外れた" : puzzles[id][0],
     [scene.scene,scene.effect,reward && itemNotes[reward.id],...previousChoices(id)],
-    [action("続ける",() => {
+    [action("次へ進む",() => {
       closeDialog();
       view?.play(CASTLE_STAGE_EFFECTS[id]);
     },{className:"primary"})],{speaker});
@@ -385,26 +384,26 @@ function wrongMain(id, index) {
   }
   if (id==="M10" && index===1) {
     closeDialog();
-    return hintToast("裏見台の入口に戻った。マントはまた使える。");
+    return hintToast("裏見台の入口まで戻った。マントはまだ使える。");
   }
   const variant = { M06:"singleSlotFail", M08:"rodOnlyFail", M12:"oneOnlyFail",
     M16:"wrongOrientation", M17:"doorOpen", M19:"wrongStatue", M20:"stopBeforeStone" }[id];
   if (variant && index === 0) view?.play(variant);
   tone([240],"sine");
-  openDialog("観察",puzzles[id][0],[answers[id]],[action("調べ直す",() => inspectMain(id),{className:"primary"}), action("閉じる",closeDialog)]);
+  openDialog("様子を見る",puzzles[id][0],[answers[id]],[action("調べ直す",() => inspectMain(id),{className:"primary"}), action("閉じる",closeDialog)]);
 }
 function timerUI(seconds, onExpire, note) {
   const label = element("p",note);
   const bar = document.createElement("progress");
   bar.max = seconds;
   bar.value = seconds;
-  bar.setAttribute("aria-label","マントの効果が切れるまでの時間");
+  bar.setAttribute("aria-label","マントの残り時間");
   $("dialog-copy").append(label,bar);
   puzzleStarted=performance.now();
   timer=setInterval(() => {
     const remaining=Math.max(0,seconds-(performance.now()-puzzleStarted)/1000);
     bar.value=remaining;
-    label.textContent="マントが切れるまで、あと"+Math.ceil(remaining)+"秒";
+    label.textContent=`マントの効果：残り${Math.ceil(remaining)}秒`;
     if (!remaining) { stopTimer(); onExpire(); }
   },100);
 }
@@ -418,8 +417,8 @@ function timedCloak(id) {
     ...wrong.map((text,i)=>action(text,tracked(id+".wrong"+i,()=>wrongMain(id,i))))
   ],{mode:"timed"});
   timerUI(10,() => openDialog("マントの効果が切れた","裏見台の手前",[
-    "裾の星がすべて消えた。入口から、もう一度マントを使える。"
-  ],[action("マントを使い直す",() => timedCloak(id),{className:"primary"}),action("閉じる",closeDialog)]),"マントが切れるまで、あと10秒");
+    "裾の星がすべて消え、姿が露わになった。入口からもう一度羽織り直せる。"
+  ],[action("マントを羽織り直す",() => timedCloak(id),{className:"primary"}),action("閉じる",closeDialog)]),"マントの効果：残り10秒");
 }
 function patrolCrossing() {
   const id = "M18";
@@ -429,19 +428,19 @@ function patrolCrossing() {
   const passage=action("白百合の壁際を渡る",tracked(id+".correct",() => {
     if (open()) { postMain(id,"white-lily"); return; }
     const event=story.side.get("E280");
-    story.fail(run,event,"見張りが離れる前に見つかった","見張りの灯が白百合の壁際を照らした。西番が足を止め、こちらを見た。");
+    story.fail(run,event,"交代前に見つかった","見張りの灯りが白百合の壁際を照らし出す。西番が足を止め、こちらへ視線を向けた。");
     save();
     presentFailure();
   }));
   openDialog("巡回環","見張りの交代を待つ",[brief],[
     passage, ...wrong.map((text,index) => action(text,tracked(id+".wrong"+index,() => wrongMain(id,index))))
   ],{mode:"timed"});
-  const gauge=element("p","見張りはまだ持ち場にいる。","record");
+  const gauge=element("p","西番はまだ持ち場を離れていない。","record");
   gauge.setAttribute("role","status");
   $("dialog-copy").append(gauge);
   puzzleStarted=performance.now();
   timer=setInterval(() => {
-    const status=open() ? "切れ目が重なった。今なら渡れる。" : "見張りが廊下を見ている。";
+    const status=open() ? "切れ目が重なった！ 今なら渡れる。" : "西番が廊下を見張っている。";
     if (status!==gauge.textContent) { gauge.textContent=status; if(open()) tone([277,415]); }
   },80);
 }
@@ -456,7 +455,7 @@ function crossBoundary(proof) {
     boundaryAttempt = null;
     if (run !== attempt.run || run.world !== attempt.world || run.world.room !== "Q05") return;
     if (crossed) postMain("M20", proof);
-    else if (!run.failure) hintToast("まだ境石を越えていない。もう一度進もう。");
+    else if (!run.failure) hintToast("まだ境石を越えていない。その先の草地まで歩き切ろう。");
   };
   if (!view?.play("clearSuccess", finish)) finish(true);
 }
@@ -465,7 +464,7 @@ function inspectMain(id) {
   if (!story.canMain(run,id)) return;
   const [,speaker,brief,right,wrong] = puzzles[id];
   if (id === CASTLE_DATA.escape.finish && view?.available()) {
-    return openDialog("境石",speaker,[brief,"境石の脇を抜け、白い砂を越えて草地まで歩こう。"],[action("戻る",closeDialog)]);
+    return openDialog("境石",speaker,[brief,"境石の脇を抜け、白い砂の先の草地まで歩いて越えよう。"],[action("戻る",closeDialog)]);
   }
   if (id==="M18") {
     openDialog("調べる",speaker,[brief],[
@@ -474,7 +473,7 @@ function inspectMain(id) {
     return;
   }
   if (id==="M10") {
-    openDialog("調べる",speaker,[brief,"姿を隠せるのは十秒だけだ。羽織る前に、床の白い線がどこへ続くか見ておこう。"],[
+    openDialog("調べる",speaker,[brief,"姿を隠せるのは十秒だけ。羽織る前に、床の白い線がどこへ続いているか確かめておこう。"],[
       action("マントを羽織る",() => timedCloak(id),{className:"primary"}),action("閉じる",closeDialog)
     ]);
     return;
@@ -569,7 +568,7 @@ function renderScene() {
   const w=run.world;
   if (w.escaped) {
     content.append(element("h2","脱出成功"));
-    paragraphs(content,["境石を越え、誰にも見られず外の草地にたどり着いた。"]);
+    paragraphs(content,["境石を越え、誰にも気づかれず城外の草地へたどり着いた。"]);
     appendSection("記録",[action("脱出の記録を見る",presentClear),action("はじめから",confirmReset)]);
     return;
   }
@@ -584,9 +583,9 @@ function renderScene() {
     sceneButtons.push(action("腰の剣に手をかける",() => {
       openConversation({
         person:story.cast.get("P16"),key:"C01.sword",title:"衛兵の警告",
-        lines:["そばの衛兵があなたの手元を見ている。「剣は抜くな。両手を見せろ」"],
-        correct:"剣から手を離して、両手を見せる",replies:["剣を抜く","衛兵の槍を奪う","足元を見てそのまま立つ"],
-        onCorrect:()=>openDialog("東番キリ","剣から手を離した",["衛兵はあなたの手に何もないのを見て、槍を下ろした。"],[action("閉じる",closeDialog)],{speaker:story.cast.get("P16")})
+        lines:["そばの衛兵があなたの手元を鋭く見ている。「剣は抜くな。両手を見せろ」"],
+        correct:"剣から手を離して両手を見せる",replies:["剣を抜く","衛兵の槍を奪う","足元を見てそのまま立つ"],
+        onCorrect:()=>openDialog("東番キリ","剣から手を離した",["衛兵はあなたの手に何もないことを確かめると、静かに槍を下ろした。"],[action("閉じる",closeDialog)],{speaker:story.cast.get("P16")})
       });
     }));
   }
@@ -604,17 +603,17 @@ function renderScene() {
     const choices=e.branches.filter(b=>!story.has(run,e.id) || story.has(run,b.id) || CASTLE_DATA.escape.can_rehearse_both.includes(e.id));
     return choices.map(b=>action(e.title,()=>inspectSide(e,b),{detail:detail+" ／ "+b.choice}));
   };
-  appendSection("人物・仕掛け",freshEvents.flatMap(buttons));
+  appendSection("人物と仕掛け",freshEvents.flatMap(buttons));
   const known=available.filter(e=>!freshEvents.includes(e));
   const oldConversations=Object.keys(mainTalk).filter(canRevisitMainTalk).map(id=>action(puzzles[id][0],()=>inspectMainTalk(id)));
-  appendSection("前に調べたこと",[...oldConversations,...known.flatMap(buttons)]);
+  appendSection("調べた記録",[...oldConversations,...known.flatMap(buttons)]);
   if (!sceneButtons.length && !available.length) {
-    paragraphs(content,["今はここで調べられるものがない。別の部屋に行くか、手帳を見返そう。"]);
+    paragraphs(content,["ここで調べられるものはもうない。別の部屋へ移るか、手帳を見返そう。"]);
   }
   if (w.main.includes("M02")) {
-    const tip=action("次に調べる場所のヒント",showHint,{className:"subtle"});
-    appendSection("探索",[view?.available() ? action("出口を確認する",()=>openDesk("walk")) :
-      action("隣の部屋へ移動",()=>openDesk("walk")),tip]);
+    const tip=action("次の手掛かりを見る",showHint,{className:"subtle"});
+    appendSection("探索",[view?.available() ? action("出口を見る",()=>openDesk("walk")) :
+      action("隣の部屋へ",()=>openDesk("walk")),tip]);
   }
 }
 function enterRoom(id) {
@@ -638,13 +637,13 @@ function renderWalk() {
   const physical = view?.available();
   content.append(element("h2",physical ? "出口" : "隣の部屋"));
   const options=story.neighbors.get(from).filter(x=>story.canMove(run.world,x));
-  if (physical && options.length) paragraphs(content,["左下のスティックで、行き先の札が付いた廊下を奥まで歩こう。"]);
+  if (physical && options.length) paragraphs(content,["左下のスティックで、行き先札のある廊下を奥まで歩こう。"]);
   appendSection("行ける場所",options.map(id=> {
     const room=story.rooms.get(id);
     const detail=zones[id[0]]+"・"+(run.visited.includes(id)?"訪問済み":"未訪問");
     return physical ? record(room.name,detail) : action(room.name,()=>enterRoom(id),{detail});
   }));
-  if (!options.length) paragraphs(content,[run.world.escaped ? "ここはもう城の敷地の外だ。" : "謁見が終わるまで、この部屋からは出られない。国王の声に耳を傾けよう。"]);
+  if (!options.length) paragraphs(content,[run.world.escaped ? "ここはもう、城の敷地の外だ。" : "謁見が終わるまで、この間からは出られない。まずは国王の言葉に耳を傾けよう。"]);
   if (story.has(run,"M03")) {
     const visited=run.visited.filter(id=>id!=="Q05" || run.world.escaped).map(id=>story.rooms.get(id).name);
     content.append(element("h3","手帳の地図"));
@@ -660,7 +659,7 @@ function record(title, body) {
 function renderNotes() {
   content.append(element("h2","探索の手帳"));
   const seen=[...new Set([...run.memory,...run.world.side])];
-  paragraphs(content,[seen.length+"／300場面を記録　やり直し "+run.fails+"回"]);
+  paragraphs(content,[`記録 ${seen.length}／300場面　やり直し ${run.fails}回`]);
   const grid=element("div","","cards");
   for(const id of [...run.world.main].reverse()) {
     const m=story.main.get(id);
@@ -672,11 +671,11 @@ function renderNotes() {
     grid.append(record(s.title,detail||s.effect));
   }
   content.append(grid);
-  if (run.world.main.length===0 && !seen.length) paragraphs(content,["見つけた手掛かりや、やり直す前に知ったことがここに残る。"]);
+  if (run.world.main.length===0 && !seen.length) paragraphs(content,["見つけた手掛かりや、やり直す前に得た知識はここに書き残される。"]);
   if (story.collarOff(run.world) && run.beforeRemoval && !run.world.escaped) {
-    appendSection("脱出の準備に戻る",[action("首輪を外す前の記録に戻る",() => {
-      openDialog("手帳","首輪を外す直前に戻る",["首輪を着けた状態で、城内の調査に戻れる。"],[
-        action("戻る",()=>{ if (story.rewind(run,true)) { closeDialog(); refresh("scene",{reset:true}); save(); } },{className:"primary"}),
+    appendSection("脱出の準備に戻る",[action("首輪を外す前の記録へ戻る",() => {
+      openDialog("手帳","首輪を外す直前に戻る",["首輪を着けた状態に戻り、城内の調査をやり直せます。"],[
+        action("直前に戻る",()=>{ if (story.rewind(run,true)) { closeDialog(); refresh("scene",{reset:true}); save(); } },{className:"primary"}),
         action("取り消す",closeDialog)
       ]);
     })]);
@@ -687,15 +686,15 @@ function renderItems() {
   const items=CASTLE_DATA.items.filter(i=>run.world.main.includes(i.found));
   const extra=run.world.side.map(id=>story.side.get(id)).filter(x=>x.kind==="宝箱");
   const box=element("div","","cards");
-  if (story.collarOff(run.world)) box.append(record("外した首輪","白鍵と一緒にしまってある。もう言葉を訳す力はない。"));
+  if (story.collarOff(run.world)) box.append(record("外した首輪","白鍵と一緒にしまってある。もはや言葉を訳す力は宿っていない。"));
   for(const item of items) {
     const remaining=item.uses.filter(id=>!run.world.main.includes(id)).map(id=>story.rooms.get(story.main.get(id).room).name);
     const body=item.id==="I11" && story.has(run,"M19") ? "冠のない像の背に置いた。" : itemNotes[item.id];
-    const destinations=remaining.length ? " まだ使える場所は、"+[...new Set(remaining)].join("、")+"。" : "";
+    const destinations=remaining.length ? ` 使える場所：${[...new Set(remaining)].join("、")}` : "";
     box.append(record(item.name,body+destinations));
   }
   for(const e of extra) box.append(record(e.title,e.effect));
-  if (!box.children.length) paragraphs(content,["まだ何も見つけていない。"]);
+  if (!box.children.length) paragraphs(content,["まだ何も持っていない。"]);
   content.append(box);
 }
 function showHint() {
@@ -725,10 +724,10 @@ window.addEventListener("keydown",event=>{
 $("audio").addEventListener("click",() => { audioEnabled=!audioEnabled; if(audioEnabled) tone([523]); updateStatus(); save(); });
 $("help").addEventListener("click",() => {
   openDialog("遊び方","首輪を外し、城の外へ",[
-    "あなたは城に召喚され、言葉を訳す首輪を着けられた。翌日の同じ鐘が鳴る前に首輪を外し、誰にも見つからず城の外へ出よう。",
-    view?.available() ? "謁見が終わったら、左下のスティックで歩ける。画面を指でなぞると視点が変わる。隣の部屋へ行くには、行き先の札が付いた廊下を奥まで進もう。「調べる」から、人に話しかけたり物を調べたりできる。" :
-      "「調べる」から人に話しかけたり、物を調べたりできる。「移動」で隣の部屋へ進もう。",
-    "会話では四つの行動から選ぶ。同じ相手の前で同じ行動を繰り返すと怪しまれる。やり直しても選んだことは手帳に残る。道具の使い方は「持ち物」で確認しよう。"
+    "異世界から城へ召喚され、言葉を訳す首輪を着けられたあなた。翌日の同じ鐘が鳴る前に首輪を外し、誰にも見つからず城の外へ脱出しよう。",
+    view?.available() ? "謁見が終わると、左下のスティックで歩けるようになる。画面を指でなぞれば視点も動く。隣の部屋へ移るには、行き先札のある廊下を奥まで進もう。「調べる」から会話や調査を行える。" :
+      "「調べる」から会話や調査を行える。「移動」で隣の部屋へ進もう。",
+    "会話では四つの行動から選ぶ。同じ相手の前で同じ行動を繰り返すと怪しまれるので注意。やり直しても知ったことは手帳に残り、道具の使い方は「持ち物」でいつでも確認できる。"
   ],[action("ゲームに戻る",closeDialog,{className:"primary"}),action("はじめから",confirmReset)],{mode:"panel"});
 });
 

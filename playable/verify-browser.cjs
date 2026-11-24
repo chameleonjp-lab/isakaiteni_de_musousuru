@@ -111,9 +111,9 @@ async function startAndRotate(page, viewport) {
   assert.equal(await page.locator("#dialog-actions").isVisible(),false);
   if (viewport.width === 402) {
     const next = page.locator("#dialog-next");
-    if (await next.getAttribute("aria-label") === "セリフを最後まで表示") {
+    if (await next.getAttribute("aria-label") === "全文を表示") {
       await next.evaluate(node => {
-        if (node.getAttribute("aria-label") === "セリフを最後まで表示") node.click();
+        if (node.getAttribute("aria-label") === "全文を表示") node.click();
       });
     }
     assert.equal(await page.locator("#dialog-actions").isVisible(),false);
@@ -136,7 +136,7 @@ async function startAndRotate(page, viewport) {
     "All conversation choices fit without scrolling at the checked sizes");
   assert.equal(await page.locator("#dialog-actions button:visible").count(),4);
   await button(page,"頭を下げたまま待つ").tap();
-  await choose(page,"続ける");
+  await choose(page,"次へ進む");
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
 
   await page.setViewportSize({width:viewport.height,height:viewport.width});
@@ -145,7 +145,7 @@ async function startAndRotate(page, viewport) {
   assert.deepEqual((await readSave(page)).run.world.main,["M01"]);
   await button(page,"二度目の呼びかけ").tap();
   await choose(page,"今度は顔を上げる");
-  await choose(page,"続ける");
+  await choose(page,"次へ進む");
   await page.locator("#walk-stick:enabled").waitFor({state:"visible"});
   await checkLayout(page, ["#walk-stick","[data-tab=scene]"]);
   await checkExploration(page);
@@ -202,7 +202,7 @@ async function failAndRewind(page) {
   await button(page,"マントで姿を隠して中央を渡る").tap();
   assert.equal((await readSave(page)).run.failure.event,"E278");
   await page.reload();
-  await button(page,"直前の安全な場面に戻る").tap();
+  await button(page,"安全な場面に戻る").tap();
   const { run } = await readSave(page);
   assert.equal(run.world.room,"Q02");
   assert.equal(run.world.seen,false);
@@ -229,7 +229,7 @@ async function exitCastle(page) {
   assert.equal((await readSave(page)).run.world.escaped,false);
   await page.keyboard.down("ArrowUp");
   try {
-    await page.getByRole("heading",{ name:"城の外へ", exact:true }).waitFor({state:"visible",timeout:30000});
+    await page.getByRole("heading",{ name:"王都の城を抜け出した", exact:true }).waitFor({state:"visible",timeout:30000});
   } finally { await page.keyboard.up("ArrowUp"); }
   const done = (await readSave(page)).run.world;
   assert.equal(done.escaped,true);
@@ -247,10 +247,10 @@ async function verifyDialogueAndFinish(page) {
   await button(page,"言われてすぐ顔を上げる").click();
   assert.equal((await readSave(page)).run.failure.event,"E002");
   assert.match((await readSave(page)).run.failure.body,/ルオの指がまだ床/);
-  await button(page,"直前の安全な場面に戻る").click();
+  await button(page,"安全な場面に戻る").click();
   await button(page,"一度目の呼びかけ").click();
   await choose(page,"頭を下げたまま待つ","click");
-  await choose(page,"続ける","click");
+  await choose(page,"次へ進む","click");
   await button(page,"二度目の呼びかけ").click();
   assert.equal(await dialogue.count(),4);
   const minutes=(await readSave(page)).run.world.minutes;
@@ -265,9 +265,9 @@ async function verifyDialogueAndFinish(page) {
   await page.reload();
   await button(page,"二度目の呼びかけ").click();
   await choose(page,"頭を下げたまま様子を見る","click");
-  assert.equal((await readSave(page)).run.failure.heading,"繰り返した行動を怪しまれた");
-  assert.match((await readSave(page)).run.failure.body,/もう一度選んだ行動「頭を下げたまま様子を見る」/);
-  await button(page,"直前の安全な場面に戻る").click();
+  assert.equal((await readSave(page)).run.failure.heading,"同じ行動を怪しまれた");
+  assert.match((await readSave(page)).run.failure.body,/もう一度選んだ行動：「頭を下げたまま様子を見る」/);
+  await button(page,"安全な場面に戻る").click();
 
   const missions=await page.evaluate(()=>[...story.main.values()].slice(1).map(m=>[m.id,m.room,puzzles[m.id][3]]));
   for (const [id,room,correct] of missions) {
@@ -283,11 +283,11 @@ async function verifyDialogueAndFinish(page) {
     if (id==="M10") await choose(page,"マントを羽織る","click");
     if (id==="M18") {
       await choose(page,"巡回環をかざす","click");
-      await page.getByText("切れ目が重なった。今なら渡れる。",{exact:true}).waitFor();
+      await page.getByText("切れ目が重なった！ 今なら渡れる。",{exact:true}).waitFor();
     }
     await choose(page,id==="M18" ? "白百合の壁際を渡る" : correct,"click");
     assert.ok((await readSave(page)).run.world.main.includes(id),id);
-    if (id!=="M20") await choose(page,"続ける","click");
+    if (id!=="M20") await choose(page,"次へ進む","click");
     if (id==="M02") {
       await button(page,"王女リゼに声をかける").click();
       assert.equal(await dialogue.count(),4);
@@ -299,7 +299,7 @@ async function verifyDialogueAndFinish(page) {
       await choose(page,"衛兵の槍を奪う","click");
       assert.equal((await readSave(page)).run.failure.heading,"奪おうとした槍");
       assert.match((await readSave(page)).run.failure.body,/槍を奪おうとキリの手元/);
-      await button(page,"直前の安全な場面に戻る").click();
+      await button(page,"安全な場面に戻る").click();
     }
   }
   assert.ok((await readSave(page)).run.world.escaped);
